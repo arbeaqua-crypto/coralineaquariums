@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Solicita tu presupuesto personalizado - Coraline Acuarios">
+    <title>Solicitar Presupuesto - Coraline Acuarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cotizador.css">
+    <style>
+        .contacto-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+        }
+        
+        .contacto-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-contacto {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header-contacto h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header-contacto p {
+            color: #666;
+        }
+        
+        .resumen-configuracion {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .resumen-configuracion h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        
+        .config-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .config-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .precio-destacado {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .precio-destacado .precio {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .formulario-contacto .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .formulario-contacto label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .formulario-contacto input,
+        .formulario-contacto select,
+        .formulario-contacto textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .formulario-contacto input:focus,
+        .formulario-contacto select:focus,
+        .formulario-contacto textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .formulario-contacto textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .captcha-container {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .captcha-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .captcha-input {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        
+        .btn-enviar {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-enviar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-enviar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-volver {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn-volver:hover {
+            opacity: 0.8;
+        }
+        
+        .mensaje-exito {
+            display: none;
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .mensaje-error {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="contacto-page">
+        <a href="index.html#cotizador" class="btn-volver">← Volver al cotizador</a>
+        
+        <div class="contacto-container">
+            <div class="header-contacto">
+                <h1>📋 Solicitar Presupuesto</h1>
+                <p>Completa el formulario y te enviaremos un presupuesto detallado</p>
+            </div>
+            
+            <!-- Resumen de la Configuración -->
+            <div id="resumen-configuracion" class="resumen-configuracion">
+                <h3>Tu Configuración</h3>
+                <div id="config-detalles"></div>
+            </div>
+            
+            <!-- Formulario de Contacto -->
+            <form id="formulario-contacto" class="formulario-contacto">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Juan">
+                </div>
+                
+                <div class="form-group">
+                    <label for="apellidos">Apellidos *</label>
+                    <input type="text" id="apellidos" name="apellidos" required placeholder="García Pérez">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="juan@ejemplo.com">
+                    <small class="help-text">Enviaremos una copia del presupuesto a este email</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="medio-contacto">Medio de contacto preferido *</label>
+                    <select id="medio-contacto" name="medio-contacto" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="email">Email</option>
+                        <option value="telefono">Teléfono</option>
+                        <option value="whatsapp">WhatsApp</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="grupo-telefono" style="display: none;">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" placeholder="+34 600 000 000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensaje">Mensaje o consultas</label>
+                    <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos más sobre lo que necesitas..."></textarea>
+                </div>
+                
+                <!-- Captcha Simple -->
+                <div class="captcha-container">
+                    <div class="captcha-question" id="captcha-pregunta"></div>
+                    <div class="captcha-input">
+                        <input type="number" id="captcha-respuesta" required placeholder="Tu respuesta">
+                    </div>
+                </div>
+                
+                <!-- Botón de Envío -->
+                <button type="submit" class="btn-enviar">
+                    ✉️ Enviar Solicitud de Presupuesto
+                </button>
+            </form>
+            
+            <!-- Mensajes de Resultado -->
+            <div id="mensaje-exito" class="mensaje-exito"></div>
+            <div id="mensaje-error" class="mensaje-error"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Cargar configuración del cotizador
+        window.addEventListener('DOMContentLoaded', function() {
+            cargarConfiguracion();
+            generarCaptcha();
+            configurarMedioContacto();
+        });
+        
+        function cargarConfiguracion() {
+            const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
+            const detallesDiv = document.getElementById('config-detalles');
+            
+            if (Object.keys(config).length === 0) {
+                detallesDiv.innerHTML = '<p style="color: #666;">No hay configuración guardada. <a href="index.html#cotizador">Volver al cotizador</a></p>';
+                return;
+            }
+            
+            let html = '';
+            
+            if (config.largo && config.ancho && config.alto) {
+                html += `
+                    <div class="config-item">
+                        <span class="config-label">Medidas (Largo x Ancho x Alto):</span>
+                        <span class="config-value">${config.largo} x ${config.ancho} x ${config.alto} cm</span>
+                    </div>
+                `;
+            }
+            
+            if (config.grosor) {
+                html += `
+                    <div class="config-item">
+                        <span class="config-label">Grosor del cristal:</span>
+                        <span class="config-value">${config.grosor}</span>
+                    </div>
+                `;
+            }
+            
+            if (config.litros) {
+                html += `
+                    <div class="config-item">
+                        <span class="config-label">Capacidad:</span>
+                        <span class="config-value">${config.litros} litros</span>
+                    </div>
+                `;
+            }
+            
+            // Mejoras seleccionadas
+            const mejoras = [];
+            if (config.opticoFrontal) mejoras.push('Frontal óptico');
+            if (config.opticoTrasera) mejoras.push('Trasera óptica');
+            if (config.opticoLateralIzq) mejoras.push('Lateral izq. óptico');
+            if (config.opticoLateralDer) mejoras.push('Lateral der. óptico');
+            
+            if (mejoras.length > 0) {
+                html += `
+                    <div class="config-item">
+                        <span class="config-label">Mejoras:</span>
+                        <span class="config-value">${mejoras.join(', ')}</span>
+                    </div>
+                `;
+            }
+            
+            if (config.precio) {
+                html += `
+                    <div class="precio-destacado">
+                        <div>Precio Total</div>
+                        <div class="precio">${config.precio.toFixed(2)}€</div>
+                        <div style="font-size: 14px; opacity: 0.9;">(IVA incluido)</div>
+                    </div>
+                `;
+            }
+            
+            detallesDiv.innerHTML = html;
+        }
+        
+        // Captcha simple
+        let captchaRespuestaCorrecta = 0;
+        
+        function generarCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            captchaRespuestaCorrecta = num1 + num2;
+            
+            document.getElementById('captcha-pregunta').textContent = 
+                `¿Cuánto es ${num1} + ${num2}?`;
+        }
+        
+        // Mostrar campo de teléfono según medio de contacto
+        function configurarMedioContacto() {
+            const selectMedio = document.getElementById('medio-contacto');
+            const grupoTelefono = document.getElementById('grupo-telefono');
+            
+            selectMedio.addEventListener('change', function() {
+                if (this.value === 'telefono' || this.value === 'whatsapp') {
+                    grupoTelefono.style.display = 'block';
+                    document.getElementById('telefono').required = true;
+                } else {
+                    grupoTelefono.style.display = 'none';
+                    document.getElementById('telefono').required = false;
+                }
+            });
+        }
+        
+        // Enviar formulario
+        document.getElementById('formulario-contacto').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validar captcha
+            const respuestaUsuario = parseInt(document.getElementById('captcha-respuesta').value);
+            if (respuestaUsuario !== captchaRespuestaCorrecta) {
+                mostrarError('Respuesta del captcha incorrecta. Por favor, inténtalo de nuevo.');
+                generarCaptcha();
+                document.getElementById('captcha-respuesta').value = '';
+                return;
+            }
+            
+            // Validar email
+            const email = document.getElementById('email').value;
+            if (!validarEmail(email)) {
+                mostrarError('Por favor, introduce un email válido.');
+                return;
+            }
+            
+            // Recopilar datos
+            const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                apellidos: document.getElementById('apellidos').value,
+                email: email,
+                medioContacto: document.getElementById('medio-contacto').value,
+                telefono: document.getElementById('telefono').value || '',
+                mensaje: document.getElementById('mensaje').value,
+                configuracion: config
+            };
+            
+            // Deshabilitar botón
+            const btnEnviar = document.querySelector('.btn-enviar');
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = '⏳ Enviando...';
+            
+            try {
+                // Aquí iría la llamada a tu servidor o servicio de email
+                // Por ahora simulamos el envío
+                await simularEnvio(datos);
+                
+                mostrarExito('¡Solicitud enviada correctamente! Te contactaremos pronto.');
+                document.getElementById('formulario-contacto').reset();
+                localStorage.removeItem('configuracion-acuario');
+                
+                // Redirigir después de 3 segundos
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+                
+            } catch (error) {
+                mostrarError('Error al enviar la solicitud. Por favor, inténtalo de nuevo.');
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = '✉️ Enviar Solicitud de Presupuesto';
+            }
+        });
+        
+        function validarEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function mostrarExito(mensaje) {
+            const div = document.getElementById('mensaje-exito');
+            div.textContent = mensaje;
+            div.style.display = 'block';
+            document.getElementById('mensaje-error').style.display = 'none';
+        }
+        
+        function mostrarError(mensaje) {
+            const div = document.getElementById('mensaje-error');
+            div.textContent = mensaje;
+            div.style.display = 'block';
+            document.getElementById('mensaje-exito').style.display = 'none';
+        }
+        
+        async function simularEnvio(datos) {
+            // Simulación de envío (reemplazar con tu lógica real)
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log('Datos a enviar:', datos);
+                    resolve();
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Archivos de desarrollo que NO se suben a GitHub
+NUEVO_APPS_SCRIPT_COMPLETO.gs
+APPS_SCRIPT_BACKEND.gs
+*.md
+!README.md
+INSTRUCCIONES-IMAGENES.txt
+INICIAR_SERVIDOR.bat
+SUBIR_A_GITHUB.bat
+test-simple.html
+index-redirect.html
+ARCHIVOS_A_SUBIR.txt
+
+# Carpetas opcionales
+3D para la web/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini

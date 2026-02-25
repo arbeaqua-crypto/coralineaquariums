@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cotizador de acuarios a medida - Calcula el precio de tu acuario personalizado">
+    <title>Cotizador - Coraline Acuarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cotizador.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="images/coraline logo ok.PNG" alt="Coraline Acuarios" class="logo-img">
+            </div>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es" title="Español">
+                    <span class="flag">🇪🇸</span>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link" data-i18n="nav.home">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link" data-i18n="nav.about">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link" data-i18n="nav.catalog">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link" data-i18n="nav.gallery">Galería</a></li>
+                <li><a href="cotizador.html" class="nav-link active" data-i18n="nav.quote">Cotizador</a></li>
+                <li><a href="contacto.html" class="nav-link" data-i18n="nav.contact">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección del Cotizador -->
+    <section class="cotizador-section">
+        <div class="container">
+            <div class="cotizador-header">
+                <h1 data-i18n="quote.title">Cotizador de Acuarios a Medida</h1>
+                <p data-i18n="quote.subtitle">Calcula el precio de tu acuario personalizado en segundos</p>
+            </div>
+
+            <div class="cotizador-container">
+                <!-- Formulario Principal -->
+                <div class="cotizador-form">
+                    <h2 data-i18n="quote.dimensions">Dimensiones del Acuario</h2>
+                    <p class="form-hint" data-i18n="quote.hint">Introduce las medidas deseadas en centímetros</p>
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="largo" data-i18n="quote.length">Largo (cm)</label>
+                            <input type="number" id="largo" min="30" max="500" placeholder="Ej: 100" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="ancho" data-i18n="quote.width">Ancho (cm)</label>
+                            <input type="number" id="ancho" min="30" max="150" placeholder="Ej: 50" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="alto" data-i18n="quote.height">Alto (cm)</label>
+                            <input type="number" id="alto" min="30" max="200" placeholder="Ej: 60" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="grosor" data-i18n="quote.thickness">Grosor del cristal</label>
+                        <select id="grosor" required>
+                            <option value="1">6mm</option>
+                            <option value="2">8mm</option>
+                            <option value="3" selected>10mm (Recomendado)</option>
+                            <option value="4">12mm</option>
+                            <option value="5">15mm</option>
+                            <option value="6">19mm</option>
+                            <option value="7">20mm laminado (10+10mm)</option>
+                        </select>
+                    </div>
+
+                    <div class="refuerzos-section">
+                        <h3 data-i18n="quote.reinforcements">Refuerzos Estructurales</h3>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="perimetrales" name="perimetrales">
+                            <label for="perimetrales">
+                                <span class="checkbox-custom"></span>
+                                <span data-i18n="quote.perimeter">Utilizar refuerzos perimetrales</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tirantes" name="tirantes">
+                            <label for="tirantes">
+                                <span class="checkbox-custom"></span>
+                                <span data-i18n="quote.brace">Utilizar tirante como refuerzo (obligatorio perimetral antes)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-calculate" onclick="calcularPrecio()">
+                        <span data-i18n="quote.calculate">Calcular Precio</span>
+                    </button>
+                </div>
+
+                <!-- Resultados -->
+                <div id="resultados" class="cotizador-results" style="display: none;">
+                    <!-- Avisos de seguridad -->
+                    <div id="warnings" class="warnings-container"></div>
+
+                    <!-- Información básica -->
+                    <div class="result-info">
+                        <div class="info-item">
+                            <span class="info-label" data-i18n="quote.volume">Volumen:</span>
+                            <span class="info-value" id="litros">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label" data-i18n="quote.safety">Ratio de Seguridad:</span>
+                            <span class="info-value" id="ratio">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label" data-i18n="quote.deflection">Deflexión:</span>
+                            <span class="info-value" id="deflexion">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Cristales ópticos -->
+                    <div id="opticos-section" class="opticos-section" style="display: none;">
+                        <h3 data-i18n="quote.optical">Acabados en Cristal Óptico</h3>
+                        <p class="opticos-hint" data-i18n="quote.opticalHint">Selecciona las piezas que deseas en acabado óptico premium</p>
+
+                        <div class="opticos-grid">
+                            <div class="checkbox-group optico-item">
+                                <input type="checkbox" id="opticoFrontal" onchange="recalcularConOpticos()">
+                                <label for="opticoFrontal">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="optico-name" data-i18n="quote.front">Frontal</span>
+                                    <span class="optico-price" id="precioOpticoFrontal">+0€</span>
+                                </label>
+                            </div>
+
+                            <div class="checkbox-group optico-item">
+                                <input type="checkbox" id="opticoTrasera" onchange="recalcularConOpticos()">
+                                <label for="opticoTrasera">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="optico-name" data-i18n="quote.back">Trasera</span>
+                                    <span class="optico-price" id="precioOpticoTrasera">+0€</span>
+                                </label>
+                            </div>
+
+                            <div class="checkbox-group optico-item">
+                                <input type="checkbox" id="opticoLateralIzq" onchange="recalcularConOpticos()">
+                                <label for="opticoLateralIzq">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="optico-name" data-i18n="quote.leftSide">Lateral Izquierdo</span>
+                                    <span class="optico-price" id="precioOpticoLateralIzq">+0€</span>
+                                </label>
+                            </div>
+
+                            <div class="checkbox-group optico-item">
+                                <input type="checkbox" id="opticoLateralDer" onchange="recalcularConOpticos()">
+                                <label for="opticoLateralDer">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="optico-name" data-i18n="quote.rightSide">Lateral Derecho</span>
+                                    <span class="optico-price" id="precioOpticoLateralDer">+0€</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precio final -->
+                    <div class="price-box">
+                        <div class="price-label" data-i18n="quote.finalPrice">Precio Final (IVA incluido)</div>
+                        <div class="price-value" id="precioFinal">-</div>
+                    </div>
+
+                    <!-- Botón de presupuesto -->
+                    <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
+                        <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 data-i18n="footer.contact">Contacto</h3>
+                    <p>Email: info@coralineacuarios.com</p>
+                    <p>Tel: +34 XXX XXX XXX</p>
+                </div>
+                <div class="footer-section">
+                    <h3 data-i18n="footer.followUs">Síguenos</h3>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="YouTube">📹</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Coraline Acuarios - <span data-i18n="footer.rights">Todos los derechos reservados</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/cotizador.js"></script>
+</body>
+</html>

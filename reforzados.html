@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acuarios Reforzados - Gran volumen con perimetrales y tirantes para máxima seguridad">
+    <title>Acuarios Reforzados - Coraline Acuarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modelos.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/coraline logo ok.PNG" alt="Coraline Acuarios" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#inicio" class="nav-link">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link">Galería</a></li>
+                <li><a href="index.html#cotizador" class="nav-link btn-cotizar">Cotizar Ahora</a></li>
+                <li><a href="index.html#contacto" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero de Categoría -->
+    <section class="categoria-hero" style="background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);">
+        <div class="container">
+            <h1>💪 Reforzados</h1>
+            <p class="categoria-desc">Acuarios de gran volumen con perimetrales y tirantes para máxima seguridad estructural. Diseñados para soportar alturas superiores a 60cm y volúmenes desde 300 hasta más de 1000 litros.</p>
+            <a href="index.html#cotizador" class="btn-primary">Cotizar Acuario Personalizado</a>
+        </div>
+    </section>
+
+    <!-- Modelos Estándar -->
+    <section class="modelos-section">
+        <div class="container">
+            <h2 class="section-title">Modelos Estándar</h2>
+            <p class="section-subtitle">Selecciona un modelo o personaliza las medidas en el cotizador</p>
+
+            <div class="modelos-grid">
+                
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Reforzados/90 x 60 x 60 en 10mm reforzado.jpg" alt="Acuario 90x60x60 reforzado">
+                        <span class="badge-reforzado">Reforzado</span>
+                    </div>
+                    <div class="modelo-info">
+                        <h3>90 x 60 x 60 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 10mm</span>
+                            <span class="spec-item">💧 324 litros</span>
+                            <span class="spec-item">🔧 Con perimetrales</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:90,ancho:60,alto:60,grosor:3}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Reforzados/120 x 70 x 60 en 10mm reforzado.jpg" alt="Acuario 120x70x60 reforzado">
+                        <span class="badge-reforzado">Reforzado</span>
+                    </div>
+                    <div class="modelo-info">
+                        <h3>120 x 70 x 60 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 10mm</span>
+                            <span class="spec-item">💧 504 litros</span>
+                            <span class="spec-item">🔧 Con perimetrales</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:120,ancho:70,alto:60,grosor:3}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Reforzados/200 x 80 x 70 en 15mm reforzado.jpg" alt="Acuario 200x80x70 reforzado">
+                        <span class="badge-reforzado">Reforzado</span>
+                    </div>
+                    <div class="modelo-info">
+                        <h3>200 x 80 x 70 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 15mm</span>
+                            <span class="spec-item">💧 1120 litros</span>
+                            <span class="spec-item">🔧 Con perimetrales y tirantes</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:200,ancho:80,alto:70,grosor:5}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="info-box">
+                <h3>💡 ¿Por qué refuerzos?</h3>
+                <p><strong>Perimetrales:</strong> Vidrios horizontales que refuerzan el borde superior, aumentando la seguridad estructural en +1 al ratio de seguridad.</p>
+                <p><strong>Tirantes:</strong> Refuerzos adicionales transversales que junto con perimetrales aumentan +2.5 el ratio de seguridad total, imprescindibles en acuarios de más de 70cm de altura o grandes volúmenes.</p>
+            </div>
+
+            <div class="cta-section">
+                <h3>¿Necesitas un tamaño diferente?</h3>
+                <p>Utiliza nuestro cotizador para obtener presupuesto de cualquier medida</p>
+                <a href="index.html#cotizador" class="btn-primary btn-large">Ir al Cotizador</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Coraline Acuarios. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <style>
+        .categoria-hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        .categoria-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .categoria-desc {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+        .modelos-section {
+            padding: 60px 0;
+            background: #f5f5f5;
+        }
+        .info-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 40px 0;
+            border-left: 4px solid #8B4513;
+        }
+        .info-box h3 {
+            color: #8B4513;
+            margin-bottom: 1rem;
+        }
+        .info-box p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .cta-section {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .cta-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1e3c72;
+        }
+        .cta-section p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+    </style>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

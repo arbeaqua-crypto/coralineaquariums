@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acuarios Cúbicos - Diseños compactos y elegantes como puntos focales">
+    <title>Acuarios Cúbicos - Coraline Acuarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modelos.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/coraline logo ok.PNG" alt="Coraline Acuarios" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#inicio" class="nav-link">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link">Galería</a></li>
+                <li><a href="index.html#cotizador" class="nav-link btn-cotizar">Cotizar Ahora</a></li>
+                <li><a href="index.html#contacto" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero de Categoría -->
+    <section class="categoria-hero" style="background: linear-gradient(135deg, #434343 0%, #000000 100%);">
+        <div class="container">
+            <h1>⬛ Cúbicos</h1>
+            <p class="categoria-desc">Diseños cúbicos compactos y elegantes, perfectos como puntos focales en cualquier espacio. Ideales para montajes minimalistas y paisajes acuáticos artísticos.</p>
+            <a href="index.html#cotizador" class="btn-primary">Cotizar Acuario Personalizado</a>
+        </div>
+    </section>
+
+    <!-- Modelos Estándar -->
+    <section class="modelos-section">
+        <div class="container">
+            <h2 class="section-title">Modelos Estándar</h2>
+            <p class="section-subtitle">Selecciona un modelo o personaliza las medidas en el cotizador</p>
+
+            <div class="modelos-grid">
+                
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Cubicos sin refuerzos/50 x 50 x 50 en 8mm.jpg" alt="Acuario 50x50x50">
+                    </div>
+                    <div class="modelo-info">
+                        <h3>50 x 50 x 50 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 8mm</span>
+                            <span class="spec-item">💧 125 litros</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:50,ancho:50,alto:50,grosor:2}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Cubicos sin refuerzos/60 x 60 x 60 en 10mm.jpg" alt="Acuario 60x60x60">
+                    </div>
+                    <div class="modelo-info">
+                        <h3>60 x 60 x 60 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 10mm</span>
+                            <span class="spec-item">💧 216 litros</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:60,ancho:60,alto:60,grosor:3}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Cubicos sin refuerzos/80 x 80 x 80 en 15mm.jpg" alt="Acuario 80x80x80">
+                    </div>
+                    <div class="modelo-info">
+                        <h3>80 x 80 x 80 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 15mm</span>
+                            <span class="spec-item">💧 512 litros</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:80,alto:80,grosor:5}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+                <div class="modelo-card">
+                    <div class="modelo-image">
+                        <img src="images/modelos/Cubicos sin refuerzos/100 x 100 x 100 en 19mm.jpg" alt="Acuario 100x100x100">
+                    </div>
+                    <div class="modelo-info">
+                        <h3>100 x 100 x 100 cm</h3>
+                        <p class="modelo-specs">
+                            <span class="spec-item">🔷 Grosor: 19mm</span>
+                            <span class="spec-item">💧 1000 litros</span>
+                        </p>
+                        <a href="index.html#cotizador" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:100,alto:100,grosor:6}))">Cotizar este modelo</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="cta-section">
+                <h3>¿Necesitas un tamaño diferente?</h3>
+                <p>Utiliza nuestro cotizador para obtener presupuesto de cualquier medida</p>
+                <a href="index.html#cotizador" class="btn-primary btn-large">Ir al Cotizador</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Coraline Acuarios. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <style>
+        .categoria-hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        .categoria-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .categoria-desc {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+        .modelos-section {
+            padding: 60px 0;
+            background: #f5f5f5;
+        }
+        .cta-section {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .cta-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1e3c72;
+        }
+        .cta-section p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+    </style>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Proyectos - Coraline Acuarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/gallery.css">
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/coraline logo ok.PNG" alt="Coraline Acuarios" class="logo-img">
+                </a>
+            </div>
+            
+            <div class="language-selector">
+                <button class="lang-btn" onclick="changeLanguage('es')">
+                    <span class="flag">🇪🇸</span>
+                </button>
+                <button class="lang-btn" onclick="changeLanguage('en')">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="index.html#inicio" class="nav-link" data-i18n="nav.home">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link" data-i18n="nav.about">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link" data-i18n="nav.catalog">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link active" data-i18n="nav.gallery">Galería</a></li>
+                <li><a href="cotizador.html" class="nav-link btn-cotizar" data-i18n="nav.quote">Cotizador</a></li>
+                <li><a href="contacto.html" class="nav-link" data-i18n="nav.contact">Contacto</a></li>
+            </ul>
+
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero de Galería -->
+    <section class="gallery-hero">
+        <div class="container">
+            <h1 class="gallery-title" data-i18n="gallery.title">Nuestros Proyectos</h1>
+            <p class="gallery-subtitle" data-i18n="gallery.subtitle">Más de 100 acuarios personalizados construidos con pasión y dedicación</p>
+        </div>
+    </section>
+
+    <!-- Filtros -->
+    <section class="gallery-filters">
+        <div class="container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all" data-i18n="gallery.filterAll">Todos</button>
+                <button class="filter-btn" data-filter="marino" data-i18n="gallery.filterMarine">Marinos</button>
+                <button class="filter-btn" data-filter="dulce" data-i18n="gallery.filterFresh">Agua Dulce</button>
+                <button class="filter-btn" data-filter="plantado" data-i18n="gallery.filterPlanted">Plantados</button>
+                <button class="filter-btn" data-filter="comercial" data-i18n="gallery.filterCommercial">Comerciales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grid de Galería -->
+    <section class="gallery-section">
+        <div class="container">
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Las imágenes se cargarán aquí -->
+                <!-- Estructura de ejemplo para cada foto:
+                <div class="gallery-item" data-category="marino">
+                    <img src="images/proyectos/proyecto1.jpg" alt="Proyecto 1">
+                    <div class="gallery-overlay">
+                        <h3>Acuario Marino 200L</h3>
+                        <p>Barcelona, 2024</p>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+        <button class="lightbox-prev">&#10094;</button>
+        <button class="lightbox-next">&#10095;</button>
+    </div>
+
+    <!-- Botón volver -->
+    <section class="back-section">
+        <div class="container">
+            <a href="index.html#nosotros" class="btn-back" data-i18n="gallery.backButton">Volver a Inicio</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Coraline Acuarios. <span data-i18n="footer.rights">Todos los derechos reservados.</span></p>
+        </div>
+    </footer>
+
+    <script src="js/translations.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/gallery.js"></script>
+</body>
+</html>

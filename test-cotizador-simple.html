@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cotizador - Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            display: none;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🧪 Test del Cotizador</h1>
+        
+        <label>Largo (cm):</label>
+        <input type="number" id="largo" value="100">
+        
+        <label>Ancho (cm):</label>
+        <input type="number" id="ancho" value="50">
+        
+        <label>Alto (cm):</label>
+        <input type="number" id="alto" value="60">
+        
+        <label>Grosor:</label>
+        <select id="grosor">
+            <option value="1">6mm</option>
+            <option value="2">8mm</option>
+            <option value="3" selected>10mm</option>
+            <option value="4">12mm</option>
+            <option value="5">15mm</option>
+            <option value="6">19mm</option>
+            <option value="7">20mm laminado</option>
+        </select>
+        
+        <button onclick="probarCotizador()">🧮 PROBAR COTIZADOR</button>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxbX_IQAIO9Xp43k2c9-aPRlTESRVV0yXOzwOVddzd0pTPgguP0XgZMa6Iito9avRua/exec';
+
+        async function probarCotizador() {
+            const resultado = document.getElementById('resultado');
+            resultado.style.display = 'block';
+            resultado.innerHTML = '⏳ Enviando datos al servidor...';
+            resultado.className = '';
+
+            try {
+                const datos = {
+                    largo: parseFloat(document.getElementById('largo').value),
+                    ancho: parseFloat(document.getElementById('ancho').value),
+                    alto: parseFloat(document.getElementById('alto').value),
+                    grosor: parseInt(document.getElementById('grosor').value),
+                    perimetrales: false,
+                    tirantes: false,
+                    opticoFrontal: false,
+                    opticoTrasera: false,
+                    opticoLateralIzq: false,
+                    opticoLateralDer: false
+                };
+
+                console.log('Enviando datos:', datos);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                console.log('Respuesta del servidor:', response);
+
+                const data = await response.json();
+                console.log('Datos recibidos:', data);
+
+                if (data.success) {
+                    resultado.innerHTML = `
+                        <h2>✅ ¡Funciona!</h2>
+                        <p><strong>Precio:</strong> ${data.precio.toFixed(2)}€</p>
+                        <p><strong>Litros:</strong> ${data.litros}</p>
+                        <p><strong>Ratio Seguridad:</strong> ${data.ratioSeguridad}</p>
+                        <p><strong>Deflexión:</strong> ${data.deflexion}%</p>
+                        <hr>
+                        <p style="font-size: 12px; color: #666;">
+                            ${JSON.stringify(data, null, 2)}
+                        </p>
+                    `;
+                } else {
+                    resultado.className = 'error';
+                    resultado.innerHTML = `
+                        <h2>❌ Error</h2>
+                        <p>${data.message || data.error || 'Error desconocido'}</p>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error completo:', error);
+                resultado.className = 'error';
+                resultado.innerHTML = `
+                    <h2>❌ Error de Conexión</h2>
+                    <p>${error.message}</p>
+                    <p><small>Revisa la consola (F12) para más detalles</small></p>
+                `;
+            }
+        }
+
+        // Mensaje inicial
+        console.log('Test del cotizador cargado');
+        console.log('URL de la API:', API_URL);
+    </script>
+</body>
+</html>
