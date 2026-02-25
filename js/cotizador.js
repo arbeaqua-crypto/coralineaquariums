@@ -5,7 +5,7 @@
 
 // CONFIGURACIÓN - REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
 const CONFIG = {
-    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxbX_IQAIO9Xp43k2c9-aPRlTESRVV0yXOzwOVddzd0pTPgguP0XgZMa6Iito9avRua/exec'
+    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbzcOi1aw5wNIscrVj6lHte1Fc77oo2nH7MKRRX9mFkI4juUER1uLMrTHHC8pDxEqAMK/exec'
 };
 
 // Variables globales
