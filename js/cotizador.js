@@ -5,7 +5,7 @@
 
 // CONFIGURACIÓN - REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
 const CONFIG = {
-    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbzcOi1aw5wNIscrVj6lHte1Fc77oo2nH7MKRRX9mFkI4juUER1uLMrTHHC8pDxEqAMK/exec'
+    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxe8c72hl1jtndi00dTPT8VOIGnzXNaN9IANrH_eM7b_Ac9Mjyrm1F95PC8pGDDXQ/exec'
 };
 
 // Variables globales
@@ -67,10 +67,11 @@ async function calcularPrecio() {
         };
         
         // Llamar a la API
+        // Usar text/plain para evitar petición preflight CORS OPTIONS
         const response = await fetch(CONFIG.googleSheetsAPI, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify(datos)
         });
@@ -149,10 +150,11 @@ async function recalcularConOpticos() {
         };
         
         // Llamar a la API
+        // Usar text/plain para evitar petición preflight CORS OPTIONS
         const response = await fetch(CONFIG.googleSheetsAPI, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify(datos)
         });
@@ -185,21 +187,19 @@ function mostrarResultado(data) {
     // Mostrar avisos de seguridad personalizados
     mostrarAvisos(data);
     
-    // Mostrar información básica
+    // Mostrar información básica (solo litros, sin ratio ni deflexión)
     document.getElementById('litros').textContent = `${data.litros} litros`;
-    document.getElementById('ratio').textContent = data.ratioSeguridad.toFixed(2);
-    document.getElementById('deflexion').textContent = `${data.deflexion.toFixed(2)}%`;
     
     // Mostrar y configurar opciones de cristal óptico
     if (data.precioOpticoFrontalTrasero > 0 || data.precioOpticoLateral > 0) {
         const opticosSection = document.getElementById('opticos-section');
         opticosSection.style.display = 'block';
         
-        // Actualizar precios de ópticos
-        document.getElementById('precioOpticoFrontal').textContent = `+${data.precioOpticoFrontalTrasero.toFixed(2)}€`;
-        document.getElementById('precioOpticoTrasera').textContent = `+${data.precioOpticoFrontalTrasero.toFixed(2)}€`;
-        document.getElementById('precioOpticoLateralIzq').textContent = `+${data.precioOpticoLateral.toFixed(2)}€`;
-        document.getElementById('precioOpticoLateralDer').textContent = `+${data.precioOpticoLateral.toFixed(2)}€`;
+        // Actualizar precios de ópticos (sin decimales)
+        document.getElementById('precioOpticoFrontal').textContent = `+${Math.round(data.precioOpticoFrontalTrasero)}€`;
+        document.getElementById('precioOpticoTrasera').textContent = `+${Math.round(data.precioOpticoFrontalTrasero)}€`;
+        document.getElementById('precioOpticoLateralIzq').textContent = `+${Math.round(data.precioOpticoLateral)}€`;
+        document.getElementById('precioOpticoLateralDer').textContent = `+${Math.round(data.precioOpticoLateral)}€`;
         
         // Limpiar checkboxes de ópticos (solo si es el primer cálculo)
         if (!data.opticos.frontal && !data.opticos.trasera && !data.opticos.lateralIzq && !data.opticos.lateralDer) {
@@ -285,6 +285,28 @@ function guardarEnHistorial(datos, resultado) {
     localStorage.setItem('ultimaCotizacion', JSON.stringify(cotizacion));
 }
 
+/**
+ * Resetea el formulario para una nueva cotización
+ */
+function nuevaCotizacion() {
+    // Limpiar campos del formulario
+    document.getElementById('largo').value = '';
+    document.getElementById('ancho').value = '';
+    document.getElementById('alto').value = '';
+    document.getElementById('grosor').value = '3'; // Reset a 10mm recomendado
+    document.getElementById('perimetrales').checked = false;
+    document.getElementById('tirantes').checked = false;
+    
+    // Ocultar sección de resultados
+    document.getElementById('resultados').style.display = 'none';
+    
+    // Resetear última cotización (pero mantener historial)
+    ultimoCalculo = null;
+    
+    // Scroll al formulario
+    document.querySelector('.cotizador-form').scrollIntoView({ behavior: 'smooth' });
+}
+
 // ============================================
 // LÓGICA DE CHECKBOXES
 // ============================================
@@ -317,15 +339,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnPresupuesto) {
         btnPresupuesto.addEventListener('click', function() {
             if (ultimoCalculo) {
-                localStorage.setItem('configuracionActual', JSON.stringify({
+                // Guardar configuración actual para el formulario
+                localStorage.setItem('configuracion-acuario', JSON.stringify({
                     largo: document.getElementById('largo').value,
                     ancho: document.getElementById('ancho').value,
                     alto: document.getElementById('alto').value,
                     grosor: document.getElementById('grosor').options[document.getElementById('grosor').selectedIndex].text,
                     precio: ultimoCalculo.precio,
                     litros: ultimoCalculo.litros,
-                    ratioSeguridad: ultimoCalculo.ratioSeguridad,
-                    deflexion: ultimoCalculo.deflexion,
                     refuerzos: ultimoCalculo.refuerzos,
                     opticos: ultimoCalculo.opticos
                 }));

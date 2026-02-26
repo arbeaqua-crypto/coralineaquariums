@@ -715,10 +715,36 @@
     font-weight: 700;
 }
 
+/* Botones de Acción */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-recalcular {
+    flex: 1;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-recalcular:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+}
+
 /* Botón de Presupuesto */
 .btn-presupuesto {
+    flex: 2;
     display: block;
-    width: 100%;
     padding: 20px;
     font-size: 20px;
     font-weight: 700;
@@ -747,6 +773,10 @@
     }
     
     .form-actions {
+        flex-direction: column;
+    }
+    
+    .action-buttons {
         flex-direction: column;
     }
     

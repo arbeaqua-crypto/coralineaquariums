@@ -117,14 +117,6 @@
                             <span class="info-label" data-i18n="quote.volume">Volumen:</span>
                             <span class="info-value" id="litros">-</span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label" data-i18n="quote.safety">Ratio de Seguridad:</span>
-                            <span class="info-value" id="ratio">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" data-i18n="quote.deflection">Deflexión:</span>
-                            <span class="info-value" id="deflexion">-</span>
-                        </div>
                     </div>
 
                     <!-- Cristales ópticos -->
@@ -177,10 +169,16 @@
                         <div class="price-value" id="precioFinal">-</div>
                     </div>
 
-                    <!-- Botón de presupuesto -->
-                    <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
-                        <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
-                    </a>
+                    <!-- Botones de acción -->
+                    <div class="action-buttons">
+                        <button class="btn-recalcular" onclick="nuevaCotizacion()">
+                            <span data-i18n="quote.newQuote">🔄 Nueva Cotización</span>
+                        </button>
+                        
+                        <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
+                            <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

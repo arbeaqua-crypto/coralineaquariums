@@ -399,6 +399,8 @@
             
             // Recopilar datos
             const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
+            const historial = JSON.parse(localStorage.getItem('historialCotizaciones') || '[]');
+            
             const datos = {
                 nombre: document.getElementById('nombre').value,
                 apellidos: document.getElementById('apellidos').value,
@@ -406,7 +408,8 @@
                 medioContacto: document.getElementById('medio-contacto').value,
                 telefono: document.getElementById('telefono').value || '',
                 mensaje: document.getElementById('mensaje').value,
-                configuracion: config
+                configuracion: config,
+                historialCotizaciones: historial // Incluir todas las cotizaciones de la sesión
             };
             
             // Deshabilitar botón
