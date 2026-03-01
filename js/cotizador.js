@@ -5,7 +5,7 @@
 
 // CONFIGURACIÓN - REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
 const CONFIG = {
-    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxe8c72hl1jtndi00dTPT8VOIGnzXNaN9IANrH_eM7b_Ac9Mjyrm1F95PC8pGDDXQ/exec'
+    googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxAak1iknG-WeltAhbWbU9wCx9wYGEVgTLSPR9IlVYGQ-r2F5f6vAHIZHQnBheNNVAA/exec'
 };
 
 // Variables globales
@@ -66,6 +66,11 @@ async function calcularPrecio() {
             opticoLateralDer: false
         };
         
+        // Registrar inicio de cotización
+        if (window.Logger) {
+            window.Logger.logCotizacionInicio(datos);
+        }
+        
         // Llamar a la API
         // Usar text/plain para evitar petición preflight CORS OPTIONS
         const response = await fetch(CONFIG.googleSheetsAPI, {
@@ -92,11 +97,26 @@ async function calcularPrecio() {
         // Guardar en historial
         guardarEnHistorial(datos, data);
         
+        // Registrar resultado en el log
+        if (window.Logger) {
+            window.Logger.logCotizacionResultado(data);
+        }
+        
         // Mostrar resultado
         mostrarResultado(data);
         
     } catch (error) {
         console.error('Error:', error);
+        
+        // Registrar error en el log
+        if (window.Logger) {
+            window.Logger.addLog('error_cotizacion', {
+                mensaje: error.message || error.toString(),
+                largo: largo,
+                ancho: ancho,
+                alto: alto
+            });
+        }
         
         let mensaje = 'Error al calcular el precio. ';
         if (error.message.includes('Failed to fetch')) {
@@ -171,6 +191,17 @@ async function recalcularConOpticos() {
         
         // Actualizar resultado
         ultimoCalculo = data;
+        
+        // Registrar selección de ópticos
+        if (window.Logger) {
+            window.Logger.logSeleccionOpticos({
+                frontal: opticoFrontal,
+                trasera: opticoTrasera,
+                lateralIzq: opticoLateralIzq,
+                lateralDer: opticoLateralDer,
+                precioExtra: data.precio - (ultimoCalculo?.precio || data.precio)
+            });
+        }
         
         // Actualizar precio final
         document.getElementById('precioFinal').textContent = `${data.precio.toFixed(2)}€`;
