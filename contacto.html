@@ -463,18 +463,15 @@
                 }
                 
                 console.log('✅ ¡SOLICITUD ENVIADA CORRECTAMENTE!');
-                mostrarExito('¡Solicitud enviada correctamente! Te contactaremos pronto. Revisa también tu email de confirmación.');
+                
+                // Limpiar datos
                 document.getElementById('formulario-contacto').reset();
                 localStorage.removeItem('configuracion-acuario');
                 localStorage.removeItem('historialCotizaciones');
                 
-                // REDIRECCIÓN DESHABILITADA PARA DEBUGGING - Descomentar cuando todo funcione
-                /*
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 4000);
-                */
-                console.log('🔄 Redirección deshabilitada. Puedes quedarte aquí para ver los logs.');
+                // Redirigir a página de confirmación
+                console.log('🔄 Redirigiendo a página de confirmación...');
+                window.location.href = 'confirmacion-enviado.html';
                 
             } catch (error) {
                 console.error('❌ ERROR CAPTURADO:', error);

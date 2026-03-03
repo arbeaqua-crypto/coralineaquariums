@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud Enviada - Coraline Aquariums</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .confirmacion-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .confirmacion-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            max-width: 600px;
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .check-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: scaleIn 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .check-icon svg {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes drawCheck {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .confirmacion-card h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .confirmacion-card p {
+            color: #666;
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .redirect-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .countdown {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .btn-home {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .contact-info {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .contact-info p {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .confirmacion-card {
+                padding: 30px 20px;
+            }
+
+            .confirmacion-card h1 {
+                font-size: 1.8em;
+            }
+
+            .confirmacion-card p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmacion-container">
+        <div class="confirmacion-card">
+            <div class="check-icon">
+                <svg viewBox="0 0 52 52">
+                    <polyline points="14 27 22 35 38 19"/>
+                </svg>
+            </div>
+
+            <h1>¡Solicitud Enviada!</h1>
+            
+            <p>
+                Hemos recibido tu solicitud de presupuesto correctamente.<br>
+                Nuestro equipo la está revisando y nos pondremos en contacto contigo en las próximas <strong>24-48 horas</strong>.
+            </p>
+
+            <div class="redirect-info">
+                <p style="margin: 0 0 10px 0; color: #666;">Redirigiendo a la página principal en:</p>
+                <div class="countdown" id="countdown">5</div>
+                <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #999;">segundos</p>
+            </div>
+
+            <a href="index.html" class="btn-home">Volver al Inicio</a>
+
+            <div class="contact-info">
+                <p>
+                    Si tienes alguna pregunta urgente, contáctanos en:<br>
+                    <strong>info@coralineaquariums.com</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contador regresivo
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        console.log('⏱️ Iniciando contador regresivo de 5 segundos...');
+        
+        const countdown = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            console.log(`⏱️ ${seconds} segundos restantes...`);
+            
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                console.log('🔄 Redirigiendo a la página principal...');
+                // Redirigir - detectar si estamos en localhost o producción
+                const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? '/index.html'  // Local
+                    : 'https://coralineaquariums.com/index.html';  // Producción
+                window.location.href = baseUrl;
+            }
+        }, 1000);
+
+        // Permitir redirección manual con el botón
+        document.querySelector('.btn-home').addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔄 Redirección manual activada');
+            clearInterval(countdown);
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? '/index.html'
+                : 'https://coralineaquariums.com/index.html';
+            window.location.href = baseUrl;
+        });
+    </script>
+</body>
+</html>
