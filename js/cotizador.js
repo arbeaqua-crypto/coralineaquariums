@@ -348,6 +348,32 @@ function nuevaCotizacion() {
  * Manejo de dependencias entre checkboxes de refuerzos
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Pre-rellenar el cotizador si hay un modelo guardado desde página de catálogo
+    const modeloGuardado = localStorage.getItem('modelo');
+    if (modeloGuardado) {
+        try {
+            const modelo = JSON.parse(modeloGuardado);
+            if (modelo.largo) document.getElementById('largo').value = modelo.largo;
+            if (modelo.ancho) document.getElementById('ancho').value = modelo.ancho;
+            if (modelo.alto) document.getElementById('alto').value = modelo.alto;
+            if (modelo.grosor) document.getElementById('grosor').value = modelo.grosor;
+            
+            // Limpiar el localStorage después de usar los datos
+            localStorage.removeItem('modelo');
+            
+            // Scroll suave al formulario del cotizador
+            setTimeout(() => {
+                const cotizadorForm = document.querySelector('.cotizador-form');
+                if (cotizadorForm) {
+                    cotizadorForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 300);
+        } catch (e) {
+            console.error('Error al cargar modelo guardado:', e);
+            localStorage.removeItem('modelo');
+        }
+    }
+    
     const tirantesCheckbox = document.getElementById('tirantes');
     const perimetralesCheckbox = document.getElementById('perimetrales');
     
