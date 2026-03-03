@@ -46,7 +46,7 @@
     </nav>
 
     <!-- Hero de Categoría -->
-    <section class="categoria-hero" style="background: linear-gradient(135deg, #434343 0%, #000000 100%);">
+    <section class="categoria-hero">
         <div class="container">
             <h1><svg viewBox="0 0 100 100" width="40" height="40" style="vertical-align: middle; margin-right: 12px;" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30,40 L70,40 L70,80 L30,80 Z" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
@@ -54,7 +54,7 @@
                 <path d="M70,40 L90,20 L90,60 L70,80 Z" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
             </svg> Cúbicos</h1>
             <p class="categoria-desc">Diseños cúbicos compactos y elegantes, perfectos como puntos focales en cualquier espacio. Ideales para montajes minimalistas y paisajes acuáticos artísticos.</p>
-            <a href="index.html#cotizador" class="btn-primary">Cotizar Acuario Personalizado</a>
+            <a href="cotizador.html" class="btn-primary">Cotizar Acuario Personalizado</a>
         </div>
     </section>
 
@@ -77,7 +77,7 @@
                                 <span class="spec-item">125 litros</span>
                                 <span class="spec-item">Grosor: 8mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">148,29 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:50,ancho:50,alto:50,grosor:2}))">Cotizar</a>
                     </div>
@@ -94,7 +94,7 @@
                                 <span class="spec-item">216 litros</span>
                                 <span class="spec-item">Grosor: 10mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">251,47 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:60,ancho:60,alto:60,grosor:3}))">Cotizar</a>
                     </div>
@@ -102,35 +102,35 @@
 
                 <div class="modelo-card-compact">
                     <div class="modelo-image-compact">
-                        <img src="images/modelos/Cubicos sin refuerzos/80 x 80 x 80 en 15mm.jpg" alt="Acuario 80x80x80">
+                        <img src="images/modelos/Cubicos sin refuerzos/80 x 80 x 80 en 15mm.jpg" alt="Acuario 80x80x70">
                     </div>
                     <div class="modelo-info-compact">
-                        <h3>80 × 80 × 80 cm</h3>
+                        <h3>80 × 80 × 70 cm</h3>
                         <div class="modelo-specs-compact">
                             <div class="specs-row">
-                                <span class="spec-item">512 litros</span>
+                                <span class="spec-item">448 litros</span>
                                 <span class="spec-item">Grosor: 15mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">790,43 €</span>
                         </div>
-                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:80,alto:80,grosor:5}))">Cotizar</a>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:80,alto:70,grosor:5}))">Cotizar</a>
                     </div>
                 </div>
 
                 <div class="modelo-card-compact">
                     <div class="modelo-image-compact">
-                        <img src="images/modelos/Cubicos sin refuerzos/100 x 100 x 100 en 19mm.jpg" alt="Acuario 100x100x100">
+                        <img src="images/modelos/Cubicos sin refuerzos/100 x 100 x 100 en 19mm.jpg" alt="Acuario 100x100x70">
                     </div>
                     <div class="modelo-info-compact">
-                        <h3>100 × 100 × 100 cm</h3>
+                        <h3>100 × 100 × 70 cm</h3>
                         <div class="modelo-specs-compact">
                             <div class="specs-row">
-                                <span class="spec-item">1000 litros</span>
-                                <span class="spec-item">Grosor: 19mm</span>
+                                <span class="spec-item">700 litros</span>
+                                <span class="spec-item">Grosor: 15mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">1.025,58 €</span>
                         </div>
-                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:100,alto:100,grosor:6}))">Cotizar</a>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:100,alto:70,grosor:5}))">Cotizar</a>
                     </div>
                 </div>
 
@@ -186,7 +186,7 @@
             <div class="cta-section">
                 <h3>¿Necesitas un tamaño diferente?</h3>
                 <p>Utiliza nuestro cotizador para obtener presupuesto de cualquier medida</p>
-                <a href="index.html#cotizador" class="btn-primary btn-large">Ir al Cotizador</a>
+                <a href="cotizador.html" class="btn-primary btn-large">Ir al Cotizador</a>
             </div>
         </div>
     </section>
@@ -197,51 +197,6 @@
             <p>&copy; 2026 Coraline Acuarios. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
         </div>
     </footer>
-
-    <style>
-        .categoria-hero {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 80px 0 60px;
-            text-align: center;
-        }
-        .categoria-hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        .categoria-desc {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-            line-height: 1.6;
-        }
-        .modelos-section {
-            padding: 60px 0;
-            background: #f5f5f5;
-        }
-        .cta-section {
-            text-align: center;
-            margin-top: 60px;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .cta-section h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #1e3c72;
-        }
-        .cta-section p {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 2rem;
-        }
-        .btn-large {
-            padding: 15px 40px;
-            font-size: 1.1rem;
-        }
-    </style>
 
     <script>
         function toggleListaMedidas() {
