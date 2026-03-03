@@ -6,6 +6,7 @@ const translations = {
             about: "Nosotros",
             catalog: "Catálogo",
             gallery: "Galería",
+            blog: "Blog",
             quote: "Cotizar Ahora",
             contact: "Contacto"
         },
@@ -191,6 +192,10 @@ const translations = {
             phone: "Teléfono",
             location: "Ubicación"
         },
+        blog: {
+            title: "Blog de Acuariofilia",
+            subtitle: "Consejos, tutoriales y novedades sobre el mundo de la acuariofilia profesional"
+        },
         footer: {
             rights: "Todos los derechos reservados"
         },
@@ -202,6 +207,7 @@ const translations = {
             about: "About Us",
             catalog: "Catalog",
             gallery: "Gallery",
+            blog: "Blog",
             quote: "Get Quote",
             contact: "Contact"
         },
@@ -386,6 +392,10 @@ const translations = {
             email: "Email",
             phone: "Phone",
             location: "Location"
+        },
+        blog: {
+            title: "Aquarium Blog",
+            subtitle: "Tips, tutorials and news about the world of professional aquaristics"
         },
         footer: {
             rights: "All rights reserved"

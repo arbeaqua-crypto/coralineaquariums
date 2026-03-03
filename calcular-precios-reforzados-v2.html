@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador Acuarios Reforzados - Sistema Inteligente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e6ed;
+        }
+        h1 {
+            color: #D2691E;
+            text-align: center;
+        }
+        .instrucciones {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #D2691E;
+        }
+        .instrucciones h3 {
+            color: #D2691E;
+            margin-top: 0;
+        }
+        .instrucciones ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        .instrucciones li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        .instrucciones code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4ade80;
+        }
+        .controles {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background: #D2691E;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #B8531A;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #status {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 18px;
+            color: #D2691E;
+            min-height: 30px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+            margin: 5px;
+        }
+        .stat-box h4 {
+            margin: 0 0 5px 0;
+            color: #D2691E;
+        }
+        .stat-box p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #2d2d2d;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+            font-size: 14px;
+        }
+        th {
+            background: #0a0a0a;
+            color: #D2691E;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background: #3a3a3a;
+        }
+        .completado {
+            color: #4ade80;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .procesando {
+            color: #fbbf24;
+        }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .badge-si {
+            background: #10b981;
+        }
+        .badge-no {
+            background: #666;
+        }
+        #resultado-json {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        #resultado-json h3 {
+            color: #D2691E;
+            margin-top: 0;
+        }
+        #json-output {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        button.ver-json {
+            background: #4a90e2;
+            margin-top: 10px;
+        }
+        button.ver-json:hover {
+            background: #357abd;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Calculador Automático - Acuarios Reforzados</h1>
+    
+    <div class="instrucciones">
+        <h3>📋 Lógica del Sistema Inteligente de Refuerzos</h3>
+        <ul>
+            <li><strong>Grosor inicial:</strong> Siempre comienza en <code>8mm</code> (código 2)</li>
+            <li><strong>Ratio objetivo:</strong> Mínimo 4.0 de seguridad</li>
+            <li><strong>Sistema de refuerzos automático:</strong>
+                <ol style="margin-top: 8px;">
+                    <li>Probar SIN refuerzos → Si ratio ≥ 4.0 → Válido ✓</li>
+                    <li>Si ratio < 4.0 → Añadir <strong>PERIMETRAL</strong> (+1.0 al ratio)</li>
+                    <li>Si aún ratio < 4.0 → Añadir <strong>TIRANTE</strong> (+1.5 adicional al ratio)</li>
+                    <li>Si con ambos NO llega a 4.0 → Pasar al siguiente grosor y repetir</li>
+                </ol>
+            </li>
+            <li><strong>Rango de medidas:</strong> Desde 80×50×50 hasta 250×100×90 (igual que abiertos)</li>
+            <li><strong>Columnas CSV:</strong> Incluye <code>Perimetral</code> y <code>Tirante</code> (Sí/No)</li>
+            <li><strong>Nota:</strong> Luego eliminarás manualmente los que no necesiten refuerzos</li>
+        </ul>
+    </div>
+
+    <div class="controles">
+        <button onclick="calcularTodos()" id="btn-calcular">🚀 Calcular Todos</button>
+        <button onclick="pausarReanudar()" id="btn-pausar" disabled>⏸️ Pausar</button>
+        <button onclick="detener()" id="btn-detener" disabled>⏹️ Detener</button>
+        <button onclick="exportarCSV()" id="btn-csv" disabled>💾 Descargar CSV</button>
+        <button class="ver-json" onclick="toggleJSON()" id="btn-json" disabled>📦 Ver JSON</button>
+    </div>
+
+    <div id="status">Listo para calcular <span id="total-configs">0</span> configuraciones...</div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <h4>📊 Procesados</h4>
+            <p id="stat-procesados">0</p>
+        </div>
+        <div class="stat-box">
+            <h4>✅ Exitosos</h4>
+            <p id="stat-exitosos">0</p>
+        </div>
+        <div class="stat-box">
+            <h4>❌ Errores</h4>
+            <p id="stat-errores">0</p>
+        </div>
+        <div class="stat-box">
+            <h4>🔧 Con Refuerzos</h4>
+            <p id="stat-reforzados">0</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Medidas (L × A × H)</th>
+                <th>Grosor</th>
+                <th>Perimetral</th>
+                <th>Tirante</th>
+                <th>Código</th>
+                <th>Ratio</th>
+                <th>Deflexión</th>
+                <th>Litros</th>
+                <th>Precio (€)</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-precios">
+            <!-- Se llenará dinámicamente -->
+        </tbody>
+    </table>
+
+    <div id="resultado-json" style="display: none;">
+        <h3>📦 Datos en formato JSON:</h3>
+        <pre id="json-output"></pre>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const CONFIG = {
+            googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxAak1iknG-WeltAhbWbU9wCx9wYGEVgTLSPR9IlVYGQ-r2F5f6vAHIZHQnBheNNVAA/exec',
+            token: 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y'
+        };
+
+        const RATIO_MINIMO = 4.0;
+        const RATIO_MAXIMO_IDEAL = 6.0;
+        const PERIMETRAL_BONUS = 1.0;
+        const TIRANTE_BONUS = 1.5;
+
+        // Generar combinaciones: desde 80×50×50 igual que abiertos
+        function generarCombinaciones() {
+            const combinaciones = [];
+            
+            // Largos: 80-250 (cada 10cm)
+            for (let largo = 80; largo <= 250; largo += 10) {
+                // Anchos: 40-100 (cada 10cm)
+                for (let ancho = 40; ancho <= 100; ancho += 10) {
+                    // Altos: 40-90 (cada 10cm)
+                    for (let alto = 40; alto <= 90; alto += 10) {
+                        // Empezar con 8mm siempre
+                        combinaciones.push({
+                            largo: largo,
+                            ancho: ancho,
+                            alto: alto,
+                            grosorInicial: 2, // 8mm
+                            perimetrales: false,
+                            tirantes: false
+                        });
+                    }
+                }
+            }
+            
+            console.log(`Total configuraciones: ${combinaciones.length}`);
+            document.getElementById('total-configs').textContent = combinaciones.length;
+            
+            return combinaciones;
+        }
+
+        const acuarios = generarCombinaciones();
+
+        let resultados = [];
+        let indicePausado = -1;
+        let pausado = false;
+        let stats = {
+            procesados: 0,
+            exitosos: 0,
+            errores: 0,
+            reforzados: 0
+        };
+
+        const grosorMap = {
+            1: '6mm',
+            2: '8mm',
+            3: '10mm',
+            4: '12mm',
+            5: '15mm',
+            6: '19mm',
+            7: '25mm'
+        };
+
+        // Generar filas de la tabla
+        window.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('tabla-precios');
+            tbody.innerHTML = acuarios.map((acuario, index) => `
+                <tr>
+                    <td>${acuario.largo} × ${acuario.ancho} × ${acuario.alto} cm</td>
+                    <td id="grosor-${index}">-</td>
+                    <td id="perimetral-${index}">-</td>
+                    <td id="tirante-${index}">-</td>
+                    <td id="codigo-${index}">-</td>
+                    <td id="ratio-${index}">-</td>
+                    <td id="deflexion-${index}">-</td>
+                    <td id="litros-${index}">-</td>
+                    <td id="precio-${index}">-</td>
+                    <td id="estado-${index}">⏳ Pendiente</td>
+                </tr>
+            `).join('');
+        });
+
+        function actualizarStats() {
+            document.getElementById('stat-procesados').textContent = stats.procesados;
+            document.getElementById('stat-exitosos').textContent = stats.exitosos;
+            document.getElementById('stat-errores').textContent = stats.errores;
+            document.getElementById('stat-reforzados').textContent = stats.reforzados;
+        }
+
+        // Calcular con sistema inteligente de refuerzos
+        async function calcularConAutoRefuerzo(acuario, index) {
+            const MAX_GROSOR = 7; // Hasta 25mm
+            let grosorActual = acuario.grosorInicial; // Empezar en 8mm
+
+            while (grosorActual <= MAX_GROSOR) {
+                // PASO 1: Probar SIN refuerzos
+                let resultado = await probarConfiguracion(acuario, grosorActual, false, false);
+                
+                if (resultado.success) {
+                    const ratioBase = parseFloat(resultado.data.ratioSeguridad || 0);
+                    
+                    // Si el ratio base llega a 4.0, es válido sin refuerzos
+                    if (ratioBase >= RATIO_MINIMO) {
+                        return {
+                            ...resultado,
+                            grosorFinal: grosorActual,
+                            perimetral: false,
+                            tirante: false,
+                            ratioFinal: ratioBase
+                        };
+                    }
+
+                    // PASO 2: Probar con PERIMETRAL (+1.0)
+                    const ratioConPerimetral = ratioBase + PERIMETRAL_BONUS;
+                    if (ratioConPerimetral >= RATIO_MINIMO) {
+                        resultado = await probarConfiguracion(acuario, grosorActual, true, false);
+                        if (resultado.success) {
+                            return {
+                                ...resultado,
+                                grosorFinal: grosorActual,
+                                perimetral: true,
+                                tirante: false,
+                                ratioFinal: ratioConPerimetral
+                            };
+                        }
+                    }
+
+                    // PASO 3: Probar con PERIMETRAL + TIRANTE (+2.5 total)
+                    const ratioConAmbos = ratioBase + PERIMETRAL_BONUS + TIRANTE_BONUS;
+                    if (ratioConAmbos >= RATIO_MINIMO) {
+                        resultado = await probarConfiguracion(acuario, grosorActual, true, true);
+                        if (resultado.success) {
+                            return {
+                                ...resultado,
+                                grosorFinal: grosorActual,
+                                perimetral: true,
+                                tirante: true,
+                                ratioFinal: ratioConAmbos
+                            };
+                        }
+                    }
+                }
+
+                // Si no funciona con este grosor ni con refuerzos, pasar al siguiente
+                grosorActual++;
+            }
+
+            // Si llegamos aquí, no se pudo resolver
+            return {
+                success: false,
+                error: 'No se pudo alcanzar ratio 4.0 ni con grosor máximo y refuerzos'
+            };
+        }
+
+        // Probar una configuración específica
+        async function probarConfiguracion(acuario, grosor, perimetrales, tirantes) {
+            const datos = {
+                largo: acuario.largo,
+                ancho: acuario.ancho,
+                alto: acuario.alto,
+                grosor: grosor,
+                perimetrales: perimetrales,
+                tirantes: tirantes,
+                opticoFrontal: false,
+                opticoTrasera: false,
+                opticoLateralIzq: false,
+                opticoLateralDer: false,
+                token: CONFIG.token
+            };
+
+            try {
+                const response = await fetch(CONFIG.googleSheetsAPI, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await response.json();
+                
+                return {
+                    success: data.success,
+                    data: data,
+                    error: data.error
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function calcularTodos() {
+            const btnCalcular = document.getElementById('btn-calcular');
+            const btnPausar = document.getElementById('btn-pausar');
+            const btnDetener = document.getElementById('btn-detener');
+            
+            btnCalcular.disabled = true;
+            btnPausar.disabled = false;
+            btnDetener.disabled = false;
+            
+            pausado = false;
+            
+            for (let i = 0; i < acuarios.length; i++) {
+                if (pausado) {
+                    indicePausado = i;
+                    document.getElementById('status').textContent = `⏸️ Pausado en ${i + 1}/${acuarios.length}`;
+                    return;
+                }
+                
+                const acuario = acuarios[i];
+                document.getElementById('status').textContent = `🔄 Calculando ${i + 1}/${acuarios.length}: ${acuario.largo}×${acuario.ancho}×${acuario.alto}...`;
+                document.getElementById('estado-' + i).innerHTML = '<span class="procesando">⚙️ Calculando...</span>';
+                
+                try {
+                    const resultado = await calcularConAutoRefuerzo(acuario, i);
+                    
+                    if (resultado.success) {
+                        const data = resultado.data;
+                        const grosorFinal = grosorMap[resultado.grosorFinal];
+                        const perimetral = resultado.perimetral;
+                        const tirante = resultado.tirante;
+                        const ratioFinal = resultado.ratioFinal.toFixed(2);
+                        
+                        // Actualizar tabla
+                        document.getElementById('grosor-' + i).textContent = grosorFinal;
+                        document.getElementById('perimetral-' + i).innerHTML = perimetral 
+                            ? '<span class="badge badge-si">Sí</span>' 
+                            : '<span class="badge badge-no">No</span>';
+                        document.getElementById('tirante-' + i).innerHTML = tirante 
+                            ? '<span class="badge badge-si">Sí</span>' 
+                            : '<span class="badge badge-no">No</span>';
+                        document.getElementById('codigo-' + i).textContent = resultado.grosorFinal;
+                        document.getElementById('ratio-' + i).textContent = ratioFinal;
+                        document.getElementById('deflexion-' + i).textContent = (data.deflexion || '0') + '%';
+                        document.getElementById('litros-' + i).textContent = Math.round(data.litros || 0);
+                        document.getElementById('precio-' + i).textContent = (data.precio || 0).toFixed(2) + ' €';
+                        document.getElementById('estado-' + i).innerHTML = '<span class="completado">✓ Completado</span>';
+                        
+                        // Guardar resultado
+                        resultados.push({
+                            medidas: `${acuario.largo}x${acuario.ancho}x${acuario.alto}`,
+                            largo: acuario.largo,
+                            ancho: acuario.ancho,
+                            alto: acuario.alto,
+                            grosor: grosorFinal,
+                            codigoGrosor: resultado.grosorFinal,
+                            perimetral: perimetral ? 'Sí' : 'No',
+                            tirante: tirante ? 'Sí' : 'No',
+                            litros: Math.round(data.litros || 0),
+                            precio: parseFloat(data.precio || 0).toFixed(2),
+                            ratioSeguridad: ratioFinal,
+                            deflexion: data.deflexion || '0',
+                            grosorOriginal: '8mm',
+                            ajustado: resultado.grosorFinal > 2 ? 'Sí' : 'No'
+                        });
+                        
+                        stats.exitosos++;
+                        if (perimetral || tirante) stats.reforzados++;
+                    } else {
+                        document.getElementById('estado-' + i).innerHTML = '<span class="error">❌ Error</span>';
+                        stats.errores++;
+                    }
+                } catch (error) {
+                    document.getElementById('estado-' + i).innerHTML = '<span class="error">❌ Error</span>';
+                    stats.errores++;
+                }
+                
+                stats.procesados++;
+                actualizarStats();
+                
+                // Delay para no saturar API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            document.getElementById('status').innerHTML = '<span class="completado">✅ ¡Cálculo completado!</span>';
+            btnPausar.disabled = true;
+            btnDetener.disabled = true;
+            document.getElementById('btn-csv').disabled = false;
+            document.getElementById('btn-json').disabled = false;
+        }
+
+        function pausarReanudar() {
+            pausado = !pausado;
+            const btnPausar = document.getElementById('btn-pausar');
+            
+            if (pausado) {
+                btnPausar.textContent = '▶️ Reanudar';
+            } else {
+                btnPausar.textContent = '⏸️ Pausar';
+                if (indicePausado >= 0) {
+                    calcularDesdeIndice(indicePausado);
+                }
+            }
+        }
+
+        function detener() {
+            pausado = true;
+            document.getElementById('btn-calcular').disabled = false;
+            document.getElementById('btn-pausar').disabled = true;
+            document.getElementById('btn-detener').disabled = true;
+            document.getElementById('status').innerHTML = '<span class="error">⏹️ Detenido por el usuario</span>';
+        }
+
+        function toggleJSON() {
+            const jsonDiv = document.getElementById('resultado-json');
+            const jsonOutput = document.getElementById('json-output');
+            
+            if (jsonDiv.style.display === 'none') {
+                jsonOutput.textContent = JSON.stringify(resultados, null, 2);
+                jsonDiv.style.display = 'block';
+                document.getElementById('btn-json').textContent = '📦 Ocultar JSON';
+            } else {
+                jsonDiv.style.display = 'none';
+                document.getElementById('btn-json').textContent = '📦 Ver JSON';
+            }
+        }
+
+        function exportarCSV() {
+            const headers = ['Medidas', 'Largo', 'Ancho', 'Alto', 'Grosor', 'Codigo_Grosor', 'Perimetral', 'Tirante', 'Litros', 'Precio', 'Ratio_Seguridad', 'Deflexion', 'Grosor_Original', 'Ajustado'];
+            
+            let csv = headers.join(',') + '\n';
+            
+            resultados.forEach(r => {
+                csv += `${r.medidas},${r.largo},${r.ancho},${r.alto},${r.grosor},${r.codigoGrosor},${r.perimetral},${r.tirante},${r.litros},${r.precio},${r.ratioSeguridad},${r.deflexion},${r.grosorOriginal},${r.ajustado}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'base-datos-acuarios-reforzados.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

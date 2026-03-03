@@ -1,0 +1,212 @@
+/* ============================================
+   BLOG - ESTILOS
+   ============================================ */
+
+.blog-section {
+    padding: 60px 0;
+    background: var(--dark-color);
+    min-height: 70vh;
+}
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
+
+.blog-post {
+    background: var(--primary-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(74, 144, 226, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-post:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(74, 144, 226, 0.3);
+    border-color: var(--accent-color);
+}
+
+.post-image {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+}
+
+.post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.blog-post:hover .post-image img {
+    transform: scale(1.1);
+}
+
+.post-category {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--accent-color);
+    color: var(--white);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.post-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-blue);
+}
+
+.post-date {
+    display: flex;
+    align-items: center;
+}
+
+.post-date::before {
+    content: "📅";
+    margin-right: 6px;
+}
+
+.post-reading-time {
+    display: flex;
+    align-items: center;
+}
+
+.post-reading-time::before {
+    content: "⏱️";
+    margin-right: 6px;
+}
+
+.post-title {
+    font-size: 1.4rem;
+    color: var(--white);
+    margin-bottom: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.blog-post:hover .post-title {
+    color: var(--text-blue);
+}
+
+.post-excerpt {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.btn-read-more {
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent-color);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.btn-read-more:hover {
+    color: var(--text-blue);
+    transform: translateX(5px);
+}
+
+/* Paginación (para futuro) */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 3rem;
+}
+
+.page-btn {
+    padding: 0.6rem 1rem;
+    background: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid rgba(74, 144, 226, 0.2);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.page-btn:hover {
+    background: var(--accent-color);
+    color: var(--white);
+    border-color: var(--accent-color);
+}
+
+.page-btn.active {
+    background: var(--accent-color);
+    color: var(--white);
+    border-color: var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blog-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .post-image {
+        height: 200px;
+    }
+
+    .post-title {
+        font-size: 1.2rem;
+    }
+
+    .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-section {
+        padding: 40px 0;
+    }
+
+    .post-content {
+        padding: 1.2rem;
+    }
+
+    .post-title {
+        font-size: 1.1rem;
+    }
+
+    .post-excerpt {
+        font-size: 0.9rem;
+    }
+}
