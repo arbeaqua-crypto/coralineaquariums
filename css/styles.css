@@ -435,19 +435,21 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .section-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     color: var(--text-blue);
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    font-weight: 700;
 }
 
 .section-subtitle {
     text-align: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--text-color);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 /* Nosotros */
@@ -1336,7 +1338,11 @@ h1 svg, h2 svg, h3 svg {
     }
 
     .section-title {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.85rem;
     }
 
     .carousel-content h2 {
