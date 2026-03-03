@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador Automático de Precios - Acuarios Abiertos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e6ed;
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+        }
+        .instrucciones {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4a90e2;
+        }
+        .controles {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a9ff5;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #status {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 18px;
+            color: #4a90e2;
+            min-height: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #2d2d2d;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        th {
+            background: #0a0a0a;
+            color: #4a90e2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #3a3a3a;
+        }
+        .completado {
+            color: #4ade80;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .procesando {
+            color: #fbbf24;
+        }
+        .warning {
+            color: #fbbf24;
+        }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-ok {
+            background: #10b981;
+        }
+        .badge-ajustado {
+            background: #f59e0b;
+        }
+        .badge-error {
+            background: #ef4444;
+        }
+        .copiar-btn {
+            background: #10b981;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+        .copiar-btn:hover {
+            background: #059669;
+        }
+        #resultado-json {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-x: auto;
+            display: none;
+        }
+        #resultado-json pre {
+            margin: 0;
+            color: #8ab4f8;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Calculador Automático COMPLETO - Acuarios Abiertos</h1>
+    
+    <div class="instrucciones">
+        <h3>📋 Información:</h3>
+        <p>Este calculador generará <strong>207 configuraciones</strong> automáticamente:</p>
+        <ul>
+            <li><strong>Largo:</strong> 80, 90, 100, 110, ... 300 cm (23 medidas)</li>
+            <li><strong>Ancho:</strong> 50, 60, 70 cm</li>
+            <li><strong>Alto:</strong> 50, 60, 70 cm</li>
+        </ul>
+        <p><strong>⚡ Auto-ajuste inteligente:</strong> Si detecta ratio bajo o deflexión alta, aumentará automáticamente el grosor hasta encontrar una configuración segura.</p>
+        <p><strong>⏱️ Tiempo estimado:</strong> 10-15 minutos (con pausas para no saturar el servidor)</p>
+    </div>
+
+    <div class="controles">
+        <button id="btnCalcular" onclick="calcularTodosLosPrecios()">🚀 Calcular Todas las Configuraciones (207)</button>
+        <button id="btnPausar" onclick="pausarCalculo()" style="display:none; background:#ef4444;">⏸️ Pausar</button>
+        <button id="btnReanudar" onclick="reanudarCalculo()" style="display:none; background:#10b981;">▶️ Reanudar</button>
+        <button id="btnCopiar" onclick="copiarJSON()" style="display:none;" class="copiar-btn">📋 Copiar JSON</button>
+        <button id="btnLimpiar" onclick="limpiarTabla()" style="display:none;">🔄 Limpiar y Reiniciar</button>
+    </div>
+
+    <div id="status"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Medidas (L x A x H)</th>
+                <th>Grosor</th>
+                <th>Código Grosor</th>
+                <th>Ratio</th>
+                <th>Deflexión (%)</th>
+                <th>Litros</th>
+                <th>Precio (€)</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-precios">
+            <!-- Se llenará dinámicamente -->
+        </tbody>
+    </table>
+
+    <div id="resultado-json">
+        <h3>📦 Datos en formato JSON:</h3>
+        <pre id="json-output"></pre>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const CONFIG = {
+            googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbxAak1iknG-WeltAhbWbU9wCx9wYGEVgTLSPR9IlVYGQ-r2F5f6vAHIZHQnBheNNVAA/exec',
+            token: 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y'
+        };
+
+        // Generar todas las combinaciones posibles
+        function generarCombinaciones() {
+            const combinaciones = [];
+            
+            // Largos: 80, 90, 100, ..., 300 (cada 10cm)
+            for (let largo = 80; largo <= 300; largo += 10) {
+                // Anchos: 50, 60, 70
+                for (let ancho of [50, 60, 70]) {
+                    // Altos: 50, 60, 70
+                    for (let alto of [50, 60, 70]) {
+                        // Estimar grosor inicial basado en tamaño
+                        let grosorInicial = 3; // 10mm por defecto
+                        
+                        if (largo >= 200 || alto >= 70) grosorInicial = 5; // 15mm
+                        if (largo >= 250) grosorInicial = 6; // 19mm
+                        if (largo >= 120 && ancho >= 60 && alto >= 60) grosorInicial = 4; // 12mm
+                        
+                        combinaciones.push({
+                            largo: largo,
+                            ancho: ancho,
+                            alto: alto,
+                            grosor: grosorInicial
+                        });
+                    }
+                }
+            }
+            
+            console.log(`Primera combinación: ${combinaciones[0].largo}x${combinaciones[0].ancho}x${combinaciones[0].alto}`);
+            console.log(`Última combinación: ${combinaciones[combinaciones.length-1].largo}x${combinaciones[combinaciones.length-1].ancho}x${combinaciones[combinaciones.length-1].alto}`);
+            console.log(`Total generadas: ${combinaciones.length}`);
+            
+            return combinaciones;
+        }
+
+        const acuarios = generarCombinaciones();
+
+        let resultados = [];
+        let indicePausado = -1;
+        let pausado = false;
+
+        const grosorMap = {
+            1: '6mm',
+            2: '8mm',
+            3: '10mm',
+            4: '12mm',
+            5: '15mm',
+            6: '19mm',
+            7: '25mm'
+        };
+
+        // Generar filas de la tabla
+        window.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('tabla-precios');
+            tbody.innerHTML = acuarios.map((acuario, index) => `
+                <tr>
+                    <td>${acuario.largo} × ${acuario.ancho} × ${acuario.alto} cm</td>
+                    <td id="grosor-${index}">-</td>
+                    <td id="codigo-${index}">-</td>
+                    <td id="ratio-${index}">-</td>
+                    <td id="deflexion-${index}">-</td>
+                    <td id="litros-${index}">-</td>
+                    <td id="precio-${index}">-</td>
+                    <td id="estado-${index}">Pendiente</td>
+                </tr>
+            `).join('');
+        });
+
+        // Calcular precio con auto-ajuste simplificado
+        async function calcularConAutoAjuste(acuario, index) {
+            const statusElement = document.getElementById(`estado-${index}`);
+            const litrosElement = document.getElementById(`litros-${index}`);
+            const precioElement = document.getElementById(`precio-${index}`);
+            const ratioElement = document.getElementById(`ratio-${index}`);
+            const deflexionElement = document.getElementById(`deflexion-${index}`);
+            const grosorElement = document.getElementById(`grosor-${index}`);
+            const codigoElement = document.getElementById(`codigo-${index}`);
+
+            let grosorActual = acuario.grosor;
+            let ajustado = false;
+            let intentos = 0;
+            const maxIntentos = 5;
+
+            while (intentos < maxIntentos) {
+                try {
+                    statusElement.textContent = `⏳ Calculando (${grosorMap[grosorActual]})...`;
+                    statusElement.className = 'procesando';
+
+                    const datos = {
+                        largo: acuario.largo,
+                        ancho: acuario.ancho,
+                        alto: acuario.alto,
+                        grosor: grosorActual,
+                        perimetrales: false,
+                        tirantes: false,
+                        opticoFrontal: false,
+                        opticoTrasera: false,
+                        opticoLateralIzq: false,
+                        opticoLateralDer: false,
+                        token: CONFIG.token
+                    };
+
+                    const response = await fetch(CONFIG.googleSheetsAPI, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                        },
+                        body: JSON.stringify(datos)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error de conexión');
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Error al calcular');
+                    }
+
+                    // Verificar si tiene warnings (ratio bajo o deflexión alta)
+                    const tieneProblemas = data.warnings && data.warnings.length > 0;
+                    
+                    if (tieneProblemas && grosorActual < 7) {
+                        // Aumentar grosor e intentar de nuevo
+                        console.log(`${acuario.largo}x${acuario.ancho}x${acuario.alto}: Warnings detectados, aumentando grosor de ${grosorMap[grosorActual]} a ${grosorMap[grosorActual + 1]}`);
+                        grosorActual++;
+                        ajustado = true;
+                        intentos++;
+                        continue; // Siguiente iteración del while
+                    }
+
+                    // ✓ Configuración válida encontrada
+                    litrosElement.textContent = Math.round(data.litros);
+                    precioElement.textContent = `${data.precio.toFixed(2)} €`;
+                    ratioElement.textContent = data.ratioSeguridad ? data.ratioSeguridad.toFixed(2) : 'N/A';
+                    deflexionElement.textContent = data.deflexion ? data.deflexion.toFixed(2) + '%' : 'N/A';
+                    grosorElement.textContent = grosorMap[grosorActual];
+                    codigoElement.textContent = grosorActual;
+                    
+                    if (ajustado) {
+                        statusElement.innerHTML = '✓ <span class="badge badge-ajustado">Ajustado</span>';
+                    } else {
+                        statusElement.innerHTML = '✓ <span class="badge badge-ok">OK</span>';
+                    }
+                    statusElement.className = 'completado';
+
+                    // Guardar resultado
+                    resultados.push({
+                        medidas: `${acuario.largo}x${acuario.ancho}x${acuario.alto}`,
+                        largo: acuario.largo,
+                        ancho: acuario.ancho,
+                        alto: acuario.alto,
+                        grosor: grosorMap[grosorActual],
+                        grosorOriginal: grosorMap[acuario.grosor],
+                        grosorAjustado: ajustado,
+                        codigoGrosor: grosorActual,
+                        litros: Math.round(data.litros),
+                        precio: parseFloat(data.precio.toFixed(2)),
+                        ratioSeguridad: data.ratioSeguridad ? parseFloat(data.ratioSeguridad.toFixed(2)) : null,
+                        deflexion: data.deflexion ? parseFloat(data.deflexion.toFixed(2)) : null
+                    });
+
+                    return true;
+
+                } catch (error) {
+                    console.error(`Error en ${acuario.largo}x${acuario.ancho}x${acuario.alto}:`, error);
+                    
+                    if (intentos >= maxIntentos - 1) {
+                        statusElement.innerHTML = `✗ <span class="badge badge-error">Error: ${error.message}</span>`;
+                        statusElement.className = 'error';
+                        return false;
+                    }
+                    
+                    intentos++;
+                }
+            }
+
+            // No se encontró solución
+            statusElement.innerHTML = '✗ <span class="badge badge-error">Sin solución segura</span>';
+            statusElement.className = 'error';
+            return false;
+        }
+
+        // Calcular todos los precios secuencialmente
+        async function calcularTodosLosPrecios() {
+            const btnCalcular = document.getElementById('btnCalcular');
+            const btnPausar = document.getElementById('btnPausar');
+            const btnCopiar = document.getElementById('btnCopiar');
+            const btnLimpiar = document.getElementById('btnLimpiar');
+            const statusDiv = document.getElementById('status');
+
+            btnCalcular.disabled = true;
+            btnPausar.style.display = 'inline-block';
+            resultados = [];
+            pausado = false;
+            indicePausado = -1;
+
+            for (let i = 0; i < acuarios.length; i++) {
+                if (pausado) {
+                    indicePausado = i;
+                    statusDiv.innerHTML = `<span class="warning">⏸️ Pausado en ${i} de ${acuarios.length}</span>`;
+                    btnPausar.style.display = 'none';
+                    document.getElementById('btnReanudar').style.display = 'inline-block';
+                    return;
+                }
+
+                const progreso = Math.round(((i+1)/acuarios.length)*100);
+                const tiempoEstimado = Math.round((acuarios.length - i - 1) * 1.5 / 60);
+                statusDiv.textContent = `⏳ ${i + 1}/${acuarios.length} (${progreso}%) - ~${tiempoEstimado} min restantes`;
+                
+                await calcularConAutoAjuste(acuarios[i], i);
+                
+                // Pausa entre peticiones (1 segundo)
+                if (i < acuarios.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            statusDiv.innerHTML = `<span class="completado">✓ ¡Completado! ${resultados.length} acuarios calculados correctamente</span>`;
+            btnCalcular.disabled = false;
+            btnPausar.style.display = 'none';
+            btnCopiar.style.display = 'inline-block';
+            btnLimpiar.style.display = 'inline-block';
+
+            // Mostrar JSON
+            mostrarJSON();
+        }
+
+        function pausarCalculo() {
+            pausado = true;
+        }
+
+        async function reanudarCalculo() {
+            const btnReanudar = document.getElementById('btnReanudar');
+            const btnPausar = document.getElementById('btnPausar');
+            const statusDiv = document.getElementById('status');
+
+            pausado = false;
+            btnReanudar.style.display = 'none';
+            btnPausar.style.display = 'inline-block';
+
+            for (let i = indicePausado; i < acuarios.length; i++) {
+                if (pausado) {
+                    indicePausado = i;
+                    statusDiv.innerHTML = `<span class="warning">⏸️ Pausado en ${i} de ${acuarios.length}</span>`;
+                    btnPausar.style.display = 'none';
+                    btnReanudar.style.display = 'inline-block';
+                    return;
+                }
+
+                const progreso = Math.round(((i+1)/acuarios.length)*100);
+                const tiempoEstimado = Math.round((acuarios.length - i - 1) * 1.5 / 60);
+                statusDiv.textContent = `⏳ ${i + 1}/${acuarios.length} (${progreso}%) - ~${tiempoEstimado} min restantes`;
+                
+                await calcularConAutoAjuste(acuarios[i], i);
+                
+                if (i < acuarios.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            const btnCalcular = document.getElementById('btnCalcular');
+            const btnCopiar = document.getElementById('btnCopiar');
+            const btnLimpiar = document.getElementById('btnLimpiar');
+
+            statusDiv.innerHTML = `<span class="completado">✓ ¡Completado! ${resultados.length} acuarios calculados correctamente</span>`;
+            btnCalcular.disabled = false;
+            btnPausar.style.display = 'none';
+            btnReanudar.style.display = 'none';
+            btnCopiar.style.display = 'inline-block';
+            btnLimpiar.style.display = 'inline-block';
+
+            btnCalcular.disabled = true;
+            resultados = [];
+
+            for (let i = 0; i < acuarios.length; i++) {
+                statusDiv.textContent = `⏳ Calculando ${i + 1} de ${acuarios.length}...`;
+                
+                await calcularPrecio(acuarios[i], i);
+                
+                // Pausa entre peticiones para no sobrecargar la API
+                if (i < acuarios.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+
+            statusDiv.innerHTML = `<span class="completado">✓ ¡Completado! ${resultados.length} acuarios calculados</span>`;
+            btnCalcular.disabled = false;
+            btnCopiar.style.display = 'inline-block';
+            btnLimpiar.style.display = 'inline-block';
+
+            // Mostrar JSON
+            mostrarJSON();
+        }
+
+        function mostrarJSON() {
+            const jsonOutput = document.getElementById('json-output');
+            const resultadoDiv = document.getElementById('resultado-json');
+            
+            jsonOutput.textContent = JSON.stringify(resultados, null, 2);
+            resultadoDiv.style.display = 'block';
+        }
+
+        function copiarJSON() {
+            const jsonText = document.getElementById('json-output').textContent;
+            navigator.clipboard.writeText(jsonText).then(() => {
+                alert('✓ JSON copiado al portapapeles');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                alert('Error al copiar. Copia manualmente el texto.');
+            });
+        }
+
+        function limpiarTabla() {
+            resultados = [];
+            document.getElementById('resultado-json').style.display = 'none';
+            document.getElementById('btnCopiar').style.display = 'none';
+            document.getElementById('btnLimpiar').style.display = 'none';
+            document.getElementById('status').textContent = '';
+            inicializarTabla();
+        }
+
+        // Inicializar al cargar
+        window.onload = function() {
+            inicializarTabla();
+        };
+    </script>
+</body>
+</html>

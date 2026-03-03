@@ -527,6 +527,27 @@
     display: none;
     margin-top: 25px;
     animation: fadeIn 0.5s ease;
+    max-height: 600px;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+.lista-medidas-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.lista-medidas-content::-webkit-scrollbar-track {
+    background: var(--dark-color);
+    border-radius: 8px;
+}
+
+.lista-medidas-content::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 8px;
+}
+
+.lista-medidas-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-blue);
 }
 
 @keyframes fadeIn {
