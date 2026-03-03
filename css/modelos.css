@@ -3,17 +3,20 @@
    ============================================ */
 
 .modelos-3d {
-    background: #f8f9fa;
-    padding: 80px 20px;
+    background: var(--dark-color);
+    padding: 4rem 20px;
 }
 
 .modelos-3d .section-title {
-    color: #333;
+    color: var(--text-blue);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
 }
 
 .modelos-3d .section-subtitle {
-    color: #666;
-    margin-bottom: 40px;
+    color: var(--text-color);
+    margin-bottom: 35px;
+    font-size: 1rem;
 }
 
 /* Filtros */
@@ -26,28 +29,32 @@
 }
 
 .filtro-btn {
-    padding: 12px 25px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
-    border-radius: 25px;
+    padding: 10px 22px;
+    border: 2px solid rgba(74, 144, 226, 0.3);
+    background: var(--secondary-color);
+    color: var(--text-blue);
+    border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
 }
 
 .filtro-btn:hover {
-    background: #667eea;
+    background: var(--accent-color);
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    border-color: var(--accent-color);
 }
 
 .filtro-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--accent-color);
     color: white;
-    border-color: #667eea;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.5);
 }
 
 /* Grid de Modelos */
@@ -59,17 +66,19 @@
 }
 
 .modelo-card {
-    background: white;
-    border-radius: 15px;
+    background: var(--secondary-color);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
     animation: fadeIn 0.5s ease;
+    border: 1px solid rgba(74, 144, 226, 0.2);
 }
 
 .modelo-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+    border-color: var(--accent-color);
 }
 
 .modelo-card.hidden {
@@ -90,9 +99,9 @@
 .modelo-image {
     position: relative;
     width: 100%;
-    height: 250px;
+    height: 230px;
     overflow: hidden;
-    background: #f5f5f5;
+    background: var(--primary-color);
 }
 
 .modelo-image img {
@@ -110,36 +119,40 @@
 .badge-reforzado,
 .badge-especial {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 13px;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .badge-reforzado {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
 }
 
 .badge-especial {
-    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #5a9ff5 100%);
     color: white;
 }
 
 /* Info del Modelo */
 .modelo-info {
-    padding: 20px;
+    padding: 16px;
 }
 
 .modelo-info h3 {
-    color: #333;
-    font-size: 20px;
-    margin-bottom: 15px;
+    color: var(--text-blue);
+    font-size: 1.1rem;
+    margin-bottom: 12px;
     font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .modelo-specs {
