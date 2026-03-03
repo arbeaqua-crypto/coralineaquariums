@@ -370,3 +370,240 @@
         font-size: 0.85rem;
     }
 }
+
+/* ============================================
+   ESTILOS PARA TARJETAS COMPACTAS
+   ============================================ */
+
+.modelo-card-compact {
+    background: var(--secondary-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(74, 144, 226, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.modelo-card-compact:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+    border-color: var(--accent-color);
+}
+
+.modelo-image-compact {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: var(--dark-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modelo-image-compact img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.modelo-card-compact:hover .modelo-image-compact img {
+    transform: scale(1.05);
+}
+
+.modelo-info-compact {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modelo-info-compact h3 {
+    color: var(--text-blue);
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.modelo-specs-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.modelo-specs-compact .spec-item {
+    color: var(--text-color);
+    font-family: 'Rajdhani', sans-serif;
+    display: block;
+}
+
+.modelo-specs-compact .spec-precio {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: 'Orbitron', sans-serif;
+    margin-top: 5px;
+    display: block;
+}
+
+.btn-modelo-compact {
+    width: 100%;
+    padding: 10px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.btn-modelo-compact:hover {
+    background: #5a9ff5;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+}
+
+/* ============================================
+   LISTA DESPLEGABLE DE MEDIDAS
+   ============================================ */
+
+.lista-medidas-section {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.btn-ver-lista {
+    background: var(--secondary-color);
+    color: var(--text-blue);
+    border: 2px solid var(--accent-color);
+    padding: 15px 30px;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-ver-lista:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+}
+
+.icono-flecha {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.lista-medidas-content {
+    display: none;
+    margin-top: 25px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tabla-medidas {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.tabla-medidas thead {
+    background: var(--dark-color);
+}
+
+.tabla-medidas th {
+    padding: 15px;
+    text-align: left;
+    color: var(--text-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.tabla-medidas td {
+    padding: 12px 15px;
+    color: var(--text-color);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+}
+
+.tabla-medidas tbody tr:hover {
+    background: var(--light-color);
+}
+
+.tabla-medidas tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Responsive para tarjetas compactas */
+@media (max-width: 768px) {
+    .modelo-image-compact {
+        height: 180px;
+    }
+    
+    .modelo-info-compact h3 {
+        font-size: 1rem;
+    }
+    
+    .tabla-medidas th,
+    .tabla-medidas td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modelo-image-compact {
+        height: 160px;
+    }
+    
+    .btn-ver-lista {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .tabla-medidas th,
+    .tabla-medidas td {
+        padding: 8px 5px;
+        font-size: 0.8rem;
+    }
+}

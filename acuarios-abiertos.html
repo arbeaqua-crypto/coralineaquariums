@@ -33,117 +33,144 @@
         </div>
     </nav>
 
-    <!-- Hero de Categoría -->
-    <section class="categoria-hero">
-        <div class="container">
-            <h1><svg viewBox="0 0 100 100" width="40" height="40" style="vertical-align: middle; margin-right: 12px;" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10,50 Q20,40 30,50 T50,50" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
-                <path d="M15,60 Q25,50 35,60 T55,60" stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
-                <path d="M50,50 Q60,40 70,50 T90,50" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
-                <path d="M55,60 Q65,50 75,60 T95,60" stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
-            </svg> Acuarios Abiertos</h1>
-            <p class="categoria-desc">Acuarios construidos sin refuerzos superiores, diseñados para todo tipo de montajes: marinos, plantados, récifes y más. Máximo esplendor y luminosidad sin obstrucciones.</p>
-            <a href="cotizador.html" class="btn-primary">Cotizar Acuario Personalizado</a>
-        </div>
-    </section>
-
-    <!-- Modelos Estándar -->
+    <!-- Modelos -->
     <section class="modelos-section">
         <div class="container">
-            <h2 class="section-title">Modelos Estándar</h2>
-            <p class="section-subtitle">Selecciona un modelo o personaliza las medidas en el cotizador</p>
+            <h2 class="section-title">Acuarios Abiertos</h2>
+            <p class="section-subtitle">Los acuarios abiertos sin refuerzos son una opción elegante para acabados muy espectaculares. El grosor de cristal juega aquí un importante papel para compensar la falta de refuerzos superiores en acuarios altos de gran litraje.</p>
 
             <div class="modelos-grid">
                 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/80 x 50 x 40 en 10mm.jpg" alt="Acuario 80x50x40">
                     </div>
-                    <div class="modelo-info">
-                        <h3>80 x 50 x 40 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 10mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 160 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:50,alto:40,grosor:3}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>80 × 50 × 40 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 10mm</span>
+                            <span class="spec-item">160 litros</span>
+                            <span class="spec-precio">208,29 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:50,alto:40,grosor:3}))">Cotizar</a>
                     </div>
                 </div>
 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/80 x 50 x 50 en 10mm.jpg" alt="Acuario 80x50x50">
                     </div>
-                    <div class="modelo-info">
-                        <h3>80 x 50 x 50 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 10mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 200 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:50,alto:50,grosor:3}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>80 × 50 × 50 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 10mm</span>
+                            <span class="spec-item">200 litros</span>
+                            <span class="spec-precio">239,87 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:50,alto:50,grosor:3}))">Cotizar</a>
                     </div>
                 </div>
 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/90 x 60 x 50 en 10mm.jpg" alt="Acuario 90x60x50">
                     </div>
-                    <div class="modelo-info">
-                        <h3>90 x 60 x 50 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 10mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 270 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:90,ancho:60,alto:50,grosor:3}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>90 × 60 × 50 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 10mm</span>
+                            <span class="spec-item">270 litros</span>
+                            <span class="spec-precio">281,95 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:90,ancho:60,alto:50,grosor:3}))">Cotizar</a>
                     </div>
                 </div>
 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/100x50x50 en 10mm.jpg" alt="Acuario 100x50x50">
                     </div>
-                    <div class="modelo-info">
-                        <h3>100 x 50 x 50 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 10mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 250 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:50,alto:50,grosor:3}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>100 × 50 × 50 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 10mm</span>
+                            <span class="spec-item">250 litros</span>
+                            <span class="spec-precio">277,72 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:50,alto:50,grosor:3}))">Cotizar</a>
                     </div>
                 </div>
 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/120 x 60 x 60 en 12mm.jpg" alt="Acuario 120x60x60">
                     </div>
-                    <div class="modelo-info">
-                        <h3>120 x 60 x 60 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 12mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 432 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:120,ancho:60,alto:60,grosor:4}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>120 × 60 × 60 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 12mm</span>
+                            <span class="spec-item">432 litros</span>
+                            <span class="spec-precio">570,23 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:120,ancho:60,alto:60,grosor:4}))">Cotizar</a>
                     </div>
                 </div>
 
-                <div class="modelo-card">
-                    <div class="modelo-image">
+                <div class="modelo-card-compact">
+                    <div class="modelo-image-compact">
                         <img src="images/modelos/Abiertos sin refuerzos/150 x 60 x 60 en 15mm.jpg" alt="Acuario 150x60x60">
                     </div>
-                    <div class="modelo-info">
-                        <h3>150 x 60 x 60 cm</h3>
-                        <p class="modelo-specs">
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="40" height="40" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> Grosor: 15mm</span>
-                            <span class="spec-item"><svg viewBox="0 0 100 100" width="18" height="18" style="vertical-align: middle; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg"><path d="M50,20 Q40,40 50,60 Q60,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/><path d="M50,20 Q60,40 50,60 Q40,80 50,95" stroke="white" stroke-width="3" fill="none" opacity="0.8"/></svg> 540 litros</span>
-                        </p>
-                        <a href="cotizador.html" class="btn-modelo" onclick="localStorage.setItem('modelo', JSON.stringify({largo:150,ancho:60,alto:60,grosor:5}))">Cotizar este modelo</a>
+                    <div class="modelo-info-compact">
+                        <h3>150 × 60 × 60 cm</h3>
+                        <div class="modelo-specs-compact">
+                            <span class="spec-item">Grosor: 15mm</span>
+                            <span class="spec-item">540 litros</span>
+                            <span class="spec-precio">934,04 €</span>
+                        </div>
+                        <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:150,ancho:60,alto:60,grosor:5}))">Cotizar</a>
                     </div>
                 </div>
 
             </div>
 
+            <!-- Lista completa de medidas disponibles -->
+            <div class="lista-medidas-section">
+                <button class="btn-ver-lista" onclick="toggleListaMedidas()">
+                    <span id="ver-lista-text">📋 Ver lista completa de medidas y precios</span>
+                    <span class="icono-flecha">▼</span>
+                </button>
+                
+                <div id="lista-medidas-content" class="lista-medidas-content">
+                    <table class="tabla-medidas">
+                        <thead>
+                            <tr>
+                                <th>Medidas (L × A × H)</th>
+                                <th>Grosor</th>
+                                <th>Litros</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>80 × 50 × 40 cm</td><td>10mm</td><td>160</td><td>208,29 €</td></tr>
+                            <tr><td>80 × 50 × 50 cm</td><td>10mm</td><td>200</td><td>239,87 €</td></tr>
+                            <tr><td>90 × 60 × 50 cm</td><td>10mm</td><td>270</td><td>281,95 €</td></tr>
+                            <tr><td>100 × 50 × 50 cm</td><td>10mm</td><td>250</td><td>277,72 €</td></tr>
+                            <tr><td>120 × 60 × 60 cm</td><td>12mm</td><td>432</td><td>570,23 €</td></tr>
+                            <tr><td>150 × 60 × 60 cm</td><td>15mm</td><td>540</td><td>934,04 €</td></tr>
+                            <tr><td>150 × 70 × 60 cm</td><td>15mm</td><td>630</td><td>1.002,32 €</td></tr>
+                            <tr><td>180 × 60 × 60 cm</td><td>15mm</td><td>648</td><td>1.074,83 €</td></tr>
+                            <tr><td>180 × 70 × 60 cm</td><td>15mm</td><td>756</td><td>1.150,22 €</td></tr>
+                            <tr><td>200 × 60 × 60 cm</td><td>19mm</td><td>720</td><td>1.841,31 €</td></tr>
+                            <tr><td>200 × 70 × 60 cm</td><td>19mm</td><td>840</td><td>1.969,99 €</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CTA Cotizador -->
             <div class="cta-section">
                 <h3>¿Necesitas un tamaño diferente?</h3>
-                <p>Utiliza nuestro cotizador para obtener presupuesto de cualquier medida</p>
+                <p>Utiliza nuestro cotizador para obtener presupuesto instantáneo de cualquier medida</p>
                 <a href="cotizador.html" class="btn-primary btn-large">Ir al Cotizador</a>
             </div>
         </div>
@@ -156,6 +183,24 @@
         </div>
     </footer>
 
+    <script>
+        // Toggle para mostrar/ocultar lista de medidas
+        function toggleListaMedidas() {
+            const content = document.getElementById('lista-medidas-content');
+            const texto = document.getElementById('ver-lista-text');
+            const icono = document.querySelector('.icono-flecha');
+            
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                texto.textContent = '📋 Ver lista completa de medidas y precios';
+                icono.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                texto.textContent = '📋 Ocultar lista de medidas';
+                icono.textContent = '▲';
+            }
+        }
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>
