@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Aquaterrarios y Terrarios - Diseños especiales para reptiles y anfibios">
     <title>Aquaterrarios - Coraline Acuarios</title>
+    <link rel="icon" type="image/png" href="images/favicon.PNG">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/modelos.css">
 </head>
@@ -17,13 +18,21 @@
                     <img src="images/logocoraline.PNG?v=2" alt="Coraline Acuarios" class="logo-img">
                 </a>
             </div>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es" title="Español">
+                    <span class="flag">🇪🇸</span>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
             <ul class="nav-menu">
-                <li><a href="index.html#inicio" class="nav-link">Inicio</a></li>
-                <li><a href="index.html#nosotros" class="nav-link">Nosotros</a></li>
-                <li><a href="index.html#catalogo" class="nav-link">Catálogo</a></li>
-                <li><a href="galeria.html" class="nav-link">Galería</a></li>
-                <li><a href="index.html#cotizador" class="nav-link btn-cotizar">Cotizar Ahora</a></li>
-                <li><a href="index.html#contacto" class="nav-link">Contacto</a></li>
+                <li><a href="index.html#inicio" class="nav-link" data-i18n="nav.home">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link" data-i18n="nav.about">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link" data-i18n="nav.catalog">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link" data-i18n="nav.gallery">Galería</a></li>
+                <li><a href="index.html#cotizador" class="nav-link btn-cotizar" data-i18n="nav.quote">Cotizar Ahora</a></li>
+                <li><a href="index.html#contacto" class="nav-link" data-i18n="nav.contact">Contacto</a></li>
             </ul>
             <div class="hamburger">
                 <span></span>
@@ -129,7 +138,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Coraline Acuarios. Todos los derechos reservados.</p>
+            <p>&copy; 2026 Coraline Acuarios. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
         </div>
     </footer>
 
@@ -201,6 +210,7 @@
         }
     </style>
 
+    <script src="js/translations.js"></script>
     <script src="js/logger.js"></script>
     <script src="js/script.js"></script>
 </body>

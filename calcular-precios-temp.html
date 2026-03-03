@@ -130,9 +130,13 @@
             <li><strong>Largo:</strong> 80, 90, 100, 110, ... 300 cm (23 medidas)</li>
             <li><strong>Ancho:</strong> 50, 60, 70 cm</li>
             <li><strong>Alto:</strong> 50, 60, 70 cm</li>
+            <li><strong>Ratio óptimo:</strong> 4.0 (mínimo seguro) - 6.0 (máximo eficiente)</li>
         </ul>
-        <p><strong>⚡ Auto-ajuste inteligente:</strong> Si detecta ratio bajo o deflexión alta, aumentará automáticamente el grosor hasta encontrar una configuración segura.</p>
+        <p><strong>⚡ Auto-ajuste inteligente:</strong> Si detecta ratio &lt; 4.0 o deflexión alta, aumentará automáticamente el grosor hasta encontrar una configuración segura sin desperdiciar cristal.</p>
         <p><strong>⏱️ Tiempo estimado:</strong> 10-15 minutos (con pausas para no saturar el servidor)</p>
+        <p style="color: #fbbf24; margin-top: 10px;">
+            ⚠️ <strong>Importante:</strong> El algoritmo busca el grosor mínimo que cumpla ratio ≥ 4.0, evitando exceder 6.0 para optimizar costes.
+        </p>
     </div>
 
     <div class="controles">
@@ -294,22 +298,27 @@
                         throw new Error(data.message || 'Error al calcular');
                     }
 
-                    // Verificar si tiene warnings (ratio bajo o deflexión alta)
-                    const tieneProblemas = data.warnings && data.warnings.length > 0;
+                    // Validar ratio óptimo (4.0 - 6.0)
+                    const RATIO_MINIMO = 4.0;
+                    const RATIO_MAXIMO_IDEAL = 6.0;
+                    const ratio = data.ratioSeguridad ? parseFloat(data.ratioSeguridad) : 0;
+                    
+                    // Verificar si tiene warnings O ratio fuera del rango óptimo
+                    const tieneProblemas = (data.warnings && data.warnings.length > 0) || ratio < RATIO_MINIMO;
                     
                     if (tieneProblemas && grosorActual < 7) {
                         // Aumentar grosor e intentar de nuevo
-                        console.log(`${acuario.largo}x${acuario.ancho}x${acuario.alto}: Warnings detectados, aumentando grosor de ${grosorMap[grosorActual]} a ${grosorMap[grosorActual + 1]}`);
+                        console.log(`${acuario.largo}x${acuario.ancho}x${acuario.alto}: Ratio ${ratio.toFixed(2)}, aumentando grosor de ${grosorMap[grosorActual]} a ${grosorMap[grosorActual + 1]}`);
                         grosorActual++;
                         ajustado = true;
                         intentos++;
                         continue; // Siguiente iteración del while
                     }
 
-                    // ✓ Configuración válida encontrada
+                    // ✓ Configuración válida encontrada (ratio >= 4.0)
                     litrosElement.textContent = Math.round(data.litros);
                     precioElement.textContent = `${data.precio.toFixed(2)} €`;
-                    ratioElement.textContent = data.ratioSeguridad ? data.ratioSeguridad.toFixed(2) : 'N/A';
+                    ratioElement.textContent = ratio.toFixed(2);
                     deflexionElement.textContent = data.deflexion ? data.deflexion.toFixed(2) + '%' : 'N/A';
                     grosorElement.textContent = grosorMap[grosorActual];
                     codigoElement.textContent = grosorActual;

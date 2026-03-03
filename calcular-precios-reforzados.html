@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculador Automático de Precios - Acuarios Cúbicos</title>
+    <title>Calculador Automático de Precios - Acuarios Reforzados</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
             color: #e0e6ed;
         }
         h1 {
-            color: #4a90e2;
+            color: #D2691E;
             text-align: center;
         }
         .instrucciones {
@@ -22,14 +22,14 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid #4a90e2;
+            border-left: 4px solid #D2691E;
         }
         .controles {
             text-align: center;
             margin: 20px 0;
         }
         button {
-            background: #4a90e2;
+            background: #D2691E;
             color: white;
             border: none;
             padding: 12px 30px;
@@ -39,7 +39,7 @@
             margin: 5px;
         }
         button:hover {
-            background: #5a9ff5;
+            background: #B8531A;
         }
         button:disabled {
             background: #666;
@@ -49,7 +49,7 @@
             text-align: center;
             margin: 15px 0;
             font-size: 18px;
-            color: #4a90e2;
+            color: #D2691E;
             min-height: 30px;
         }
         table {
@@ -65,7 +65,7 @@
         }
         th {
             background: #0a0a0a;
-            color: #4a90e2;
+            color: #D2691E;
             font-weight: bold;
         }
         tr:hover {
@@ -91,6 +91,9 @@
         }
         .badge-ok {
             background: #10b981;
+        }
+        .badge-reforzado {
+            background: #8B4513;
         }
         .badge-ajustado {
             background: #f59e0b;
@@ -118,22 +121,20 @@
     </style>
 </head>
 <body>
-    <h1>🎲 Calculador Automático - Acuarios Cúbicos</h1>
+    <h1>🏗️ Calculador Automático - Acuarios Reforzados</h1>
     
     <div class="instrucciones">
         <h3>📋 Instrucciones:</h3>
         <ol>
-            <li><strong>Configuraciones:</strong> Base cuadrada (Largo = Ancho), Alto variable</li>
-            <li><strong>Base cuadrada:</strong> 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 cm</li>
-            <li><strong>Alturas:</strong> 50, 60, 70 cm</li>
-            <li><strong>Total:</strong> <span id="total-configs">33</span> configuraciones (11 bases × 3 alturas)</li>
+            <li><strong>Reforzados:</strong> Acuarios grandes con perimetrales y/o tirantes</li>
+            <li><strong>Rangos:</strong> 90-250cm largo × 60-80cm ancho × 60-80cm alto</li>
+            <li><strong>Perimetrales:</strong> Añaden +1.0 al ratio de seguridad</li>
+            <li><strong>Tirantes:</strong> Con perimetrales añaden +2.5 total al ratio</li>
             <li><strong>Ratio óptimo:</strong> 4.0 (mínimo seguro) - 6.0 (máximo eficiente)</li>
-            <li>Click en "Calcular Todos" para iniciar el proceso automático</li>
-            <li>Puedes pausar en cualquier momento y reanudar después</li>
-            <li>Al finalizar, copia el JSON para crear la base de datos CSV</li>
+            <li><strong>Total:</strong> <span id="total-configs">0</span> configuraciones</li>
         </ol>
         <p style="color: #fbbf24; margin-top: 10px;">
-            ⚠️ <strong>Nota:</strong> El algoritmo busca el grosor más fino que cumpla ratio ≥ 4.0, sin exceder 6.0 para no desperdiciar cristal.
+            ⚠️ <strong>Nota:</strong> El algoritmo decide automáticamente si usa solo perimetrales o también tirantes según el tamaño del acuario.
         </p>
     </div>
 
@@ -151,6 +152,7 @@
             <tr>
                 <th>Medidas (L × A × H)</th>
                 <th>Grosor</th>
+                <th>Refuerzos</th>
                 <th>Código Grosor</th>
                 <th>Ratio</th>
                 <th>Deflexión (%)</th>
@@ -176,30 +178,45 @@
             token: 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y'
         };
 
-        // Generar combinaciones CÚBICAS (largo = ancho, alto variable)
+        // Generar combinaciones para REFORZADOS
         function generarCombinaciones() {
             const combinaciones = [];
             
-            // Base cuadrada: 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150
-            const baseCuadrada = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
-            // Alturas: 50, 60, 70
-            const alturas = [50, 60, 70];
-            
-            for (let base of baseCuadrada) {
-                for (let alto of alturas) {
-                    // SIEMPRE empezar con grosor mínimo para optimizar
-                    let grosorInicial = 1; // 6mm - el algoritmo lo subirá si es necesario
-                    
-                    combinaciones.push({
-                        largo: base,
-                        ancho: base,
-                        alto: alto,
-                        grosor: grosorInicial
-                    });
+            // Largos: 90-250 (cada 10cm)
+            for (let largo = 90; largo <= 250; largo += 10) {
+                // Anchos: 60, 70, 80
+                for (let ancho of [60, 70, 80]) {
+                    // Altos: 60, 70, 80 (solo reforzar acuarios altos)
+                    for (let alto of [60, 70, 80]) {
+                        // Solo incluir si es suficientemente grande para necesitar refuerzos
+                        if (largo >= 90 && alto >= 60) {
+                            // Determinar tipo de refuerzo según tamaño
+                            let usarTirantes = false;
+                            
+                            // Tirantes necesarios para grandes volúmenes
+                            if (alto >= 70 || largo >= 150 || (largo >= 120 && alto >= 70)) {
+                                usarTirantes = true;
+                            }
+                            
+                            // Estimar grosor inicial
+                            let grosorInicial = 3; // 10mm
+                            if (largo >= 150) grosorInicial = 5; // 15mm
+                            if (largo >= 200) grosorInicial = 6; // 19mm
+                            
+                            combinaciones.push({
+                                largo: largo,
+                                ancho: ancho,
+                                alto: alto,
+                                grosor: grosorInicial,
+                                perimetrales: true, // Siempre perimetrales
+                                tirantes: usarTirantes
+                            });
+                        }
+                    }
                 }
             }
             
-            console.log(`Total configuraciones cúbicas: ${combinaciones.length}`);
+            console.log(`Total configuraciones reforzadas: ${combinaciones.length}`);
             document.getElementById('total-configs').textContent = combinaciones.length;
             
             return combinaciones;
@@ -224,10 +241,13 @@
         // Generar filas de la tabla
         window.addEventListener('DOMContentLoaded', () => {
             const tbody = document.getElementById('tabla-precios');
-            tbody.innerHTML = acuarios.map((acuario, index) => `
+            tbody.innerHTML = acuarios.map((acuario, index) => {
+                const refuerzo = acuario.tirantes ? 'Perimetrales + Tirantes' : 'Perimetrales';
+                return `
                 <tr>
                     <td>${acuario.largo} × ${acuario.ancho} × ${acuario.alto} cm</td>
                     <td id="grosor-${index}">-</td>
+                    <td id="refuerzo-${index}">${refuerzo}</td>
                     <td id="codigo-${index}">-</td>
                     <td id="ratio-${index}">-</td>
                     <td id="deflexion-${index}">-</td>
@@ -235,7 +255,8 @@
                     <td id="precio-${index}">-</td>
                     <td id="estado-${index}">Pendiente</td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
         });
 
         // Calcular precio con auto-ajuste optimizado (ratio 4.0 - 6.0)
@@ -254,7 +275,7 @@
             const grosorOriginal = acuario.grosor;
             let grosorActual = grosorOriginal;
             let intentos = 0;
-            const maxIntentos = 7; // Permitir subir desde grosor 1 hasta 7
+            const maxIntentos = 5;
             const RATIO_MINIMO = 4.0;
             const RATIO_MAXIMO_IDEAL = 6.0;
             
@@ -265,8 +286,8 @@
                         ancho: acuario.ancho,
                         alto: acuario.alto,
                         grosor: grosorActual,
-                        perimetrales: false,
-                        tirantes: false,
+                        perimetrales: acuario.perimetrales,
+                        tirantes: acuario.tirantes,
                         opticoFrontal: false,
                         opticoTrasera: false,
                         opticoLateralIzq: false,
@@ -293,7 +314,7 @@
                     }
                     
                     const ratio = data.ratioSeguridad ? parseFloat(data.ratioSeguridad) : 0;
-                    const deflexion = data.deflexion || null;
+                    const deflexion = data.deflexion ? parseFloat(data.deflexion) : null;
                     
                     // Validar ratio óptimo (4.0 - 6.0)
                     const tieneProblemas = (data.warnings && data.warnings.length > 0) || ratio < RATIO_MINIMO;
@@ -309,7 +330,7 @@
                     litrosElement.textContent = Math.round(data.litros);
                     precioElement.textContent = data.precio.toFixed(2) + ' €';
                     ratioElement.textContent = ratio.toFixed(2);
-                    deflexionElement.textContent = deflexion ? deflexion.toFixed(2) + '%' : '-';
+                    deflexionElement.textContent = deflexion ? (deflexion * 100).toFixed(2) + '%' : '-';
                     grosorElement.textContent = grosorMap[grosorActual];
                     codigoElement.textContent = grosorActual;
                     
@@ -329,6 +350,8 @@
                         grosorOriginal: grosorMap[grosorOriginal],
                         grosorAjustado: grosorAjustado,
                         codigoGrosor: grosorActual,
+                        perimetrales: acuario.perimetrales,
+                        tirantes: acuario.tirantes,
                         litros: Math.round(data.litros),
                         precio: parseFloat(data.precio.toFixed(2)),
                         ratioSeguridad: ratio,

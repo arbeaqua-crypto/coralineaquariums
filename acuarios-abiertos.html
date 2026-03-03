@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Acuarios Abiertos - Acuarios sin refuerzos superiores ideales para todo tipo de montajes: marinos, plantados, récifes y más">
     <title>Acuarios Abiertos - Coraline Acuarios</title>
+    <link rel="icon" type="image/png" href="images/favicon.PNG">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/modelos.css">
 </head>
@@ -17,13 +21,21 @@
                     <img src="images/logocoraline.PNG?v=2" alt="Coraline Acuarios" class="logo-img">
                 </a>
             </div>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es" title="Español">
+                    <span class="flag">🇪🇸</span>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
             <ul class="nav-menu">
-                <li><a href="index.html#inicio" class="nav-link">Inicio</a></li>
-                <li><a href="index.html#nosotros" class="nav-link">Nosotros</a></li>
-                <li><a href="index.html#catalogo" class="nav-link">Catálogo</a></li>
-                <li><a href="galeria.html" class="nav-link">Galería</a></li>
-                <li><a href="cotizador.html" class="nav-link btn-cotizar">Cotizar Ahora</a></li>
-                <li><a href="index.html#contacto" class="nav-link">Contacto</a></li>
+                <li><a href="index.html#inicio" class="nav-link" data-i18n="nav.home">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link" data-i18n="nav.about">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link" data-i18n="nav.catalog">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link" data-i18n="nav.gallery">Galería</a></li>
+                <li><a href="cotizador.html" class="nav-link btn-cotizar" data-i18n="nav.quote">Cotizar Ahora</a></li>
+                <li><a href="index.html#contacto" class="nav-link" data-i18n="nav.contact">Contacto</a></li>
             </ul>
             <div class="hamburger">
                 <span></span>
@@ -86,7 +98,7 @@
                                 <span class="spec-item">240 litros</span>
                                 <span class="spec-item">Grosor: 10mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">261,97 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:80,ancho:60,alto:50,grosor:3}))">Cotizar</a>
                     </div>
@@ -120,7 +132,7 @@
                                 <span class="spec-item">324 litros</span>
                                 <span class="spec-item">Grosor: 12mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">471,26 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:90,ancho:60,alto:60,grosor:4}))">Cotizar</a>
                     </div>
@@ -154,7 +166,7 @@
                                 <span class="spec-item">300 litros</span>
                                 <span class="spec-item">Grosor: 10mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">301,93 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:60,alto:50,grosor:3}))">Cotizar</a>
                     </div>
@@ -171,7 +183,7 @@
                                 <span class="spec-item">360 litros</span>
                                 <span class="spec-item">Grosor: 12mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">504,25 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:100,ancho:60,alto:60,grosor:4}))">Cotizar</a>
                     </div>
@@ -188,7 +200,7 @@
                                 <span class="spec-item">360 litros</span>
                                 <span class="spec-item">Grosor: 10mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">341,90 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:120,ancho:60,alto:50,grosor:3}))">Cotizar</a>
                     </div>
@@ -239,7 +251,7 @@
                                 <span class="spec-item">980 litros</span>
                                 <span class="spec-item">Grosor: 19mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">2.185,33 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:200,ancho:70,alto:70,grosor:6}))">Cotizar</a>
                     </div>
@@ -256,7 +268,7 @@
                                 <span class="spec-item">1120 litros</span>
                                 <span class="spec-item">Grosor: 19mm</span>
                             </div>
-                            <span class="spec-precio">A consultar</span>
+                            <span class="spec-precio">2.321,73 €</span>
                         </div>
                         <a href="cotizador.html" class="btn-modelo-compact" onclick="localStorage.setItem('modelo', JSON.stringify({largo:200,ancho:80,alto:70,grosor:6}))">Cotizar</a>
                     </div>
@@ -476,7 +488,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Coraline Acuarios. Todos los derechos reservados.</p>
+            <p>&copy; 2026 Coraline Acuarios. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
         </div>
     </footer>
 
@@ -498,6 +510,7 @@
             }
         }
     </script>
+    <script src="js/translations.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
