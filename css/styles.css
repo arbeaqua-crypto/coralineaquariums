@@ -762,7 +762,7 @@ h1 svg, h2 svg, h3 svg {
 .catalog-card {
     background: var(--secondary-color);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 1.2rem 1.5rem;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     transition: var(--transition);
@@ -777,11 +777,11 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .card-image {
-    height: 120px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.8rem;
 }
 
 .card-icon {
@@ -789,7 +789,7 @@ h1 svg, h2 svg, h3 svg {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 80px;
+    min-height: 50px;
 }
 
 .card-icon svg {
@@ -799,15 +799,16 @@ h1 svg, h2 svg, h3 svg {
 .catalog-card h3 {
     color: var(--text-blue);
     font-size: 1.3rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.6rem;
     font-family: 'Orbitron', sans-serif;
     letter-spacing: 1px;
 }
 
 .catalog-card p {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     color: var(--text-color);
     font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .btn-card {
