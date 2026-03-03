@@ -63,7 +63,8 @@ async function calcularPrecio() {
             opticoFrontal: false,
             opticoTrasera: false,
             opticoLateralIzq: false,
-            opticoLateralDer: false
+            opticoLateralDer: false,
+            token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
         
         // Registrar inicio de cotización
@@ -166,7 +167,8 @@ async function recalcularConOpticos() {
             opticoFrontal: opticoFrontal,
             opticoTrasera: opticoTrasera,
             opticoLateralIzq: opticoLateralIzq,
-            opticoLateralDer: opticoLateralDer
+            opticoLateralDer: opticoLateralDer,
+            token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
         
         // Llamar a la API

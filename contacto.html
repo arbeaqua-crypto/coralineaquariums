@@ -416,7 +416,8 @@
                 telefono: document.getElementById('telefono').value || '',
                 mensaje: document.getElementById('mensaje').value,
                 configuracion: config,
-                historialCotizaciones: historial // Incluir todas las cotizaciones de la sesión
+                historialCotizaciones: historial, // Incluir todas las cotizaciones de la sesión
+                token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
             };
             
             console.log('📦 Datos preparados:', datos);
@@ -510,6 +511,7 @@
             document.getElementById('mensaje-exito').style.display = 'none';
         }
     </script>
+    <script src="js/config-token.js"></script>
     <script src="js/logger.js"></script>
 </body>
 </html>

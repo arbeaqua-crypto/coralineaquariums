@@ -10,6 +10,9 @@ test-simple.html
 index-redirect.html
 ARCHIVOS_A_SUBIR.txt
 
+# Configuración de seguridad (NO SUBIR)
+js/config-token.js
+
 # Carpetas opcionales
 3D para la web/
 
