@@ -101,7 +101,9 @@ h1 svg, h2 svg, h3 svg {
     width: auto;
     object-fit: contain;
     transition: var(--transition);
-    /* Sin filtros - calidad original */
+    /* Eliminar cualquier fondo blanco de la imagen */
+    mix-blend-mode: multiply;
+    filter: contrast(1.1);
 }
 
 .logo-img:hover {
