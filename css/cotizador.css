@@ -3,6 +3,9 @@
    Estilo actualizado para coincidir con el resto del sitio web
    ============================================ */
 
+/* Importar fuentes de Google */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap');
+
 /* ============================================
    SECCIÓN PRINCIPAL DEL COTIZADOR
    ============================================ */
@@ -58,11 +61,11 @@
 }
 
 .cotizador-header h1 {
-    font-size: 3rem;
+    font-size: 2rem;
     margin-bottom: 15px;
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     background: linear-gradient(135deg, var(--text-blue) 0%, var(--accent-color) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -70,10 +73,11 @@
 }
 
 .cotizador-header p {
-    font-size: 1.2rem;
+    font-size: 1rem;
     opacity: 0.9;
     color: var(--text-color);
     font-weight: 400;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 /* ============================================
@@ -118,18 +122,19 @@
 
 .cotizador-form h2 {
     color: var(--text-blue);
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     margin-bottom: 10px;
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
 }
 
 .form-hint {
     color: rgba(224, 230, 237, 0.7);
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 30px;
     font-weight: 400;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 /* ============================================
@@ -152,10 +157,10 @@
     color: var(--text-color);
     font-weight: 600;
     margin-bottom: 8px;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .input-group input,
@@ -166,7 +171,7 @@
     background: rgba(10, 10, 10, 0.6);
     color: var(--text-color);
     font-family: 'Rajdhani', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 500;
     transition: all 0.3s ease;
 }
@@ -198,7 +203,7 @@
 
 .refuerzos-section h3 {
     color: var(--text-blue);
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     margin-bottom: 25px;
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
@@ -221,8 +226,9 @@
     align-items: center;
     cursor: pointer;
     color: var(--text-color);
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 500;
+    font-family: 'Rajdhani', sans-serif;
     transition: all 0.3s ease;
     padding: 5px 0;
 }
@@ -266,8 +272,8 @@
 
 .btn-calculate {
     width: 100%;
-    padding: 20px;
-    font-size: 1.3rem;
+    padding: 18px;
+    font-size: 1.1rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--accent-color) 0%, rgba(74, 144, 226, 0.8) 100%);
     color: white;
@@ -278,7 +284,7 @@
     box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
     margin-top: 25px;
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
 }
 
@@ -594,14 +600,14 @@
 }
 
 .warning-icon {
-    font-size: 36px;
+    font-size: 32px;
     margin-right: 18px;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .warning-content h4 {
     color: var(--text-blue);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 10px;
     font-weight: 600;
     font-family: 'Orbitron', sans-serif;
@@ -609,10 +615,11 @@
 
 .warning-content p {
     color: var(--text-color);
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.6;
     margin: 0;
     opacity: 0.9;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 /* ============================================
@@ -674,17 +681,18 @@
 
 .opticos-section h3 {
     color: var(--text-blue);
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     margin-bottom: 12px;
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
 }
 
 .opticos-hint {
     color: rgba(224, 230, 237, 0.7);
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 28px;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .opticos-grid {
@@ -726,13 +734,14 @@
     margin-left: 12px;
     color: var(--text-color);
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 1rem;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .optico-price {
     color: var(--accent-color);
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -775,18 +784,19 @@
 }
 
 .price-label {
-    font-size: 1.2rem;
+    font-size: 1rem;
     opacity: 0.95;
     margin-bottom: 12px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     font-weight: 600;
     position: relative;
     z-index: 1;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .price-value {
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 700;
     font-family: 'Orbitron', sans-serif;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -806,8 +816,8 @@
 
 .btn-recalcular {
     flex: 1;
-    padding: 18px;
-    font-size: 1.1rem;
+    padding: 16px;
+    font-size: 1rem;
     font-weight: 600;
     background: linear-gradient(135deg, rgba(45, 45, 45, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%);
     color: var(--text-blue);
@@ -833,8 +843,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 22px;
-    font-size: 1.2rem;
+    padding: 18px;
+    font-size: 1.05rem;
     font-weight: 700;
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
     color: white;
@@ -844,7 +854,7 @@
     box-shadow: 0 10px 30px rgba(238, 90, 111, 0.4);
     transition: all 0.3s ease;
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
 }
 
@@ -864,12 +874,12 @@
     }
 
     .cotizador-header h1 {
-        font-size: 2rem;
-        letter-spacing: 1px;
+        font-size: 1.5rem;
+        letter-spacing: 0.8px;
     }
 
     .cotizador-header p {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .cotizador-form {
@@ -877,7 +887,7 @@
     }
 
     .cotizador-form h2 {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
     }
 
     .form-grid {
@@ -954,20 +964,39 @@
 
 @media (max-width: 480px) {
     .cotizador-header h1 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
+        letter-spacing: 0.5px;
+    }
+
+    .cotizador-header p {
+        font-size: 0.85rem;
     }
 
     .cotizador-form {
         padding: 25px 15px;
     }
 
+    .cotizador-form h2 {
+        font-size: 1.1rem;
+    }
+
     .price-value {
         font-size: 2.2rem;
     }
 
-    .btn-presupuesto {
+    .btn-calculate {
         font-size: 1rem;
-        padding: 18px;
+        padding: 16px;
+    }
+
+    .btn-presupuesto {
+        font-size: 0.95rem;
+        padding: 16px;
+    }
+
+    .btn-recalcular {
+        font-size: 0.95rem;
+    }
     }
 }
 
