@@ -70,7 +70,7 @@ h1 svg, h2 svg, h3 svg {
 
 /* Navegación */
 .navbar {
-    background: var(--dark-color);
+    background: #000000;
     box-shadow: var(--shadow);
     position: fixed;
     width: 100%;
@@ -94,6 +94,13 @@ h1 svg, h2 svg, h3 svg {
     padding: 0.3rem 0;
     border-radius: 0;
     box-shadow: none;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: var(--transition);
 }
 
 .logo-img {
