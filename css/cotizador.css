@@ -477,17 +477,19 @@
 
 .cta-content h3 {
     color: var(--text-blue);
-    font-size: 2rem;
+    font-size: 1.3rem;
     margin-bottom: 15px;
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
+    font-weight: 600;
 }
 
 .cta-content p {
     color: var(--text-color);
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-bottom: 25px;
     line-height: 1.6;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .cta-features {
@@ -502,9 +504,10 @@
 
 .cta-features li {
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     padding: 8px 0;
     border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .cta-features li:last-child {
@@ -513,8 +516,8 @@
 
 .btn-cta-large {
     display: inline-block;
-    padding: 16px 40px;
-    font-size: 1.2rem;
+    padding: 14px 35px;
+    font-size: 1rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--accent-color) 0%, #5a9ff5 100%);
     color: white;
