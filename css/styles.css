@@ -29,6 +29,39 @@ body {
     font-size: 15px;
 }
 
+/* Estilos globales para iconos SVG */
+svg {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+h1 svg, h2 svg, h3 svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.btn-icon,
+.spec-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.btn-icon svg,
+.spec-item svg {
+    flex-shrink: 0;
+}
+
+.cta-features li {
+    display: flex;
+    align-items: center;
+}
+
+.cta-features li svg {
+    flex-shrink: 0;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -742,6 +775,14 @@ body {
 
 .card-icon {
     font-size: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+}
+
+.card-icon svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .catalog-card h3 {
@@ -1151,6 +1192,13 @@ body {
 .contact-icon {
     font-size: 2.2rem;
     color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-icon svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .contact-item h4 {
