@@ -104,48 +104,49 @@
 
 .btn-calculate,
 .btn-submit {
-    padding: 12px 35px;
-    font-size: 15px;
+    padding: 10px 28px;
+    font-size: 14px;
     font-weight: 600;
     border: none;
-    border-radius: 4px;
+    border-radius: 2px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .btn-calculate {
-    background: var(--accent-color);
-    color: white;
-    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    background: var(--secondary-color);
+    color: var(--text-blue);
+    border: 1px solid rgba(74, 144, 226, 0.3);
 }
 
 .btn-calculate:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6);
-    background: #5a9ff5;
+    background: var(--primary-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .btn-calculate:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
 }
 
 .btn-submit {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    background: var(--secondary-color);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
 }
 
 .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+    background: var(--primary-color);
+    border-color: #e74c3c;
+    color: #e74c3c;
 }
 
 .btn-icon {
