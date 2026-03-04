@@ -37,19 +37,28 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://coralineaquariums.com/">
     
+    <!-- Sitemap para indexación -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    
     <title>Coraline Acuarios - Acuarios a Medida en Barcelona | Fabricación Profesional</title>
     <link rel="icon" type="image/png" href="images/favicon.PNG">
+    
+    <!-- Preload recursos críticos para mejor rendimiento -->
+    <link rel="preload" href="css/styles.css?v=5.0" as="style">
+    <link rel="preload" href="images/Video Project3.mp4" as="video" type="video/mp4">
+    
     <link rel="stylesheet" href="css/styles.css?v=5.0">
     <link rel="stylesheet" href="css/cotizador.css">
     <link rel="stylesheet" href="css/modelos.css">
     <link rel="stylesheet" href="css/cookie-consent.css">
     
-    <!-- Schema.org JSON-LD -->
+    <!-- Schema.org JSON-LD - LocalBusiness -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "name": "Coraline Acuarios",
+      "alternateName": "Barcelona Reef Dream Corals S.L.",
       "image": "https://coralineaquariums.com/images/logocoraline.PNG",
       "description": "Fabricación profesional de acuarios a medida. Diseño y construcción de acuarios personalizados, marinos, plantados y reforzados.",
       "address": {
@@ -67,10 +76,76 @@
       },
       "url": "https://coralineaquariums.com",
       "telephone": "+34-937-04-44-95",
+      "email": "info@coralineaquariums.com",
       "priceRange": "€€€",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": 41.5402,
+          "longitude": 2.4446
+        },
+        "geoRadius": "100000"
+      },
       "sameAs": [
         "https://www.instagram.com/coralineaquariums/",
         "https://share.google/MaIrDWzCmjXpUBXLc"
+      ]
+    }
+    </script>
+    
+    <!-- Schema.org JSON-LD - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Hacéis acuarios a medida en Barcelona?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, en Coraline Acuarios fabricamos acuarios completamente personalizados en Barcelona y Mataró. Diseñamos y construimos acuarios de cualquier medida adaptados a tu espacio y necesidades, incluyendo acuarios marinos, de agua dulce, plantados, reforzados y comerciales."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cuánto cuesta un acuario a medida?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "El precio de un acuario a medida depende de las dimensiones, el tipo de vidrio, refuerzos estructurales y acabados. Puedes usar nuestro cotizador online para obtener un presupuesto instantáneo o contactarnos para un presupuesto personalizado sin compromiso."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué tipos de acuarios fabricáis?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Fabricamos acuarios abiertos (sin refuerzos superiores), acuarios cúbicos, acuarios reforzados para grandes volúmenes, aquaterrarios, paludarios, acuarios comerciales, acuarios marinos de arrecife y acuarios plantados. Todos construidos con vidrio de alta calidad y certificados."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Hacéis la instalación y montaje del acuario?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, ofrecemos servicio completo de transporte, instalación y montaje de acuarios en casa del cliente. También diseñamos e instalamos sistemas de filtración específicos según las especies que vayas a mantener."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cuánto tiempo tarda la fabricación de un acuario a medida?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "El tiempo de fabricación varía según la complejidad del proyecto, pero generalmente un acuario estándar se completa en 2-4 semanas. Para proyectos más complejos o de gran volumen, el plazo puede extenderse. Te informaremos del tiempo estimado al solicitar tu presupuesto."
+          }
+        }
       ]
     }
     </script>
@@ -302,19 +377,19 @@
             
             <div class="gallery-grid gallery-grid-three">
                 <div class="gallery-item" data-category="marino">
-                    <img src="images/proyectos/proyecto1.jpg?v=2" alt="Proyecto 1" class="gallery-img">
+                    <img src="images/proyectos/proyecto1.jpg?v=2" alt="Acuario marino a medida construido por Coraline Acuarios en Barcelona" class="gallery-img" loading="lazy" width="400" height="300">
                     <div class="gallery-overlay">
                         <h3 data-i18n="gallery.project1">Acuario Marino 200L</h3>
                     </div>
                 </div>
                 <div class="gallery-item" data-category="dulce">
-                    <img src="images/proyectos/proyecto2.jpg?v=2" alt="Proyecto 2" class="gallery-img">
+                    <img src="images/proyectos/proyecto2.jpg?v=2" alt="Acuario plantado personalizado fabricado en Mataró, Barcelona" class="gallery-img" loading="lazy" width="400" height="300">
                     <div class="gallery-overlay">
                         <h3 data-i18n="gallery.project2">Acuario Plantado 150L</h3>
                     </div>
                 </div>
                 <div class="gallery-item" data-category="marino">
-                    <img src="images/proyectos/proyecto3.jpg?v=2" alt="Proyecto 3" class="gallery-img">
+                    <img src="images/proyectos/proyecto3.jpg?v=2" alt="Instalación comercial de acuario grande Coraline Acuarios" class="gallery-img" loading="lazy" width="400" height="300">
                     <div class="gallery-overlay">
                         <h3 data-i18n="gallery.project3">Instalación Comercial</h3>
                     </div>

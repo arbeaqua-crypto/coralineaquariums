@@ -1,0 +1,31 @@
+# robots.txt para coralineaquariums.com
+# Optimizado para SEO - Permite rastreo completo de contenido público
+
+User-agent: *
+Allow: /
+
+# Permitir acceso a recursos CSS y JavaScript (importante para Google)
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Bloquear páginas de configuración o archivos sensibles (si existieran)
+Disallow: /cgi-bin/
+Disallow: /*.gs$
+
+# Crawl-delay para bots agresivos (opcional)
+# User-agent: *
+# Crawl-delay: 10
+
+# Prioridad para bots principales
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemap para facilitar indexación
+Sitemap: https://coralineaquariums.com/sitemap.xml
