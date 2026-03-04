@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería de Proyectos - Coraline Acuarios</title>
     <link rel="icon" type="image/png" href="images/favicon.PNG">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/gallery.css?v=4.0">
 </head>
 <body>
     <!-- Barra de Navegación -->
     <nav class="navbar">
-        <div class="container nav-container">
+        <div class="container">
             <div class="logo">
                 <a href="index.html">
                     <img src="images/logocoraline.PNG?v=2" alt="Coraline Acuarios" class="logo-img">
                 </a>
             </div>
-            
             <div class="language-selector">
-                <button class="lang-btn" onclick="changeLanguage('es')">
+                <button class="lang-btn active" data-lang="es" title="Español">
                     <span class="flag">🇪🇸</span>
                 </button>
-                <button class="lang-btn" onclick="changeLanguage('en')">
+                <button class="lang-btn" data-lang="en" title="English">
                     <span class="flag">🇬🇧</span>
                 </button>
             </div>
