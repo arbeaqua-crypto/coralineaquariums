@@ -24,6 +24,7 @@ const fotosPorProyecto = {
 document.addEventListener('DOMContentLoaded', () => {
     cargarGaleria();
     activarDragScroll();
+    setupScrollDetection();
 });
 
 // Cargar las imágenes organizadas por proyecto en filas horizontales
@@ -48,8 +49,13 @@ function cargarGaleria() {
         // Container de fotos con scroll horizontal
         const photosContainer = document.createElement('div');
         photosContainer.className = 'project-photos';
+        photosContainer.setAttribute('data-project-id', numProyecto);
 
-        // Agregar fotos del proyecto
+        // Container de miniaturas
+        const thumbnailsContainer = document.createElement('div');
+        thumbnailsContainer.className = 'project-thumbnails';
+
+        // Agregar fotos del proyecto y sus miniaturas
         for (let numFoto = 1; numFoto <= numFotos; numFoto++) {
             const proyectoStr = numProyecto.toString().padStart(2, '0');
             const fotoStr = numFoto.toString().padStart(3, '0');
@@ -58,17 +64,32 @@ function cargarGaleria() {
             const extension = (numProyecto === 10 && numFoto === 3) ? 'jpeg' : 'jpg';
             const rutaImagen = `images/proyectos/proyecto_${proyectoStr}_${fotoStr}.${extension}`;
 
+            // Foto principal
             const img = document.createElement('img');
             img.src = rutaImagen;
             img.alt = `Proyecto ${numProyecto} - Foto ${numFoto}`;
             img.className = 'project-photo';
             img.loading = 'lazy';
             img.onerror = function() { this.src = 'images/placeholder.jpg'; };
+            img.setAttribute('data-photo-index', numFoto - 1);
 
             photosContainer.appendChild(img);
+
+            // Miniatura
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'thumbnail';
+            if (numFoto === 1) thumbnail.classList.add('active');
+            thumbnail.setAttribute('data-photo-index', numFoto - 1);
+            thumbnail.setAttribute('data-project-id', numProyecto);
+            thumbnail.addEventListener('click', () => {
+                scrollToPhoto(numProyecto, numFoto - 1);
+            });
+
+            thumbnailsContainer.appendChild(thumbnail);
         }
 
         projectRow.appendChild(photosContainer);
+        projectRow.appendChild(thumbnailsContainer);
         container.appendChild(projectRow);
     }
     
@@ -114,4 +135,70 @@ function activarDragScroll() {
     });
     
     console.log('✅ Drag-to-scroll activado en', scrollContainers.length, 'filas');
+}
+
+// Scroll a una foto específica
+function scrollToPhoto(projectId, photoIndex) {
+    const photosContainer = document.querySelector(`.project-photos[data-project-id="${projectId}"]`);
+    if (!photosContainer) return;
+
+    const photos = photosContainer.querySelectorAll('.project-photo');
+    const targetPhoto = photos[photoIndex];
+    if (!targetPhoto) return;
+
+    // Calcular posición para centrar la foto
+    const containerWidth = photosContainer.offsetWidth;
+    const photoLeft = targetPhoto.offsetLeft;
+    const photoWidth = targetPhoto.offsetWidth;
+    const scrollPosition = photoLeft - (containerWidth / 2) + (photoWidth / 2);
+
+    photosContainer.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+    });
+
+    // Actualizar miniatura activa
+    updateActiveThumbnail(projectId, photoIndex);
+}
+
+// Actualizar miniatura activa
+function updateActiveThumbnail(projectId, photoIndex) {
+    const thumbnails = document.querySelectorAll(`.thumbnail[data-project-id="${projectId}"]`);
+    thumbnails.forEach((thumb, index) => {
+        if (index === photoIndex) {
+            thumb.classList.add('active');
+        } else {
+            thumb.classList.remove('active');
+        }
+    });
+}
+
+// Detectar qué foto está visible durante el scroll
+function setupScrollDetection() {
+    const scrollContainers = document.querySelectorAll('.project-photos');
+    
+    scrollContainers.forEach(container => {
+        container.addEventListener('scroll', () => {
+            const projectId = container.getAttribute('data-project-id');
+            const photos = container.querySelectorAll('.project-photo');
+            const containerRect = container.getBoundingClientRect();
+            const containerCenter = containerRect.left + containerRect.width / 2;
+
+            let closestIndex = 0;
+            let closestDistance = Infinity;
+
+            photos.forEach((photo, index) => {
+                const photoRect = photo.getBoundingClientRect();
+                const photoCenter = photoRect.left + photoRect.width / 2;
+                const distance = Math.abs(photoCenter - containerCenter);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            updateActiveThumbnail(projectId, closestIndex);
+        });
+    });
 }
