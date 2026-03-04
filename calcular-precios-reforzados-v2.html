@@ -480,7 +480,7 @@
                         document.getElementById('ratio-' + i).textContent = ratioFinal;
                         document.getElementById('deflexion-' + i).textContent = (data.deflexion || '0') + '%';
                         document.getElementById('litros-' + i).textContent = Math.round(data.litros || 0);
-                        document.getElementById('precio-' + i).textContent = (data.precio || 0).toFixed(2) + ' €';
+                        document.getElementById('precio-' + i).textContent = Math.round(data.precio || 0) + ' €';
                         document.getElementById('estado-' + i).innerHTML = '<span class="completado">✓ Completado</span>';
                         
                         // Guardar resultado
@@ -494,7 +494,7 @@
                             perimetral: perimetral ? 'Sí' : 'No',
                             tirante: tirante ? 'Sí' : 'No',
                             litros: Math.round(data.litros || 0),
-                            precio: parseFloat(data.precio || 0).toFixed(2),
+                            precio: Math.round(data.precio || 0),
                             ratioSeguridad: ratioFinal,
                             deflexion: data.deflexion || '0',
                             grosorOriginal: '8mm',

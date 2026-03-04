@@ -307,7 +307,7 @@
                     
                     // ✓ Configuración válida encontrada
                     litrosElement.textContent = Math.round(data.litros);
-                    precioElement.textContent = data.precio.toFixed(2) + ' €';
+                    precioElement.textContent = Math.round(data.precio) + ' €';
                     ratioElement.textContent = ratio.toFixed(2);
                     deflexionElement.textContent = deflexion ? deflexion.toFixed(2) + '%' : '-';
                     grosorElement.textContent = grosorMap[grosorActual];
@@ -330,7 +330,7 @@
                         grosorAjustado: grosorAjustado,
                         codigoGrosor: grosorActual,
                         litros: Math.round(data.litros),
-                        precio: parseFloat(data.precio.toFixed(2)),
+                        precio: Math.round(data.precio),
                         ratioSeguridad: ratio,
                         deflexion: deflexion
                     };
