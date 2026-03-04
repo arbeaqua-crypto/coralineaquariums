@@ -5,17 +5,17 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  SERVIDOR LOCAL - CORALINE ACUARIOS" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Iniciando servidor en http://localhost:8080" -ForegroundColor Green
+Write-Host "Iniciando servidor en http://localhost:8081" -ForegroundColor Green
 Write-Host ""
 Write-Host "Abre tu navegador y ve a:" -ForegroundColor Yellow
-Write-Host "  http://localhost:8080/contacto.html" -ForegroundColor Yellow
+Write-Host "  http://localhost:8081/contacto.html" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Para detener: Presiona Ctrl+C" -ForegroundColor Red
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 $listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://localhost:8080/")
+$listener.Prefixes.Add("http://localhost:8081/")
 $listener.Start()
 
 Write-Host "[OK] Servidor corriendo..." -ForegroundColor Green

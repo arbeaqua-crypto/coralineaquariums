@@ -61,7 +61,6 @@ const translations = {
         },
         gallery: {
             title: "Nuestros Proyectos",
-            subtitle: "Más de 100 acuarios personalizados construidos con pasión y dedicación",
             filterAll: "Todos",
             filterMarine: "Marinos",
             filterFresh: "Agua Dulce",
@@ -262,7 +261,6 @@ const translations = {
         },
         gallery: {
             title: "Our Projects",
-            subtitle: "Over 100 personalized aquariums built with passion and dedication",
             filterAll: "All",
             filterMarine: "Marine",
             filterFresh: "Freshwater",
