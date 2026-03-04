@@ -251,7 +251,6 @@ h1 svg, h2 svg, h3 svg {
     z-index: 0;
     transition: opacity 1.5s ease-in-out;
     transform: scale(1.15);
-    filter: brightness(1.1) saturate(1.2);
 }
 
 /* Efecto zoom progresivo (Ken Burns) en imagen activa */
@@ -280,7 +279,7 @@ h1 svg, h2 svg, h3 svg {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 119, 190, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 119, 190, 0.4));
     z-index: 1;
     pointer-events: none;
 }
@@ -306,7 +305,7 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .carousel-slide:nth-child(2)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 168, 232, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 168, 232, 0.4));
     pointer-events: none;
 }
 
@@ -315,7 +314,7 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .carousel-slide:nth-child(3)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 201, 167, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 201, 167, 0.4));
     pointer-events: none;
 }
 
@@ -324,7 +323,7 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .carousel-slide:nth-child(4)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 119, 190, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 119, 190, 0.4));
     pointer-events: none;
 }
 
@@ -333,7 +332,7 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .carousel-slide:nth-child(5)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 168, 232, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 168, 232, 0.4));
     pointer-events: none;
 }
 
@@ -342,7 +341,7 @@ h1 svg, h2 svg, h3 svg {
 }
 
 .carousel-slide:nth-child(6)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 201, 167, 0.25));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 201, 167, 0.4));
     pointer-events: none;
 }
 
