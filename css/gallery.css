@@ -43,23 +43,14 @@
 
 /* Fila de cada proyecto */
 .project-row {
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
     border-bottom: 1px solid rgba(74, 144, 226, 0.15);
-    padding-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    position: relative;
 }
 
 .project-row:last-child {
     border-bottom: none;
-}
-
-/* Título del proyecto */
-.project-title {
-    font-size: 1.2rem;
-    color: var(--text-blue);
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    letter-spacing: 0.5px;
 }
 
 /* Contenedor de fotos con scroll horizontal */
@@ -72,6 +63,17 @@
     cursor: grab;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    position: relative;
+    mask-image: linear-gradient(to right, 
+        rgba(0,0,0,0.3) 0%, 
+        rgba(0,0,0,1) 8%, 
+        rgba(0,0,0,1) 92%, 
+        rgba(0,0,0,0.3) 100%);
+    -webkit-mask-image: linear-gradient(to right, 
+        rgba(0,0,0,0.3) 0%, 
+        rgba(0,0,0,1) 8%, 
+        rgba(0,0,0,1) 92%, 
+        rgba(0,0,0,0.3) 100%);
 }
 
 .project-photos.active {
@@ -111,7 +113,7 @@
 }
 
 .project-photo:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
     box-shadow: 0 8px 20px rgba(74, 144, 226, 0.5);
     border-color: var(--accent-color);
     z-index: 10;
@@ -158,11 +160,7 @@
     }
 
     .project-row {
-        margin-bottom: 3rem;
-    }
-
-    .project-title {
-        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
     }
 
     .project-photo {
@@ -184,18 +182,26 @@
     }
 
     .project-row {
-        margin-bottom: 2.5rem;
-        padding-bottom: 1.5rem;
-    }
-
-    .project-title {
-        font-size: 1rem;
-        margin-bottom: 0.8rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
     }
 
     .project-photo {
         height: 180px;
         border-radius: 6px;
+    }
+
+    .project-photos {
+        mask-image: linear-gradient(to right, 
+            rgba(0,0,0,0.2) 0%, 
+            rgba(0,0,0,1) 10%, 
+            rgba(0,0,0,1) 90%, 
+            rgba(0,0,0,0.2) 100%);
+        -webkit-mask-image: linear-gradient(to right, 
+            rgba(0,0,0,0.2) 0%, 
+            rgba(0,0,0,1) 10%, 
+            rgba(0,0,0,1) 90%, 
+            rgba(0,0,0,0.2) 100%);
     }
 
     .project-photos {

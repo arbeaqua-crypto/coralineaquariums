@@ -45,12 +45,6 @@ function cargarGaleria() {
         projectRow.className = 'project-row';
         projectRow.setAttribute('data-project', numProyecto);
 
-        // Título del proyecto
-        const projectTitle = document.createElement('h3');
-        projectTitle.className = 'project-title';
-        projectTitle.textContent = `Proyecto ${numProyecto}`;
-        projectRow.appendChild(projectTitle);
-
         // Container de fotos con scroll horizontal
         const photosContainer = document.createElement('div');
         photosContainer.className = 'project-photos';
