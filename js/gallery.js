@@ -29,15 +29,23 @@ function generarArrayDeProyectos() {
     };
     
     // Tamaños posibles para crear variedad en el collage
-    // Distribución balanceada: 30% pequeñas, 40% medianas, 20% grandes, 10% altas
+    // Distribución más variada y orgánica
     const tamanos = [
-        'size-small', 'size-small', 'size-small',      // 30%
-        'size-medium', 'size-medium', 'size-medium', 'size-medium',  // 40%
-        'size-large', 'size-large',                    // 20%
-        'size-tall'                                    // 10%
+        'size-small',    // 1x1 - fotos compactas
+        'size-medium',   // 1x2 - fotos verticales medianas
+        'size-large',    // 2x2 - fotos destacadas grandes
+        'size-tall'      // 1x3 - fotos verticales altas
     ];
     
-    let contadorTamano = 0;
+    // Patrón de repetición para variedad balanceada
+    // 40% small, 30% medium, 20% large, 10% tall
+    const patron = [
+        'size-small', 'size-small', 'size-medium', 'size-small', 
+        'size-medium', 'size-large', 'size-small', 'size-medium',
+        'size-tall', 'size-small'
+    ];
+    
+    let indiceTamano = 0;
     
     // Generar rutas para todas las fotos
     for (let proyecto = 1; proyecto <= 17; proyecto++) {
@@ -50,9 +58,9 @@ function generarArrayDeProyectos() {
             // Excepción: proyecto 10 foto 3 es .jpeg, las demás son .jpg
             const extension = (proyecto === 10 && foto === 3) ? 'jpeg' : 'jpg';
             
-            // Asignar tamaño de forma cíclica pero con algo de aleatoriedad
-            const indiceAleatorio = Math.floor(Math.random() * tamanos.length);
-            const tamanoSeleccionado = tamanos[indiceAleatorio];
+            // Asignar tamaño siguiendo el patrón con algo de aleatoriedad
+            const tamanoSeleccionado = patron[indiceTamano % patron.length];
+            indiceTamano++;
             
             fotos.push({
                 img: `images/proyectos/proyecto_${proyectoStr}_${fotoStr}.${extension}`,
@@ -90,5 +98,6 @@ function cargarGaleria() {
         grid.appendChild(item);
     });
     
-    console.log('✅ Galería cargada - Layout: masonry con 4 columnas');
+    console.log('✅ Galería cargada - Layout: CSS Grid collage orgánico');
+    console.log('📐 Tamaños: size-small (1x1), size-medium (1x2), size-large (2x2), size-tall (1x3)');
 }

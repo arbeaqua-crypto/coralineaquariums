@@ -71,7 +71,7 @@
     color: var(--white);
 }
 
-/* Grid de Galería - Layout Masonry/Collage */
+/* Grid de Galería - Layout Collage Orgánico */
 .gallery-section {
     padding: 3rem 0;
     background: var(--dark-color);
@@ -79,8 +79,10 @@
 }
 
 .gallery-grid {
-    column-count: 4;
-    column-gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-auto-rows: 150px;
+    gap: 10px;
     margin-top: 2rem;
     padding: 0 10px;
 }
@@ -93,40 +95,34 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
     transition: all 0.3s ease;
     border: 1px solid rgba(74, 144, 226, 0.15);
-    margin-bottom: 12px;
-    break-inside: avoid;
-    display: inline-block;
-    width: 100%;
 }
 
-/* Tamaños variados para crear collage orgánico */
-.gallery-item.size-small img {
-    max-height: 200px;
-    width: 100%;
-    object-fit: cover;
+/* Tamaños variados para crear collage orgánico - spans en grid */
+.gallery-item.size-small {
+    grid-row: span 1;
+    grid-column: span 1;
 }
 
-.gallery-item.size-medium img {
-    max-height: 300px;
-    width: 100%;
-    object-fit: cover;
+.gallery-item.size-medium {
+    grid-row: span 2;
+    grid-column: span 1;
 }
 
-.gallery-item.size-large img {
-    max-height: 420px;
-    width: 100%;
-    object-fit: cover;
+.gallery-item.size-large {
+    grid-row: span 2;
+    grid-column: span 2;
 }
 
-.gallery-item.size-tall img {
-    max-height: 550px;
-    width: 100%;
-    object-fit: cover;
+.gallery-item.size-tall {
+    grid-row: span 3;
+    grid-column: span 1;
 }
 
 /* Base para todas las imágenes */
 .gallery-item img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
     transition: all 0.3s ease;
     border-radius: 10px;
@@ -170,34 +166,25 @@
     box-shadow: 0 8px 20px rgba(0, 168, 232, 0.4);
 }
 
-/* Responsive - Masonry */
+/* Responsive - Grid Collage */
 @media (max-width: 1400px) {
     .gallery-grid {
-        column-count: 3;
-        column-gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-auto-rows: 140px;
+        gap: 8px;
     }
 }
 
 @media (max-width: 992px) {
     .gallery-grid {
-        column-count: 2;
-        column-gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-auto-rows: 120px;
+        gap: 8px;
     }
     
-    .gallery-item.size-small img {
-        max-height: 180px;
-    }
-    
-    .gallery-item.size-medium img {
-        max-height: 260px;
-    }
-    
-    .gallery-item.size-large img {
-        max-height: 350px;
-    }
-    
-    .gallery-item.size-tall img {
-        max-height: 450px;
+    .gallery-item.size-large {
+        grid-row: span 2;
+        grid-column: span 1;
     }
 }
 
@@ -207,18 +194,28 @@
     }
 
     .gallery-grid {
-        column-count: 2;
-        column-gap: 8px;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-auto-rows: 100px;
+        gap: 6px;
         padding: 0 5px;
     }
 
     .gallery-item {
-        margin-bottom: 8px;
         border-radius: 8px;
     }
     
     .gallery-item img {
         border-radius: 8px;
+    }
+    
+    .gallery-item.size-large {
+        grid-row: span 2;
+        grid-column: span 1;
+    }
+    
+    .gallery-item.size-tall {
+        grid-row: span 2;
+        grid-column: span 1;
     }
 
     .filter-buttons {
@@ -233,17 +230,24 @@
 
 @media (max-width: 480px) {
     .gallery-grid {
-        column-count: 1;
-        column-gap: 0;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 120px;
+        gap: 5px;
     }
     
-    .gallery-item.size-small img,
-    .gallery-item.size-medium img {
-        max-height: 280px;
+    .gallery-item.size-small,
+    .gallery-item.size-medium {
+        grid-row: span 1;
+        grid-column: span 1;
     }
     
-    .gallery-item.size-large img,
-    .gallery-item.size-tall img {
-        max-height: 400px;
+    .gallery-item.size-large {
+        grid-row: span 2;
+        grid-column: span 2;
+    }
+    
+    .gallery-item.size-tall {
+        grid-row: span 2;
+        grid-column: span 1;
     }
 }
