@@ -1183,10 +1183,51 @@ h1 svg, h2 svg, h3 svg {
 .footer {
     background: var(--dark-color);
     color: var(--text-color);
-    text-align: center;
-    padding: 1.5rem 0;
+    padding: 3rem 0 1.5rem;
     font-size: 0.9rem;
     border-top: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.footer-section h4 {
+    color: var(--text-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.footer-section p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.footer-section a:hover {
+    opacity: 0.8;
+}
+
+.footer-bottom {
+    text-align: center;
+}
+
+/* Responsive para footer */
+@media (max-width: 768px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .footer {
+        padding: 2rem 0 1rem;
+    }
 }
 
 /* Responsive */
