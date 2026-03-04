@@ -37,6 +37,7 @@
     <link rel="icon" type="image/png" href="images/favicon.PNG">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/cotizador.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
     <style>
         .contacto-page {
             min-height: 100vh;
@@ -557,10 +558,29 @@
             document.getElementById('mensaje-exito').style.display = 'none';
         }
     </script>
+    <!-- Banner de Consentimiento de Cookies y Datos -->
+    <div id="cookie-consent-banner" class="cookie-consent-banner">
+        <div class="cookie-consent-content">
+            <div class="cookie-consent-text">
+                <p>
+                    <strong>🍪 Este sitio utiliza cookies para mejorar tu experiencia.</strong> 
+                    Al aceptar, consientes el uso de cookies y el tratamiento de los datos personales que proporciones a través de formularios (contacto, cotización) según nuestra 
+                    <a href="politica-privacidad.html" target="_blank">Política de Privacidad</a> y 
+                    <a href="politica-cookies.html" target="_blank">Política de Cookies</a>.
+                </p>
+            </div>
+            <div class="cookie-consent-buttons">
+                <button id="cookie-accept-btn" class="cookie-consent-btn accept">Aceptar</button>
+                <button id="cookie-reject-btn" class="cookie-consent-btn reject">Rechazar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Token de seguridad (configuración inline)
         window.TOKEN_SEGURIDAD = 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y';
     </script>
+    <script src="js/cookie-consent.js"></script>
     <!-- ⚠️ Logger DESHABILITADO temporalmente para diagnóstico -->
     <!-- <script src="js/logger.js"></script> -->
 </body>
