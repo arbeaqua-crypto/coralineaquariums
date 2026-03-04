@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Básico -->
+    <meta name="description" content="Política de Cookies de Coraline Acuarios - Información sobre el uso de cookies en nuestra web.">
+    <meta name="robots" content="index, follow">
+    
+    <title>Política de Cookies - Coraline Acuarios</title>
+    <link rel="icon" type="image/png" href="images/favicon.PNG">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        .legal-page {
+            background: var(--dark-color);
+            min-height: 100vh;
+            padding: 100px 20px 60px;
+        }
+        
+        .legal-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--secondary-color);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .legal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .legal-header h1 {
+            color: var(--text-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legal-header p {
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+        
+        .legal-content {
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+        
+        .legal-content h2 {
+            color: var(--text-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(74, 144, 226, 0.3);
+        }
+        
+        .legal-content h2:first-of-type {
+            margin-top: 0;
+        }
+        
+        .legal-content p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+        
+        .legal-content ul {
+            margin: 1rem 0 1.5rem 2rem;
+            list-style: none;
+        }
+        
+        .legal-content ul li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .legal-content ul li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+        
+        .legal-content ul li a {
+            color: var(--accent-color);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .legal-content ul li a:hover {
+            text-decoration: underline;
+        }
+        
+        .cookie-type {
+            background: rgba(74, 144, 226, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+            margin: 1.5rem 0;
+        }
+        
+        .cookie-type h3 {
+            color: var(--text-blue);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .cookie-type p {
+            margin-bottom: 0;
+        }
+        
+        .btn-volver {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: var(--accent-color);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-volver:hover {
+            background: #5a9ff5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .legal-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .legal-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .legal-content h2 {
+                font-size: 1.2rem;
+            }
+            
+            .legal-content p {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/logocoraline.PNG?v=2" alt="Coraline Acuarios" class="logo-img">
+                </a>
+            </div>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es" title="Español">
+                    <span class="flag">🇪🇸</span>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#inicio" class="nav-link">Inicio</a></li>
+                <li><a href="index.html#nosotros" class="nav-link">Nosotros</a></li>
+                <li><a href="index.html#catalogo" class="nav-link">Catálogo</a></li>
+                <li><a href="galeria.html" class="nav-link">Galería</a></li>
+                <li><a href="blog.html" class="nav-link">Blog</a></li>
+                <li><a href="cotizador.html" class="nav-link btn-cotizar">Cotizador</a></li>
+                <li><a href="contacto.html" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Legal -->
+    <div class="legal-page">
+        <div class="legal-container">
+            <div class="legal-header">
+                <h1>Política de Cookies</h1>
+                <p>Información sobre el uso de cookies</p>
+            </div>
+            
+            <div class="legal-content">
+                <h2>¿Qué es una Cookie?</h2>
+                <p>Una Cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y, dependiendo de la información que contengan y de la forma en que utilice su equipo, pueden utilizarse para reconocer al usuario.</p>
+                
+                <h2>¿Qué tipo de cookies usa esta página web?</h2>
+                
+                <div class="cookie-type">
+                    <h3>🔧 Cookies Técnicas</h3>
+                    <p>Son aquéllas que permiten al usuario la navegación a través de una página web, plataforma o aplicación y la utilización de las diferentes opciones o servicios que en ella existan como, por ejemplo, controlar el tráfico y la comunicación de datos, identificar la sesión, acceder a partes de acceso restringido, recordar los elementos que integran un pedido, realizar el proceso de compra de un pedido, realizar la solicitud de inscripción o participación en un evento, utilizar elementos de seguridad durante la navegación, almacenar contenidos para la difusión de videos o sonido o compartir contenidos a través de redes sociales.</p>
+                </div>
+                
+                <div class="cookie-type">
+                    <h3>📊 Cookies de Análisis</h3>
+                    <p>Son aquéllas que permiten al responsable de las mismas, el seguimiento y análisis del comportamiento de los usuarios de los sitios web a los que están vinculadas. La información recogida mediante este tipo de cookies se utiliza en la medición de la actividad de los sitios web, aplicación o plataforma y para la elaboración de perfiles de navegación de los usuarios de dichos sitios, aplicaciones y plataformas, con el fin de introducir mejoras en función del análisis de los datos de uso que hacen los usuarios del servicio.</p>
+                </div>
+                
+                <h2>Gestión de Cookies</h2>
+                <p>Para cumplir con la legislación vigente, debemos pedirle permiso para gestionar cookies. Si decide no autorizar el tratamiento indicándonos que no está de acuerdo, no instalaremos ninguna cookie. Si decide modificar la configuración de su acceso a la página web, debe saber que es posible eliminar las cookies o impedir que se registre esta información en su equipo en cualquier momento mediante la modificación de los parámetros de configuración de su navegador:</p>
+                
+                <ul>
+                    <li><strong>Internet Explorer:</strong> <a href="http://windows.microsoft.com/es-es/windows-vista/block-or-allow-cookies" target="_blank" rel="noopener">Configuración de cookies</a></li>
+                    <li><strong>Firefox:</strong> <a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-que-los-sitios-we" target="_blank" rel="noopener">Configuración de cookies</a></li>
+                    <li><strong>Google Chrome:</strong> <a href="https://support.google.com/chrome/answer/95647?hl=es" target="_blank" rel="noopener">Configuración de cookies</a></li>
+                    <li><strong>Safari:</strong> <a href="http://support.apple.com/kb/HT1677?viewlocale=es_ES&locale=es_ES" target="_blank" rel="noopener">Configuración de cookies</a></li>
+                </ul>
+                
+                <h2>Más Información</h2>
+                <p>Si necesita más información sobre la directiva de cookies, por favor, consulte el Boletín Oficial del Estado publicado el pasado 31 de marzo de 2012 (para España), en el que se describen las directivas en materia de comunicaciones electrónicas.</p>
+                
+                <p>También se puede consultar la directiva en <a href="https://ico.org.uk/" target="_blank" rel="noopener" style="color: var(--accent-color); text-decoration: none;">Information Commissioner Office</a> (en inglés). Adicionalmente, puede acceder a unos vídeos didácticos publicados por la Agencia Española de Protección de Datos en el que se explica, paso a paso, cómo configurar las opciones de privacidad de los navegadores, las redes sociales y los sistemas operativos móviles más comunes, en <a href="https://www.aepd.es/es" target="_blank" rel="noopener" style="color: var(--accent-color); text-decoration: none;">Videos AEPD</a>.</p>
+                
+                <div style="text-align: center;">
+                    <a href="index.html" class="btn-volver">← Volver a Inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Coraline Acuarios. Todos los derechos reservados.</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.8;">
+                <a href="aviso-legal.html" style="color: var(--text-blue); text-decoration: none; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Aviso Legal</a> | 
+                <a href="politica-cookies.html" style="color: var(--text-blue); text-decoration: none; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Política de Cookies</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/translations.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
