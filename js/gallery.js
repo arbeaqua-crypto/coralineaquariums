@@ -1,103 +1,123 @@
-// ============= GALERÍA DE PROYECTOS - COLLAGE MASONRY =============
+// ============= GALERÍA DE PROYECTOS - FILAS CON SCROLL HORIZONTAL =============
 
-// Generar array de proyectos automáticamente
-// 92 fotos: proyecto_01_001.jpg hasta proyecto_17_004.jpg
-const proyectos = generarArrayDeProyectos();
-
-function generarArrayDeProyectos() {
-    const fotos = [];
-    
-    // Estructura de carpetas: cantidad de fotos por proyecto
-    const fotosPorProyecto = {
-        1: 2,
-        2: 5,
-        3: 11,
-        4: 3,
-        5: 6,
-        6: 4,
-        7: 5,
-        8: 3,
-        9: 4,
-        10: 3,
-        11: 9,
-        12: 10,
-        13: 5,
-        14: 5,
-        15: 3,
-        16: 10,
-        17: 4
-    };
-    
-    // Tamaños posibles para crear variedad en el collage
-    // Distribución más variada y orgánica
-    const tamanos = [
-        'size-small',    // 1x1 - fotos compactas
-        'size-medium',   // 1x2 - fotos verticales medianas
-        'size-large',    // 2x2 - fotos destacadas grandes
-        'size-tall'      // 1x3 - fotos verticales altas
-    ];
-    
-    // Patrón de repetición para variedad balanceada
-    // 40% small, 30% medium, 20% large, 10% tall
-    const patron = [
-        'size-small', 'size-small', 'size-medium', 'size-small', 
-        'size-medium', 'size-large', 'size-small', 'size-medium',
-        'size-tall', 'size-small'
-    ];
-    
-    let indiceTamano = 0;
-    
-    // Generar rutas para todas las fotos
-    for (let proyecto = 1; proyecto <= 17; proyecto++) {
-        const numFotos = fotosPorProyecto[proyecto];
-        
-        for (let foto = 1; foto <= numFotos; foto++) {
-            const proyectoStr = proyecto.toString().padStart(2, '0');
-            const fotoStr = foto.toString().padStart(3, '0');
-            
-            // Excepción: proyecto 10 foto 3 es .jpeg, las demás son .jpg
-            const extension = (proyecto === 10 && foto === 3) ? 'jpeg' : 'jpg';
-            
-            // Asignar tamaño siguiendo el patrón con algo de aleatoriedad
-            const tamanoSeleccionado = patron[indiceTamano % patron.length];
-            indiceTamano++;
-            
-            fotos.push({
-                img: `images/proyectos/proyecto_${proyectoStr}_${fotoStr}.${extension}`,
-                proyecto: proyecto,
-                size: tamanoSeleccionado
-            });
-        }
-    }
-    
-    return fotos;
-}
+// Estructura de carpetas: cantidad de fotos por proyecto
+const fotosPorProyecto = {
+    1: 2,
+    2: 5,
+    3: 11,
+    4: 3,
+    5: 6,
+    6: 4,
+    7: 5,
+    8: 3,
+    9: 4,
+    10: 3,
+    11: 9,
+    12: 10,
+    13: 5,
+    14: 5,
+    15: 3,
+    16: 10,
+    17: 4
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarGaleria();
+    activarDragScroll();
 });
 
-// Cargar las imágenes en el grid masonry
+// Cargar las imágenes organizadas por proyecto en filas horizontales
 function cargarGaleria() {
-    const grid = document.getElementById('galleryGrid');
-    if (!grid) return;
+    const container = document.getElementById('galleryGrid');
+    if (!container) return;
 
-    grid.innerHTML = '';
+    container.innerHTML = '';
+    container.className = 'gallery-container';
 
-    console.log('🎨 Cargando galería masonry con', proyectos.length, 'fotos');
+    console.log('🎨 Cargando galería por proyectos con scroll horizontal');
 
-    proyectos.forEach((proyecto, index) => {
-        const item = document.createElement('div');
-        item.className = `gallery-item ${proyecto.size}`;
-        item.setAttribute('data-index', index);
+    // Crear una fila por cada proyecto
+    for (let numProyecto = 1; numProyecto <= 17; numProyecto++) {
+        const numFotos = fotosPorProyecto[numProyecto];
+        
+        // Crear fila del proyecto
+        const projectRow = document.createElement('div');
+        projectRow.className = 'project-row';
+        projectRow.setAttribute('data-project', numProyecto);
 
-        item.innerHTML = `
-            <img src="${proyecto.img}" alt="Proyecto ${proyecto.proyecto}" onerror="this.src='images/placeholder.jpg'" loading="lazy">
-        `;
+        // Título del proyecto
+        const projectTitle = document.createElement('h3');
+        projectTitle.className = 'project-title';
+        projectTitle.textContent = `Proyecto ${numProyecto}`;
+        projectRow.appendChild(projectTitle);
 
-        grid.appendChild(item);
+        // Container de fotos con scroll horizontal
+        const photosContainer = document.createElement('div');
+        photosContainer.className = 'project-photos';
+
+        // Agregar fotos del proyecto
+        for (let numFoto = 1; numFoto <= numFotos; numFoto++) {
+            const proyectoStr = numProyecto.toString().padStart(2, '0');
+            const fotoStr = numFoto.toString().padStart(3, '0');
+            
+            // Excepción: proyecto 10 foto 3 es .jpeg
+            const extension = (numProyecto === 10 && numFoto === 3) ? 'jpeg' : 'jpg';
+            const rutaImagen = `images/proyectos/proyecto_${proyectoStr}_${fotoStr}.${extension}`;
+
+            const img = document.createElement('img');
+            img.src = rutaImagen;
+            img.alt = `Proyecto ${numProyecto} - Foto ${numFoto}`;
+            img.className = 'project-photo';
+            img.loading = 'lazy';
+            img.onerror = function() { this.src = 'images/placeholder.jpg'; };
+
+            photosContainer.appendChild(img);
+        }
+
+        projectRow.appendChild(photosContainer);
+        container.appendChild(projectRow);
+    }
+    
+    console.log('✅ Galería cargada - 17 proyectos con scroll horizontal arrastrando');
+}
+
+// Activar funcionalidad de arrastrar para hacer scroll
+function activarDragScroll() {
+    const scrollContainers = document.querySelectorAll('.project-photos');
+    
+    scrollContainers.forEach(container => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.classList.add('active');
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+            container.style.cursor = 'grabbing';
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.classList.remove('active');
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.classList.remove('active');
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 2; // Velocidad de scroll
+            container.scrollLeft = scrollLeft - walk;
+        });
     });
     
-    console.log('✅ Galería cargada - Layout: CSS Grid collage orgánico');
-    console.log('📐 Tamaños: size-small (1x1), size-medium (1x2), size-large (2x2), size-tall (1x3)');
+    console.log('✅ Drag-to-scroll activado en', scrollContainers.length, 'filas');
 }
