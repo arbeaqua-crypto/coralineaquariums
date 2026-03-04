@@ -378,10 +378,20 @@
             });
         }
         
+        // Variable para evitar envíos duplicados
+        let enviando = false;
+        
         // Enviar formulario
         document.getElementById('formulario-contacto').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // 🔒 PROTECCIÓN CONTRA DOBLE ENVÍO
+            if (enviando) {
+                console.log('⚠️ Ya hay un envío en proceso, ignorando duplicado');
+                return;
+            }
+            
+            enviando = true;
             console.log('🚀 Formulario enviado - Iniciando proceso...');
             
             // Validar captcha
@@ -391,6 +401,7 @@
                 mostrarError('Respuesta del captcha incorrecta. Por favor, inténtalo de nuevo.');
                 generarCaptcha();
                 document.getElementById('captcha-respuesta').value = '';
+                enviando = false; // Resetear la bandera
                 return;
             }
             console.log('✅ Captcha correcto');
@@ -400,6 +411,7 @@
             if (!validarEmail(email)) {
                 console.log('❌ Email inválido:', email);
                 mostrarError('Por favor, introduce un email válido.');
+                enviando = false; // Resetear la bandera
                 return;
             }
             console.log('✅ Email válido:', email);
@@ -487,6 +499,7 @@
                 mostrarError('❌ Error al enviar la solicitud: ' + error.message + '. Revisa la consola del navegador (F12) para más detalles.');
                 btnEnviar.disabled = false;
                 btnEnviar.textContent = '✉️ Enviar Solicitud de Presupuesto';
+                enviando = false; // Resetear la bandera en caso de error
             }
         });
         
