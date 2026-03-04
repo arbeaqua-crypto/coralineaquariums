@@ -435,6 +435,8 @@
             
             console.log('📦 Datos preparados:', datos);
             
+            // ⚠️ Logger deshabilitado temporalmente para diagnóstico
+            /*
             // Registrar intento de envío de formulario
             if (window.Logger) {
                 window.Logger.logFormularioPresupuesto({
@@ -445,6 +447,7 @@
                     precio: config.precio
                 });
             }
+            */
             
             // Deshabilitar botón
             const btnEnviar = document.querySelector('.btn-enviar');
@@ -491,10 +494,13 @@
                 console.error('❌ Mensaje de error:', error.message);
                 console.error('❌ Stack trace:', error.stack);
                 
+                // ⚠️ Logger deshabilitado temporalmente para diagnóstico
+                /*
                 // Registrar error al enviar formulario
                 if (window.Logger) {
                     window.Logger.logErrorEmail(error, 'formulario_presupuesto');
                 }
+                */
                 
                 mostrarError('❌ Error al enviar la solicitud: ' + error.message + '. Revisa la consola del navegador (F12) para más detalles.');
                 btnEnviar.disabled = false;
@@ -526,6 +532,7 @@
         // Token de seguridad (configuración inline)
         window.TOKEN_SEGURIDAD = 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y';
     </script>
-    <script src="js/logger.js"></script>
+    <!-- ⚠️ Logger DESHABILITADO temporalmente para diagnóstico -->
+    <!-- <script src="js/logger.js"></script> -->
 </body>
 </html>
