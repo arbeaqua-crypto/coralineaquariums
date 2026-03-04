@@ -221,9 +221,35 @@ h1 svg, h2 svg, h3 svg {
     background: var(--dark-color);
 }
 
+/* Video de fondo */
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    object-fit: cover;
+}
+
+/* Overlay oscuro sobre el video */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 119, 190, 0.5));
+    z-index: 1;
+}
+
 .carousel {
     height: 100%;
     position: relative;
+    z-index: 2;
 }
 
 .carousel-slide {
@@ -235,53 +261,15 @@ h1 svg, h2 svg, h3 svg {
     display: flex;
     align-items: center;
     overflow: hidden;
+    z-index: 2;
 }
 
-/* Imagen de fondo que hace zoom */
-.carousel-slide::after {
-    content: '';
-    position: absolute;
-    top: -10%;
-    left: -10%;
-    width: 120%;
-    height: 120%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 0;
-    transition: opacity 1.5s ease-in-out;
-    transform: scale(1.15);
-}
+/* Eliminamos el ::after que mostraba imágenes de fondo */
+/* Ya no necesitamos las imágenes porque usamos video */
 
-/* Efecto zoom progresivo (Ken Burns) en imagen activa */
+/* Eliminamos el ::before del overlay porque ya tenemos hero-overlay */
 .carousel-slide.active {
     opacity: 1;
-}
-
-.carousel-slide.active::after {
-    animation: kenBurnsZoom 7s ease-out forwards;
-}
-
-@keyframes kenBurnsZoom {
-    0% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(1.15);
-    }
-}
-
-/* Overlay oscuro encima de la imagen */
-.carousel-slide::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 119, 190, 0.4));
-    z-index: 1;
-    pointer-events: none;
 }
 
 /* Alineación alternada del contenido */
@@ -295,63 +283,17 @@ h1 svg, h2 svg, h3 svg {
     padding-right: 8%;
 }
 
-/* Imágenes de fondo para cada slide */
-.carousel-slide:nth-child(1)::after {
-    background-image: url('../images/banner/slide1.jpg');
-}
-
-.carousel-slide:nth-child(2)::after {
-    background-image: url('../images/banner/slide2.jpg');
-}
-
-.carousel-slide:nth-child(2)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 168, 232, 0.4));
-    pointer-events: none;
-}
-
-.carousel-slide:nth-child(3)::after {
-    background-image: url('../images/banner/slide3.jpg');
-}
-
-.carousel-slide:nth-child(3)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 201, 167, 0.4));
-    pointer-events: none;
-}
-
-.carousel-slide:nth-child(4)::after {
-    background-image: url('../images/banner/slide4.jpg');
-}
-
-.carousel-slide:nth-child(4)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 119, 190, 0.4));
-    pointer-events: none;
-}
-
-.carousel-slide:nth-child(5)::after {
-    background-image: url('../images/banner/slide5.jpg');
-}
-
-.carousel-slide:nth-child(5)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 168, 232, 0.4));
-    pointer-events: none;
-}
-
-.carousel-slide:nth-child(6)::after {
-    background-image: url('../images/banner/slide6.jpg');
-}
-
-.carousel-slide:nth-child(6)::before {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 201, 167, 0.4));
-    pointer-events: none;
-}
+/* Eliminamos las referencias a imágenes de fondo porque ahora usamos video */
 
 .carousel-content {
     color: var(--white);
     padding: 3rem 4rem;
     max-width: 700px;
     position: relative;
-    z-index: 2;
-    background: transparent;
+    z-index: 3;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
     opacity: 0;
     text-align: center;
 }
@@ -1311,6 +1253,11 @@ h1 svg, h2 svg, h3 svg {
 
     .hero {
         height: 400px;
+    }
+
+    .hero-video {
+        min-width: 100%;
+        width: 100%;
     }
 
     .catalog-grid,
