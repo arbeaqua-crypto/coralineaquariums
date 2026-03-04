@@ -1206,7 +1206,7 @@ h1 svg, h2 svg, h3 svg {
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
     margin-bottom: 1.5rem;
-    text-align: left;
+    text-align: center;
 }
 
 .footer-section h4 {
