@@ -16,6 +16,9 @@ js/config-token.js
 # Carpetas opcionales
 3D para la web/
 
+# Carpeta de pruebas (NO SUBIR A PRODUCCIÓN)
+DEMO-3D/
+
 # Archivos del sistema
 .DS_Store
 Thumbs.db

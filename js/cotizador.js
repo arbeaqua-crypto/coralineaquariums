@@ -22,8 +22,9 @@ async function calcularPrecio() {
     const ancho = parseFloat(document.getElementById('ancho').value);
     const alto = parseFloat(document.getElementById('alto').value);
     const codigoGrosor = parseInt(document.getElementById('grosor').value);
-    const perimetrales = document.getElementById('perimetrales').checked;
-    const tirantes = document.getElementById('tirantes').checked;
+    const tipoRefuerzo = document.getElementById('tipoRefuerzo') ? document.getElementById('tipoRefuerzo').value : 'ninguno';
+    const perimetrales = (tipoRefuerzo === 'perimetral' || tipoRefuerzo === 'perimetral-tirantes');
+    const tirantes = (tipoRefuerzo === 'perimetral-tirantes');
     
     // Validar campos
     if (!largo || !ancho || !alto || !codigoGrosor) {
@@ -223,12 +224,8 @@ function mostrarResultado(data) {
     // Mostrar información básica (solo litros, sin ratio ni deflexión)
     document.getElementById('litros').textContent = `${data.litros} litros`;
     
-    // Mostrar y configurar opciones de cristal óptico
+    // Configurar precios de cristal óptico (sin decimales)
     if (data.precioOpticoFrontalTrasero > 0 || data.precioOpticoLateral > 0) {
-        const opticosSection = document.getElementById('opticos-section');
-        opticosSection.style.display = 'block';
-        
-        // Actualizar precios de ópticos (sin decimales)
         document.getElementById('precioOpticoFrontal').textContent = `+${Math.round(data.precioOpticoFrontalTrasero)}€`;
         document.getElementById('precioOpticoTrasera').textContent = `+${Math.round(data.precioOpticoFrontalTrasero)}€`;
         document.getElementById('precioOpticoLateralIzq').textContent = `+${Math.round(data.precioOpticoLateral)}€`;
@@ -249,6 +246,12 @@ function mostrarResultado(data) {
     // Mostrar sección de resultados
     document.getElementById('resultados').style.display = 'block';
     document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Mostrar menú de extras y personalizaciones
+    const extrasSection = document.getElementById('extras-section');
+    if (extrasSection) {
+        extrasSection.style.display = 'block';
+    }
 }
 
 /**
@@ -263,11 +266,8 @@ function mostrarAvisos(data) {
         const avisoRatio = document.createElement('div');
         avisoRatio.className = 'warning-box warning-danger';
         avisoRatio.innerHTML = `
-            <div class="warning-icon">⚠️</div>
-            <div class="warning-content">
-                <h4>Ratio de Seguridad Bajo</h4>
-                <p>La configuración actual da como resultado un ratio de seguridad más bajo de lo recomendado. Para evitar una construcción débil, puedes aumentar el grosor de cristal o añadir refuerzos perimetrales y tirantes.</p>
-            </div>
+            <div class="status-title">⚠ Ratio de Seguridad Bajo</div>
+            <div class="status-description">La configuración actual da como resultado un ratio de seguridad más bajo de lo recomendado. Para evitar una construcción débil, puedes aumentar el grosor de cristal o añadir refuerzos perimetrales y tirantes.</div>
         `;
         warningsContainer.appendChild(avisoRatio);
     }
@@ -277,11 +277,8 @@ function mostrarAvisos(data) {
         const avisoDeflexion = document.createElement('div');
         avisoDeflexion.className = 'warning-box warning-danger';
         avisoDeflexion.innerHTML = `
-            <div class="warning-icon">⚠️</div>
-            <div class="warning-content">
-                <h4>Grosor Insuficiente para la Altura</h4>
-                <p>El grosor de las láminas de esta configuración es bajo para la altura y la fuerza del agua, pudiendo ocasionar deformación en el cristal. Recomendamos aumentar el grosor general del acuario o bien bajar la altura de este para evitarlo.</p>
-            </div>
+            <div class="status-title">⚠ Grosor Insuficiente</div>
+            <div class="status-description">El grosor de las láminas de esta configuración es bajo para la altura y la fuerza del agua, pudiendo ocasionar deformación en el cristal. Recomendamos aumentar el grosor general del acuario o bien bajar la altura de este para evitarlo.</div>
         `;
         warningsContainer.appendChild(avisoDeflexion);
     }
@@ -291,11 +288,8 @@ function mostrarAvisos(data) {
         const avisoOk = document.createElement('div');
         avisoOk.className = 'warning-box warning-success';
         avisoOk.innerHTML = `
-            <div class="warning-icon">✅</div>
-            <div class="warning-content">
-                <h4>Configuración Segura</h4>
-                <p>Esta configuración cumple con todos los estándares de seguridad recomendados.</p>
-            </div>
+            <div class="status-title">✓ Configuración Segura</div>
+            <div class="status-description">Esta configuración cumple con todos los estándares de seguridad recomendados.</div>
         `;
         warningsContainer.appendChild(avisoOk);
     }
@@ -327,8 +321,9 @@ function nuevaCotizacion() {
     document.getElementById('ancho').value = '';
     document.getElementById('alto').value = '';
     document.getElementById('grosor').value = '3'; // Reset a 10mm recomendado
-    document.getElementById('perimetrales').checked = false;
-    document.getElementById('tirantes').checked = false;
+    if (document.getElementById('tipoRefuerzo')) {
+        document.getElementById('tipoRefuerzo').value = 'ninguno';
+    }
     
     // Ocultar sección de resultados
     document.getElementById('resultados').style.display = 'none';
@@ -374,24 +369,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    const tirantesCheckbox = document.getElementById('tirantes');
-    const perimetralesCheckbox = document.getElementById('perimetrales');
-    
-    if (tirantesCheckbox && perimetralesCheckbox) {
-        // Si se activa tirantes, activar automáticamente perimetrales
-        tirantesCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                perimetralesCheckbox.checked = true;
-            }
-        });
-        
-        // Si se desactiva perimetrales, desactivar también tirantes
-        perimetralesCheckbox.addEventListener('change', function() {
-            if (!this.checked) {
-                tirantesCheckbox.checked = false;
-            }
-        });
-    }
+    // Ya no se necesita la lógica de dependencia entre tirantes y perimetrales
+    // porque el selector ya lo maneja implícitamente
     
     // Configurar botón de presupuesto para guardar configuración
     const btnPresupuesto = document.getElementById('btnPresupuesto');
