@@ -53,17 +53,17 @@
     <style>
         .contacto-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             padding: 40px 20px;
         }
         
         .contacto-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background: white;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(33, 80, 120, 0.95));
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
         
         .header-contacto {
@@ -72,31 +72,48 @@
         }
         
         .header-contacto h1 {
-            color: #333;
+            color: #ffffff;
             margin-bottom: 10px;
+            font-size: 2rem;
         }
         
         .header-contacto p {
-            color: #666;
+            color: rgba(255, 255, 255, 0.8);
         }
         
         .resumen-configuracion {
-            background: #f8f9fa;
+            background: rgba(15, 32, 39, 0.6);
+            border: 1px solid rgba(102, 126, 234, 0.3);
             border-radius: 10px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 30px;
         }
         
         .resumen-configuracion h3 {
-            color: #333;
-            margin-bottom: 15px;
+            color: #6eb9ff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .config-section {
+            margin-bottom: 20px;
+        }
+        
+        .config-section-title {
+            color: #6eb9ff;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         
         .config-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 8px 0 8px 15px;
+            border-left: 3px solid rgba(102, 126, 234, 0.3);
+            margin-bottom: 5px;
         }
         
         .config-item:last-child {
@@ -104,26 +121,27 @@
         }
         
         .config-label {
-            color: #666;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
         }
         
         .config-value {
-            color: #333;
+            color: #ffffff;
             font-weight: 600;
         }
         
         .precio-destacado {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         
         .precio-destacado .precio {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
         }
         
@@ -133,7 +151,7 @@
         
         .formulario-contacto label {
             display: block;
-            color: #555;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             margin-bottom: 8px;
         }
@@ -143,11 +161,18 @@
         .formulario-contacto textarea {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid rgba(102, 126, 234, 0.3);
             border-radius: 8px;
             font-size: 16px;
             font-family: inherit;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .formulario-contacto input::placeholder,
+        .formulario-contacto textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
         
         .formulario-contacto input:focus,
@@ -155,7 +180,8 @@
         .formulario-contacto textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
         
         .formulario-contacto textarea {
@@ -163,9 +189,21 @@
             min-height: 120px;
         }
         
+        .formulario-contacto select option {
+            background: #1a3a50;
+            color: #ffffff;
+        }
+        
+        .help-text {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
         .captcha-container {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
+            background: rgba(15, 32, 39, 0.6);
+            border: 2px solid rgba(102, 126, 234, 0.3);
             border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
@@ -175,7 +213,7 @@
         .captcha-question {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #6eb9ff;
             margin-bottom: 10px;
         }
         
@@ -212,7 +250,7 @@
         .btn-volver {
             display: inline-block;
             margin-bottom: 20px;
-            color: white;
+            color: #6eb9ff;
             text-decoration: none;
             font-weight: 600;
             transition: opacity 0.3s ease;
@@ -330,60 +368,171 @@
             const detallesDiv = document.getElementById('config-detalles');
             
             if (Object.keys(config).length === 0) {
-                detallesDiv.innerHTML = '<p style="color: #666;">No hay configuración guardada. <a href="index.html#cotizador">Volver al cotizador</a></p>';
+                detallesDiv.innerHTML = '<p style="color: rgba(255,255,255,0.7);">No hay configuración guardada. <a href="cotizador.html" style="color: #6eb9ff;">Volver al cotizador</a></p>';
                 return;
             }
             
             let html = '';
             
-            if (config.largo && config.ancho && config.alto) {
+            // MEDIDAS Y CRISTAL
+            if (config.medidas) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">📏 Medidas y Características</div>`;
+                
                 html += `
                     <div class="config-item">
-                        <span class="config-label">Medidas (Largo x Ancho x Alto):</span>
-                        <span class="config-value">${config.largo} x ${config.ancho} x ${config.alto} cm</span>
+                        <span class="config-label">Dimensiones (L x A x H):</span>
+                        <span class="config-value">${config.medidas.largo} x ${config.medidas.ancho} x ${config.medidas.alto} cm</span>
                     </div>
-                `;
-            }
-            
-            if (config.grosor) {
-                html += `
-                    <div class="config-item">
-                        <span class="config-label">Grosor del cristal:</span>
-                        <span class="config-value">${config.grosor}</span>
-                    </div>
-                `;
-            }
-            
-            if (config.litros) {
-                html += `
                     <div class="config-item">
                         <span class="config-label">Capacidad:</span>
-                        <span class="config-value">${config.litros} litros</span>
+                        <span class="config-value">${config.medidas.litros} litros</span>
                     </div>
                 `;
+                
+                if (config.cristal) {
+                    html += `
+                        <div class="config-item">
+                            <span class="config-label">Grosor del cristal:</span>
+                            <span class="config-value">${config.cristal.grosorTexto}</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">Color silicona:</span>
+                            <span class="config-value">${config.cristal.colorSilicona === 'transparente' ? 'Transparente' : config.cristal.colorSilicona === 'negro' ? 'Negra' : 'Blanca'}</span>
+                        </div>
+                    `;
+                    
+                    if (config.cristal.tipoRefuerzo && config.cristal.tipoRefuerzo !== 'ninguno') {
+                        const refuerzoTexto = config.cristal.tipoRefuerzo === 'perimetral' ? 'Perimetrales' : 
+                                             config.cristal.tipoRefuerzo === 'perimetral-tirantes' ? 'Perimetrales + Tirantes' : '';
+                        if (refuerzoTexto) {
+                            html += `
+                                <div class="config-item">
+                                    <span class="config-label">Refuerzos:</span>
+                                    <span class="config-value">${refuerzoTexto}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                html += `</div>`;
             }
             
-            // Mejoras seleccionadas
-            const mejoras = [];
-            if (config.opticoFrontal) mejoras.push('Frontal óptico');
-            if (config.opticoTrasera) mejoras.push('Trasera óptica');
-            if (config.opticoLateralIzq) mejoras.push('Lateral izq. óptico');
-            if (config.opticoLateralDer) mejoras.push('Lateral der. óptico');
+            // CRISTALES ÓPTICOS
+            if (config.opticos && (config.opticos.frontal || config.opticos.trasera || config.opticos.lateralIzq || config.opticos.lateralDer)) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">✨ Cristales Ópticos Premium</div>`;
+                
+                if (config.opticos.frontal) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Frontal óptico</span></div>`;
+                if (config.opticos.trasera) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Trasera óptica</span></div>`;
+                if (config.opticos.lateralIzq) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Lateral izquierdo óptico</span></div>`;
+                if (config.opticos.lateralDer) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Lateral derecho óptico</span></div>`;
+                
+                html += `</div>`;
+            }
             
-            if (mejoras.length > 0) {
+            // REBOSADEROS
+            if (config.rebosadero && config.rebosadero.tipo !== 'ninguno') {
+                html += `<div class="config-section">
+                    <div class="config-section-title">🌊 Sistema de Rebosadero</div>`;
+                
+                let rebosaderoNombre = '';
+                switch(config.rebosadero.tipo) {
+                    case 'general': rebosaderoNombre = 'General Interior'; break;
+                    case 'esquinero': rebosaderoNombre = 'Esquinero' + (config.rebosadero.config.posicion ? ` (${config.rebosadero.config.posicion})` : ''); break;
+                    case 'etapa': rebosaderoNombre = 'Doble Etapa'; break;
+                    case 'diagonal': rebosaderoNombre = 'Diagonal' + (config.rebosadero.config.posicion ? ` (${config.rebosadero.config.posicion})` : ''); break;
+                    case 'columna': rebosaderoNombre = 'Columna Central'; break;
+                    case 'externo': rebosaderoNombre = 'Externo' + (config.rebosadero.config.posicion ? ` (${config.rebosadero.config.posicion})` : ''); break;
+                }
+                
                 html += `
                     <div class="config-item">
-                        <span class="config-label">Mejoras:</span>
-                        <span class="config-value">${mejoras.join(', ')}</span>
+                        <span class="config-label">Tipo:</span>
+                        <span class="config-value">${rebosaderoNombre}</span>
                     </div>
                 `;
+                
+                html += `</div>`;
             }
             
+            // VINILOS
+            const tieneVinilos = config.vinilos && (config.vinilos.lateralDerecho || config.vinilos.lateralIzquierdo || 
+                                 config.vinilos.trasero || (config.vinilos.fondo && config.vinilos.fondo !== 'no'));
+            if (tieneVinilos) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">🎨 Vinilos Decorativos</div>`;
+                
+                if (config.vinilos.lateralDerecho) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Vinilo lateral derecho</span></div>`;
+                if (config.vinilos.lateralIzquierdo) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Vinilo lateral izquierdo</span></div>`;
+                if (config.vinilos.trasero) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Lámina trasera</span></div>`;
+                if (config.vinilos.fondo && config.vinilos.fondo !== 'no') {
+                    const colorFondo = config.vinilos.fondo === 'negro' ? 'Negro' : config.vinilos.fondo === 'azul' ? 'Azul' : 
+                                       config.vinilos.fondo === 'blanco' ? 'Blanco' : config.vinilos.fondo;
+                    html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Vinilo fondo (${colorFondo})</span></div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // VINILADO DE REBOSADERO
+            if (config.viniladoRebosadero && config.viniladoRebosadero.activo) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">🎨 Vinilado de Rebosadero</div>
+                    <div class="config-item">
+                        <span class="config-label">Color:</span>
+                        <span class="config-value">${config.viniladoRebosadero.color === 'negro' ? 'Negro' : 'Blanco'}</span>
+                    </div>
+                </div>`;
+            }
+            
+            // ENCINTADOS
+            const tieneEncintados = config.encintados && (config.encintados.superficie.activo || config.encintados.base.activo);
+            if (tieneEncintados) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">🔲 Encintados</div>
+                    <div class="config-item">
+                        <span class="config-label">Color:</span>
+                        <span class="config-value">${config.encintados.colorGeneral === 'negro' ? 'Negro' : 'Blanco'}</span>
+                    </div>`;
+                
+                if (config.encintados.superficie.activo) {
+                    html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Encintado superficie (${config.encintados.superficie.perimetro})</span></div>`;
+                }
+                if (config.encintados.base.activo) {
+                    html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Encintado base (${config.encintados.base.perimetro})</span></div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // OTROS ACABADOS
+            const tieneAcabados = config.otrosAcabados && (config.otrosAcabados.taladrosOverflow || config.otrosAcabados.taladroSubida || 
+                                  config.otrosAcabados.taladroVaciado || config.otrosAcabados.tapasNoCorrederas || 
+                                  config.otrosAcabados.tapasCorrederas || config.otrosAcabados.taladrosAdicionales.activo);
+            if (tieneAcabados) {
+                html += `<div class="config-section">
+                    <div class="config-section-title">🔧 Otros Acabados</div>`;
+                
+                if (config.otrosAcabados.taladrosOverflow) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Taladros para Overflow</span></div>`;
+                if (config.otrosAcabados.taladroSubida) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Taladro adicional para subida</span></div>`;
+                if (config.otrosAcabados.taladroVaciado) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Taladro especial para vaciado</span></div>`;
+                if (config.otrosAcabados.tapasNoCorrederas) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Tapas no correderas</span></div>`;
+                if (config.otrosAcabados.tapasCorrederas) html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Tapas correderas</span></div>`;
+                if (config.otrosAcabados.taladrosAdicionales.activo) {
+                    const medida = config.otrosAcabados.taladrosAdicionales.medida === 'grande' ? '32-50mm' : '8-25mm';
+                    html += `<div class="config-item"><span class="config-label">✓</span><span class="config-value">Taladros adicionales (${medida}, x${config.otrosAcabados.taladrosAdicionales.cantidad})</span></div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // PRECIO FINAL
             if (config.precio) {
                 html += `
                     <div class="precio-destacado">
                         <div>Precio Total</div>
-                        <div class="precio">${Math.round(config.precio)}€</div>
+                        <div class="precio">${config.precio}</div>
                         <div style="font-size: 14px; opacity: 0.9;">(IVA incluido)</div>
                     </div>
                 `;

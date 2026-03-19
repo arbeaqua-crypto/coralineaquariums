@@ -1039,9 +1039,9 @@
 
                     <!-- Botones de acción -->
                     <div class="action-buttons">
-                        <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
+                        <button type="button" class="btn-presupuesto" id="btnPresupuesto" onclick="guardarConfiguracionYSolicitar()">
                             <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1414,6 +1414,124 @@
             const precioTotal = precioBase + totalExtras;
             document.getElementById('precioFinal').textContent = precioTotal.toFixed(2) + '€';
             console.log('Extras seleccionados: +' + totalExtras + '€, Precio total: ' + precioTotal + '€');
+        }
+        
+        // Función para guardar toda la configuración antes de ir a contacto.html
+        function guardarConfiguracionYSolicitar() {
+            const largo = parseInt(document.getElementById('largo').value) || 0;
+            const ancho = parseInt(document.getElementById('ancho').value) || 0;
+            const alto = parseInt(document.getElementById('alto').value) || 0;
+            const grosorSelector = document.getElementById('grosor').value;
+            const grosorMap = {'1': 6, '2': 8, '3': 10, '4': 12, '5': 15, '6': 19, '7': 20};
+            const grosor = grosorMap[grosorSelector] || 10;
+            const tipoRefuerzo = document.getElementById('tipoRefuerzo').value;
+            const colorSilicona = document.getElementById('colorSilicona').value;
+            const litros = Math.round((largo * ancho * alto) / 1000);
+            const precioFinal = document.getElementById('precioFinal').textContent;
+            
+            // Capturar cristales ópticos
+            const opticos = {
+                frontal: document.getElementById('opticoFrontal')?.checked || false,
+                trasera: document.getElementById('opticoTrasera')?.checked || false,
+                lateralIzq: document.getElementById('opticoLateralIzq')?.checked || false,
+                lateralDer: document.getElementById('opticoLateralDer')?.checked || false
+            };
+            
+            // Capturar rebosaderos
+            let rebosadero = 'ninguno';
+            let rebosaderoConfig = {};
+            if (document.getElementById('rebosaderoGeneral')?.checked) {
+                rebosadero = 'general';
+            } else if (document.getElementById('rebosaderoEsquinero')?.checked) {
+                rebosadero = 'esquinero';
+                rebosaderoConfig.posicion = document.getElementById('posicionEsquinero')?.value || 'derecha';
+            } else if (document.getElementById('rebosaderoEtapa')?.checked) {
+                rebosadero = 'etapa';
+            } else if (document.getElementById('rebosaderoDiagonal')?.checked) {
+                rebosadero = 'diagonal';
+                rebosaderoConfig.posicion = document.getElementById('posicionDiagonal')?.value || 'derecha';
+            } else if (document.getElementById('rebosaderoColumna')?.checked) {
+                rebosadero = 'columna';
+            } else if (document.getElementById('rebosaderoExterno')?.checked) {
+                rebosadero = 'externo';
+                rebosaderoConfig.posicion = document.getElementById('posicionExterno')?.value || 'derecha';
+            }
+            
+            // Capturar vinilos
+            const vinilos = {
+                lateralDerecho: document.getElementById('extraViniloLateralDerecho')?.checked || false,
+                lateralIzquierdo: document.getElementById('extraViniloLateralIzquierdo')?.checked || false,
+                trasero: document.getElementById('extraViniloTrasero')?.checked || false,
+                fondo: document.getElementById('viniloFondo')?.value || 'no',
+                fondoColor: document.getElementById('viniloFondo')?.value || 'no'
+            };
+            
+            // Capturar vinilado de rebosadero
+            const viniladoRebosadero = {
+                activo: document.getElementById('extraViniladoRebosadero')?.checked || false,
+                color: document.getElementById('colorViniladoRebosadero')?.value || 'negro'
+            };
+            
+            // Capturar encintados
+            const encintados = {
+                colorGeneral: document.getElementById('colorEncintado')?.value || 'negro',
+                superficie: {
+                    activo: document.getElementById('extraEncintadoSuperficie')?.checked || false,
+                    perimetro: document.getElementById('perimetroEncintadoSuperficie')?.value || 'frontal'
+                },
+                base: {
+                    activo: document.getElementById('extraEncintadoBase')?.checked || false,
+                    perimetro: document.getElementById('perimetroEncintadoBase')?.value || 'frontal'
+                }
+            };
+            
+            // Capturar otros acabados
+            const otrosAcabados = {
+                taladrosOverflow: document.getElementById('extraTaladrosOverflow')?.checked || false,
+                taladroSubida: document.getElementById('extraTaladroSubida')?.checked || false,
+                taladroVaciado: document.getElementById('extraTaladroVaciado')?.checked || false,
+                tapasNoCorrederas: document.getElementById('extraTapasNoCorrederas')?.checked || false,
+                tapasCorrederas: document.getElementById('extraTapasCorrederas')?.checked || false,
+                taladrosAdicionales: {
+                    activo: document.getElementById('extraTaladrosAdicionales')?.checked || false,
+                    medida: document.getElementById('medidaTaladro')?.value || 'pequeno',
+                    cantidad: parseInt(document.getElementById('cantidadTaladros')?.value) || 1
+                }
+            };
+            
+            // Objeto completo de configuración
+            const configuracion = {
+                timestamp: new Date().toISOString(),
+                medidas: {
+                    largo: largo,
+                    ancho: ancho,
+                    alto: alto,
+                    litros: litros
+                },
+                cristal: {
+                    grosor: grosor,
+                    grosorTexto: grosor + 'mm',
+                    colorSilicona: colorSilicona,
+                    tipoRefuerzo: tipoRefuerzo
+                },
+                precio: precioFinal,
+                opticos: opticos,
+                rebosadero: {
+                    tipo: rebosadero,
+                    config: rebosaderoConfig
+                },
+                vinilos: vinilos,
+                viniladoRebosadero: viniladoRebosadero,
+                encintados: encintados,
+                otrosAcabados: otrosAcabados
+            };
+            
+            // Guardar en localStorage
+            localStorage.setItem('configuracion-acuario', JSON.stringify(configuracion));
+            console.log('✅ Configuración guardada:', configuracion);
+            
+            // Redirigir a contacto.html
+            window.location.href = 'contacto.html';
         }
     </script>
     

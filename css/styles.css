@@ -53,9 +53,22 @@ h1 svg, h2 svg, h3 svg {
     flex-shrink: 0;
 }
 
+.cta-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .cta-features li {
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: left;
+    max-width: 400px;
+    width: 100%;
 }
 
 .cta-features li svg {
