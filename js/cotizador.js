@@ -402,7 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ya no se necesita la lógica de dependencia entre tirantes y perimetrales
     // porque el selector ya lo maneja implícitamente
     
-    // Configurar botón de presupuesto para guardar configuración
+    // ⚠️ DESHABILITADO: El guardado de configuración ahora se hace desde cotizador.html
+    // mediante la función guardarConfiguracionYSolicitar() para incluir todos los extras
+    /*
     const btnPresupuesto = document.getElementById('btnPresupuesto');
     if (btnPresupuesto) {
         btnPresupuesto.addEventListener('click', function() {
@@ -421,4 +423,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    */
 });
