@@ -401,27 +401,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Ya no se necesita la lógica de dependencia entre tirantes y perimetrales
     // porque el selector ya lo maneja implícitamente
-    
-    // ⚠️ DESHABILITADO: El guardado de configuración ahora se hace desde cotizador.html
-    // mediante la función guardarConfiguracionYSolicitar() para incluir todos los extras
-    /*
-    const btnPresupuesto = document.getElementById('btnPresupuesto');
-    if (btnPresupuesto) {
-        btnPresupuesto.addEventListener('click', function() {
-            if (ultimoCalculo) {
-                // Guardar configuración actual para el formulario
-                localStorage.setItem('configuracion-acuario', JSON.stringify({
-                    largo: document.getElementById('largo').value,
-                    ancho: document.getElementById('ancho').value,
-                    alto: document.getElementById('alto').value,
-                    grosor: document.getElementById('grosor').options[document.getElementById('grosor').selectedIndex].text,
-                    precio: ultimoCalculo.precio,
-                    litros: ultimoCalculo.litros,
-                    refuerzos: ultimoCalculo.refuerzos,
-                    opticos: ultimoCalculo.opticos
-                }));
-            }
-        });
-    }
-    */
 });
