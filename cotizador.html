@@ -109,6 +109,10 @@
             width: 100%;
             height: 400px;
             cursor: grab;
+            touch-action: none; /* Evita gestos del navegador que interfieren con el 3D */
+            -webkit-touch-callout: none; /* Evita menú contextual en iOS */
+            -webkit-user-select: none;
+            user-select: none;
         }
         
         #canvas3d:active {
@@ -471,6 +475,12 @@
             
             #canvas3d {
                 height: 350px;
+                max-height: 50vh; /* No más del 50% de la pantalla en móvil */
+            }
+            
+            /* Mejorar usabilidad del canvas en móvil */
+            .visualizador-container {
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -1709,6 +1719,33 @@
                 // Iniciar animación
                 animate();
 
+                // ========== SOPORTE PARA RESIZE Y ORIENTACIÓN (MÓVIL) ==========
+                function handleCanvasResize() {
+                    if (!canvas || !renderer || !camera) return;
+                    
+                    const container = canvas.parentElement;
+                    if (!container) return;
+                    
+                    const newWidth = container.clientWidth;
+                    const newHeight = window.innerWidth <= 768 ? 400 : 500; // Altura ajustada para móvil
+                    
+                    // Actualizar tamaño del renderer
+                    renderer.setSize(newWidth, newHeight);
+                    
+                    // Actualizar aspect ratio de la cámara
+                    camera.aspect = newWidth / newHeight;
+                    camera.updateProjectionMatrix();
+                    
+                    console.log('📱 Canvas redimensionado:', newWidth, 'x', newHeight);
+                }
+                
+                // Listeners para cambios de tamaño y orientación
+                window.addEventListener('resize', handleCanvasResize);
+                window.addEventListener('orientationchange', () => {
+                    // Pequeño delay para que el navegador termine de rotar
+                    setTimeout(handleCanvasResize, 100);
+                });
+
                 // Event listeners para actualizar en tiempo real
                 document.getElementById('largo').addEventListener('input', actualizar3DDesdeFormulario);
                 document.getElementById('ancho').addEventListener('input', actualizar3DDesdeFormulario);
@@ -1795,6 +1832,7 @@
         }
 
         function setupCameraControls(canvas) {
+            // ========== SOPORTE PARA MOUSE (Desktop) ==========
             canvas.addEventListener('mousedown', (e) => {
                 isDragging = true;
                 autoRotate = false;
@@ -1821,6 +1859,73 @@
                 cameraDistance = Math.max(5, Math.min(50, cameraDistance));
                 updateCameraPosition();
             });
+
+            // ========== SOPORTE PARA TOUCH (Móviles/Tablets) ==========
+            let touchStartDistance = 0;
+            let lastTouchDistance = 0;
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                
+                if (e.touches.length === 1) {
+                    // Un dedo: rotar
+                    isDragging = true;
+                    autoRotate = false;
+                    previousMousePosition = { 
+                        x: e.touches[0].clientX, 
+                        y: e.touches[0].clientY 
+                    };
+                } else if (e.touches.length === 2) {
+                    // Dos dedos: zoom (pinch)
+                    isDragging = false;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    touchStartDistance = Math.sqrt(dx * dx + dy * dy);
+                    lastTouchDistance = touchStartDistance;
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                
+                if (e.touches.length === 1 && isDragging) {
+                    // Rotar con un dedo
+                    const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                    const deltaY = e.touches[0].clientY - previousMousePosition.y;
+                    cameraRotation.y += deltaX * 0.007; // Sensibilidad ajustada para móvil
+                    cameraRotation.x += deltaY * 0.007;
+                    cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x));
+                    previousMousePosition = { 
+                        x: e.touches[0].clientX, 
+                        y: e.touches[0].clientY 
+                    };
+                    updateCameraPosition();
+                } else if (e.touches.length === 2) {
+                    // Zoom con dos dedos (pinch)
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    const delta = lastTouchDistance - currentDistance;
+                    cameraDistance += delta * 0.02;
+                    cameraDistance = Math.max(5, Math.min(50, cameraDistance));
+                    
+                    lastTouchDistance = currentDistance;
+                    updateCameraPosition();
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                isDragging = false;
+                touchStartDistance = 0;
+            }, { passive: false });
+
+            canvas.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                isDragging = false;
+                touchStartDistance = 0;
+            }, { passive: false });
 
             updateCameraPosition();
         }
