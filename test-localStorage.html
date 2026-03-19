@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test localStorage</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        pre { background: #2a2a2a; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>Test de localStorage - Cotizador</h1>
+    
+    <button onclick="testGuardar()">1. Guardar Configuración de Prueba</button>
+    <button onclick="testLeer()">2. Leer Configuración</button>
+    <button onclick="testLimpiar()">3. Limpiar localStorage</button>
+    <button onclick="irCotizador()">4. Ir al Cotizador Real</button>
+    
+    <div id="resultado"></div>
+    
+    <script>
+        function testGuardar() {
+            console.log('💾 Guardando configuración de prueba...');
+            const configuracionPrueba = {
+                timestamp: new Date().toISOString(),
+                medidas: { largo: 120, ancho: 50, alto: 60, litros: 360 },
+                cristal: { grosor: 10, grosorTexto: '10mm', colorSilicona: 'negro', tipoRefuerzo: 'perimetral' },
+                precioBase: '277.72€',
+                precio: '414.72€',
+                totalExtras: '137.00€',
+                extrasDesglose: [
+                    {nombre: 'Rebosadero General Interior', precio: 110},
+                    {nombre: 'Vinilo lateral derecho', precio: 15},
+                    {nombre: 'Vinilo fondo (Negro)', precio: 12}
+                ],
+                opticos: { frontal: false, trasera: false, lateralIzq: false, lateralDer: false },
+                rebosadero: { tipo: 'general', config: {} },
+                vinilos: { lateralDerecho: true, lateralIzquierdo: false, trasero: false, fondo: 'negro' }
+            };
+            
+            try {
+                localStorage.setItem('configuracion-acuario', JSON.stringify(configuracionPrueba));
+                console.log('✅ Guardado exitoso');
+                document.getElementById('resultado').innerHTML = `
+                    <h3 class="success">✅ Configuración guardada correctamente</h3>
+                    <pre>${JSON.stringify(configuracionPrueba, null, 2)}</pre>
+                `;
+            } catch(e) {
+                console.error('❌ Error al guardar:', e);
+                document.getElementById('resultado').innerHTML = `
+                    <h3 class="error">❌ Error: ${e.message}</h3>
+                `;
+            }
+        }
+        
+        function testLeer() {
+            console.log('📖 Leyendo configuración...');
+            try {
+                const config = localStorage.getItem('configuracion-acuario');
+                if (config) {
+                    const obj = JSON.parse(config);
+                    console.log('✅ Leído exitoso:', obj);
+                    document.getElementById('resultado').innerHTML = `
+                        <h3 class="success">✅ Configuración encontrada</h3>
+                        <p><strong>Precio base:</strong> ${obj.precioBase || 'N/A'}</p>
+                        <p><strong>Precio total:</strong> ${obj.precio || 'N/A'}</p>
+                        <p><strong>Total extras:</strong> ${obj.totalExtras || 'N/A'}</p>
+                        <p><strong>Número de extras:</strong> ${obj.extrasDesglose ? obj.extrasDesglose.length : 0}</p>
+                        <pre>${JSON.stringify(obj, null, 2)}</pre>
+                    `;
+                } else {
+                    console.warn('⚠️ No hay configuración guardada');
+                    document.getElementById('resultado').innerHTML = `
+                        <h3 class="error">⚠️ No hay configuración en localStorage</h3>
+                        <p>Usa el botón "1. Guardar Configuración de Prueba" primero</p>
+                    `;
+                }
+            } catch(e) {
+                console.error('❌ Error al leer:', e);
+                document.getElementById('resultado').innerHTML = `
+                    <h3 class="error">❌ Error: ${e.message}</h3>
+                `;
+            }
+        }
+        
+        function testLimpiar() {
+            localStorage.removeItem('configuracion-acuario');
+            console.log('🗑️ localStorage limpiado');
+            document.getElementById('resultado').innerHTML = `
+                <h3 class="success">🗑️ localStorage limpiado</h3>
+            `;
+        }
+        
+        function irCotizador() {
+            window.location.href = 'cotizador.html';
+        }
+        
+        // Auto-leer al cargar
+        window.addEventListener('DOMContentLoaded', testLeer);
+    </script>
+</body>
+</html>
