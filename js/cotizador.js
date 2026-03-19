@@ -12,6 +12,9 @@ const CONFIG = {
 let ultimoCalculo = null;
 let historialCotizaciones = [];
 
+// Exponer ultimoCalculo globalmente para el visualizador 3D
+window.ultimoCalculo = null;
+
 /**
  * Función principal para calcular el precio del acuario
  * PASO 1: Calcula precio base y muestra opciones de ópticos
@@ -50,7 +53,7 @@ async function calcularPrecio() {
     const btnCalcular = document.querySelector('.btn-calculate');
     const textoOriginal = btnCalcular.innerHTML;
     btnCalcular.disabled = true;
-    btnCalcular.innerHTML = '<span class="spinner">⏳</span> Calculando...';
+    btnCalcular.innerHTML = 'Calculando...';
     
     try {
         // Preparar datos para enviar
@@ -95,6 +98,8 @@ async function calcularPrecio() {
         
         // Guardar resultado
         ultimoCalculo = data;
+        window.ultimoCalculo = data; // Exponer globalmente
+        window.ultimoCalculo = data; // Exponer globalmente
         
         // Guardar en historial
         guardarEnHistorial(datos, data);
@@ -243,6 +248,18 @@ function mostrarResultado(data) {
     // Mostrar precio final
     document.getElementById('precioFinal').textContent = `${data.precio.toFixed(2)}€`;
     
+    // Actualizar precio base sin extras (importante: resetear al recalcular)
+    window.precioBaseSinExtras = data.precio;
+    
+    // Cambiar texto del botón calcular a "Recalcular"
+    const btnCalcular = document.querySelector('.btn-calculate');
+    if (btnCalcular) {
+        const spanTexto = btnCalcular.querySelector('span');
+        if (spanTexto && spanTexto.textContent.includes('Calcular')) {
+            spanTexto.textContent = 'Recalcular Precio del Acuario';
+        }
+    }
+    
     // Mostrar sección de resultados
     document.getElementById('resultados').style.display = 'block';
     document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -251,6 +268,19 @@ function mostrarResultado(data) {
     const extrasSection = document.getElementById('extras-section');
     if (extrasSection) {
         extrasSection.style.display = 'block';
+        
+        // Desplegar automáticamente el contenido de extras (categorías visibles)
+        const extrasContent = document.getElementById('extrasContent');
+        const extrasToggleIcon = document.getElementById('extrasToggleIcon');
+        if (extrasContent && extrasToggleIcon) {
+            extrasContent.style.display = 'block';
+            extrasToggleIcon.classList.add('open');
+        }
+    }
+    
+    // Recalcular extras para aplicar los añadidos ya seleccionados al nuevo precio base
+    if (typeof recalcularExtras === 'function') {
+        recalcularExtras();
     }
 }
 

@@ -817,32 +817,10 @@
     margin-top: 25px;
 }
 
-.btn-recalcular {
-    flex: 1;
-    padding: 16px;
-    font-size: 1rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, rgba(45, 45, 45, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%);
-    color: var(--text-blue);
-    border: 2px solid rgba(74, 144, 226, 0.3);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Rajdhani', sans-serif;
-    letter-spacing: 0.5px;
- }
-
-.btn-recalcular:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent-color);
-    background: linear-gradient(135deg, rgba(45, 45, 45, 0.95) 0%, rgba(26, 26, 26, 1) 100%);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    color: var(--accent-color);
-}
-
-/* Botón de Presupuesto Personalizado */
+/* Botón de Presupuesto Personalizado (ocupa todo el ancho) */
 .btn-presupuesto {
-    flex: 2;
+    flex: 1;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;

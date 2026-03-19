@@ -45,11 +45,435 @@
     <!-- Sitemap para indexación -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     
-    <title>Cotizador de Acuarios Online - Coraline Acuarios Barcelona | Precio Instantáneo</title>
+    <title>Cotizador de Acuarios 3D - Coraline Acuarios Barcelona | Precio Instantáneo</title>
     <link rel="icon" type="image/png" href="images/favicon.PNG">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/cotizador.css">
     <link rel="stylesheet" href="css/cookie-consent.css">
+    
+    <!-- Three.js para visualización 3D -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+    
+    <style>
+        /* Estilos para visualizador 3D integrado */
+        .cotizador-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .cotizador-form {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(33, 80, 120, 0.95));
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .cotizador-form h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .form-hint {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Grid para grosor, silicona y refuerzos en línea */
+        .grosor-silicona-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .grosor-silicona-grid .input-group {
+            margin: 0;
+        }
+        
+        .grosor-silicona-grid select {
+            padding: 0.5rem;
+            height: 38px;
+        }
+        
+        .vista-3d-integrada {
+            background: linear-gradient(135deg, #0f2137 0%, #1a4d6d 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 1.2rem 0;
+            position: relative;
+        }
+        
+        #canvas3d {
+            display: block;
+            width: 100%;
+            height: 400px;
+            cursor: grab;
+        }
+        
+        #canvas3d:active {
+            cursor: grabbing;
+        }
+        
+        /* Info overlay dentro del canvas */
+        .info-3d-overlay {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.75rem;
+            line-height: 1.4;
+            pointer-events: none;
+            z-index: 10;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .info-3d-overlay .info-line {
+            margin: 0;
+            white-space: nowrap;
+        }
+        
+        /* Warnings como indicador discreto tipo semáforo */
+        .warnings-container {
+            margin: 0 0 1rem 0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            background: transparent;
+            line-height: 1;
+        }
+        
+        .warning-box {
+            display: block;
+            text-align: left;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .warning-success, .warning-danger {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .warning-box .status-title {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 0.3rem 0;
+            line-height: 1.1;
+        }
+        
+        .warning-box .status-description {
+            font-size: 0.8rem;
+            font-weight: 400;
+            line-height: 1.3;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            margin: 0;
+        }
+        
+        /* Verde para seguro */
+        .warning-success .status-title {
+            color: #00ff88;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 136, 0.6),
+                0 0 20px rgba(0, 255, 136, 0.4),
+                0 0 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .warning-success .status-description {
+            color: rgba(0, 255, 136, 0.8);
+        }
+        
+        /* Rojo para peligro */
+        .warning-danger .status-title {
+            color: #ff3366;
+            text-shadow: 
+                0 0 10px rgba(255, 51, 102, 0.6),
+                0 0 20px rgba(255, 51, 102, 0.4),
+                0 0 30px rgba(255, 51, 102, 0.2);
+        }
+        
+        .warning-danger .status-description {
+            color: rgba(255, 51, 102, 0.8);
+        }
+        
+        /* Ópticos compactos */
+        /* Estilos para sección de extras */
+        .extras-section {
+            margin: 1rem 0;
+            border: 1px solid rgba(100, 170, 230, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .extras-header {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(33, 80, 120, 0.95));
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .extras-header:hover {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(38, 88, 130, 0.95));
+        }
+        
+        .extras-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .toggle-icon {
+            font-size: 1.8rem;
+            font-weight: 300;
+            transition: transform 0.3s;
+            color: rgba(130, 200, 255, 1);
+            line-height: 1;
+        }
+        
+        .toggle-icon.open {
+            transform: rotate(45deg);
+        }
+        
+        .extras-content {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(25, 50, 75, 0.98));
+        }
+        
+        .extras-category {
+            margin-bottom: 1rem;
+        }
+        
+        .extras-category:last-child {
+            margin-bottom: 0;
+        }
+        
+        .extras-category h4 {
+            color: rgba(130, 190, 240, 0.95);
+            margin: 0 0 0.6rem 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(100, 170, 230, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        
+        .extras-category h4:hover {
+            color: rgba(150, 200, 250, 1);
+        }
+        
+        .subcategory-toggle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: rgba(120, 190, 250, 0.9);
+            transition: transform 0.3s;
+            margin-right: 0.6rem;
+            order: -1;
+        }
+        
+        .subcategory-toggle.open {
+            transform: rotate(45deg);
+        }
+        
+        .subcategory-content {
+            display: none;
+            margin-top: 0.8rem;
+        }
+        
+        .subcategory-content.open {
+            display: block;
+        }
+        
+        .extras-category-hint {
+            font-size: 0.75rem;
+            color: rgba(230, 240, 250, 0.95);
+            margin: 0 0 0.8rem 0;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        
+        .rebosadero-item {
+            margin-bottom: 0.8rem;
+            padding: 0.6rem;
+            background: rgba(15, 20, 30, 0.4);
+            border-radius: 4px;
+            border: 1px solid rgba(70, 120, 180, 0.2);
+        }
+        
+        .rebosadero-item-title {
+            font-weight: 600;
+            color: rgba(150, 200, 250, 0.95);
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+        }
+        
+        .rebosadero-item-desc {
+            font-size: 0.75rem;
+            color: rgba(230, 240, 250, 0.95);
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            line-height: 1.3;
+        }
+        
+        .rebosadero-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        
+        .rebosadero-selector select {
+            flex: 1;
+            padding: 0.3rem 0.5rem;
+            background: rgba(15, 20, 30, 0.7);
+            border: 1px solid rgba(100, 170, 230, 0.4);
+            border-radius: 3px;
+            color: rgba(220, 230, 240, 0.9);
+            font-size: 0.75rem;
+        }
+        
+        .rebosadero-selector select:focus {
+            outline: none;
+            border-color: rgba(130, 190, 240, 0.7);
+        }
+        
+        .extras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .extra-item {
+            margin: 0;
+        }
+        
+        .extra-item input[type="checkbox"] {
+            display: none;
+        }
+        
+        .extra-item label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(15, 20, 30, 0.6);
+            border-radius: 4px;
+            border: 1px solid rgba(80, 140, 200, 0.3);
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: rgba(220, 230, 240, 0.9);
+        }
+        
+        .extra-item label:hover {
+            background: rgba(20, 30, 45, 0.7);
+            border-color: rgba(100, 170, 230, 0.4);
+        }
+        
+        .checkbox-custom {
+            width: 14px;
+            height: 14px;
+            border: 1px solid rgba(100, 170, 230, 0.5);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 10px;
+            color: transparent;
+        }
+        
+        .extra-item input:checked + label .checkbox-custom {
+            color: rgba(100, 200, 150, 0.9);
+        }
+        
+        .checkbox-custom::after {
+            content: '✓';
+        }
+        
+        .extra-name {
+            flex: 0 1 auto;
+            white-space: nowrap;
+            text-decoration: underline;
+        }
+        
+        .extra-price {
+            color: rgba(120, 200, 160, 0.9);
+            font-weight: 500;
+            font-size: 0.8rem;
+            margin-left: 0.3rem;
+        }
+        
+        /* Resultados con mismo ancho y estilo que formulario */
+        .cotizador-results {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(33, 80, 120, 0.95)) !important;
+            max-width: 1000px;
+            margin: 1rem auto !important;
+            border-radius: 15px !important;
+            padding: 2rem !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Efecto rotativo para el botón calcular */
+        .btn-calculate {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-calculate::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            animation: rotateBtn 10s linear infinite;
+        }
+        
+        .btn-calculate span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes rotateBtn {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .cotizador-form {
+                padding: 1.5rem;
+            }
+            
+            .cotizador-results {
+                padding: 1.5rem !important;
+            }
+            
+            #canvas3d {
+                height: 350px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navegación -->
@@ -100,48 +524,64 @@
                     <div class="form-grid">
                         <div class="input-group">
                             <label for="largo" data-i18n="quote.length">Largo (cm)</label>
-                            <input type="number" id="largo" min="30" max="500" required>
+                            <input type="number" id="largo" min="30" max="500" value="100" required>
                         </div>
                         <div class="input-group">
                             <label for="ancho" data-i18n="quote.width">Ancho (cm)</label>
-                            <input type="number" id="ancho" min="30" max="150" required>
+                            <input type="number" id="ancho" min="30" max="150" value="50" required>
                         </div>
                         <div class="input-group">
                             <label for="alto" data-i18n="quote.height">Alto (cm)</label>
-                            <input type="number" id="alto" min="30" max="200" required>
+                            <input type="number" id="alto" min="30" max="200" value="50" required>
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <label for="grosor" data-i18n="quote.thickness">Grosor del cristal</label>
-                        <select id="grosor" required>
-                            <option value="1">6mm</option>
-                            <option value="2">8mm</option>
-                            <option value="3" selected>10mm</option>
-                            <option value="4">12mm</option>
-                            <option value="5">15mm</option>
-                            <option value="6">19mm</option>
-                            <option value="7">20mm laminado (10+10mm)</option>
-                        </select>
+                    <div class="grosor-silicona-grid">
+                        <div class="input-group">
+                            <label for="grosor" data-i18n="quote.thickness">Grosor del cristal</label>
+                            <select id="grosor" required>
+                                <option value="1">6mm</option>
+                                <option value="2">8mm</option>
+                                <option value="3" selected>10mm</option>
+                                <option value="4">12mm</option>
+                                <option value="5">15mm</option>
+                                <option value="6">19mm</option>
+                                <option value="7">20mm laminado (10+10mm)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="colorSilicona">Color de silicona</label>
+                            <select id="colorSilicona" required>
+                                <option value="negra" selected>Negra</option>
+                                <option value="transparente">Transparente</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="tipoRefuerzo" data-i18n="quote.reinforcements">Refuerzos</label>
+                            <select id="tipoRefuerzo" required>
+                                <option value="ninguno" selected>Sin refuerzos</option>
+                                <option value="perimetral">Refuerzo perimetral</option>
+                                <option value="perimetral-tirantes">Refuerzo perimetral y tirantes</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="refuerzos-section">
-                        <h3 data-i18n="quote.reinforcements">Refuerzos Estructurales</h3>
+                    <!-- Vista 3D Integrada -->
+                    <div class="vista-3d-integrada">
+                        <canvas id="canvas3d"></canvas>
                         
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="perimetrales" name="perimetrales">
-                            <label for="perimetrales">
-                                <span class="checkbox-custom"></span>
-                                <span data-i18n="quote.perimeter">Utilizar refuerzos perimetrales</span>
-                            </label>
-                        </div>
-
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tirantes" name="tirantes">
-                            <label for="tirantes">
-                                <span class="checkbox-custom"></span>
-                                <span data-i18n="quote.brace">Utilizar tirante como refuerzo (obligatorio perimetral antes)</span>
-                            </label>
+                        <!-- MARCA DE AGUA CORALINE - Eliminar este bloque completo si no gusta -->
+                        <img src="images/logocoraline3Dok.PNG" 
+                             alt="Coraline" 
+                             style="position: absolute; bottom: 15px; right: 15px; width: 250px; opacity: 0.25; pointer-events: none; z-index: 5;">
+                        <!-- FIN MARCA DE AGUA -->
+                        
+                        <!-- Info overlay sobre el canvas -->
+                        <div class="info-3d-overlay" id="info3DOverlay">
+                            <div class="info-line" id="infoDimensionesOverlay">100cm × 50cm × 50cm en 10mm</div>
+                            <div class="info-line" id="infoVolumenOverlay">250 litros de capacidad</div>
                         </div>
                     </div>
 
@@ -149,61 +589,445 @@
                         <span data-i18n="quote.calculate">Calcular Precio</span>
                     </button>
                 </div>
+            </div>
 
-                <!-- Resultados -->
+            <!-- Resultados (después de calcular) -->
                 <div id="resultados" class="cotizador-results" style="display: none;">
                     <!-- Avisos de seguridad -->
                     <div id="warnings" class="warnings-container"></div>
+                    
+                    <!-- Elemento oculto para compatibilidad con cotizador.js -->
+                    <span id="litros" style="display: none;"></span>
 
-                    <!-- Información básica -->
-                    <div class="result-info">
-                        <div class="info-item">
-                            <span class="info-label" data-i18n="quote.volume">Volumen:</span>
-                            <span class="info-value" id="litros">-</span>
+                    <!-- Extras y Personalizaciones -->
+                    <div id="extras-section" class="extras-section" style="display: none;">
+                        <div class="extras-header" onclick="toggleExtras()">
+                            <h3>Añadidos y otros acabados adicionales</h3>
+                            <span class="toggle-icon" id="extrasToggleIcon">+</span>
                         </div>
-                    </div>
+                        
+                        <div id="extrasContent" class="extras-content" style="display: none;">
+                            
+                            <!-- Cristales Ópticos como primera categoría -->
+                            <div class="extras-category">
+                                <h4 onclick="toggleSubcategory('opticos')">
+                                    Acabados en Cristal Óptico
+                                    <span class="subcategory-toggle" id="opticosToggle">+</span>
+                                </h4>
+                                <div id="opticosContent" class="subcategory-content">
+                                    <p class="extras-category-hint">El acabado óptico, conocido también con otros nombres como "Ultra low iron" o "Extraclaro", es un tipo de vidrio con menor cantidad de hierro en la colada, lo que ofrece un 6% más de transparencia y elimina la tonalidad verdosa del vidrio con mayor presencia de hierro. Estas diferencias de color y transparencia se aprecian cuando las láminas incrementan en grosor. Vidrios ópticos o extraclaros son láminas de menor producción y de coste más elevado, tienen mayor facilidad a la hora de las rayaduras frente al vidrio normal o float, mas endurecido por la presencia del hierro y mas sufrido. Si quieres añadir este acabado a las diferentes piezas del acuario, aquí puedes seleccionarlas.</p>
+                                    
+                                    <!-- Frontal -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="opticoFrontal" onchange="recalcularExtras(); aplicarOpticosEnVisualizador();">
+                                        <label for="opticoFrontal">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name" data-i18n="quote.front">Frontal</span>
+                                            <span class="extra-price" id="precioOpticoFrontal">+0€</span>
+                                        </label>
+                                    </div>
 
-                    <!-- Cristales ópticos -->
-                    <div id="opticos-section" class="opticos-section" style="display: none;">
-                        <h3 data-i18n="quote.optical">Acabados en Cristal Óptico</h3>
-                        <p class="opticos-hint" data-i18n="quote.opticalHint">Selecciona las piezas que deseas en acabado óptico premium</p>
-
-                        <div class="opticos-grid">
-                            <div class="checkbox-group optico-item">
-                                <input type="checkbox" id="opticoFrontal" onchange="recalcularConOpticos()">
-                                <label for="opticoFrontal">
-                                    <span class="checkbox-custom"></span>
-                                    <span class="optico-name" data-i18n="quote.front">Frontal</span>
-                                    <span class="optico-price" id="precioOpticoFrontal">+0€</span>
-                                </label>
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="opticoTrasera" onchange="recalcularExtras(); aplicarOpticosEnVisualizador();">
+                                        <label for="opticoTrasera">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name" data-i18n="quote.back">Trasera</span>
+                                            <span class="extra-price" id="precioOpticoTrasera">+0€</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Lateral Izquierdo -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="opticoLateralIzq" onchange="recalcularExtras(); aplicarOpticosEnVisualizador();">
+                                        <label for="opticoLateralIzq">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name" data-i18n="quote.leftSide">Lateral Izquierdo</span>
+                                            <span class="extra-price" id="precioOpticoLateralIzq">+0€</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Lateral Derecho -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="opticoLateralDer" onchange="recalcularExtras(); aplicarOpticosEnVisualizador();">
+                                        <label for="opticoLateralDer">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name" data-i18n="quote.rightSide">Lateral Derecho</span>
+                                            <span class="extra-price" id="precioOpticoLateralDer">+0€</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Rebosadero -->
+                            <div class="extras-category">
+                                <h4 onclick="toggleSubcategory('rebosaderos')">
+                                    Rebosadero
+                                    <span class="subcategory-toggle" id="rebosaderosToggle">+</span>
+                                </h4>
+                                <div id="rebosaderosContent" class="subcategory-content">
+                                    <p class="extras-category-hint">Un rebosadero consiste en un cajón de cristal, interior o exterior a la urna o acuario, donde un sistema de tuberías conducen el agua hasta el sump, una urna que queda oculta dentro del mueble (generalmente) donde se realiza la filtración. Todos nuestros rebosaderos son en color negro excepto los externos. Consultarnos para una mayor personalización.</p>
+                                    
+                                    <!-- Rebosadero General -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoGeneral" onchange="seleccionarRebosadero('general')">
+                                            <label for="rebosaderoGeneral">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero General</span>
+                                                <span class="extra-price">+110€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Para acuarios que van apoyados a lo largo contra la pared (visto a tres lados, frontal y laterales), montando un cajón central que apoya en la lámina trasera.</p>
+                                    </div>
+                                    
+                                    <!-- Rebosadero Esquinero -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoEsquinero" onchange="seleccionarRebosadero('esquinero')">
+                                            <label for="rebosaderoEsquinero">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero Esquinero</span>
+                                                <span class="extra-price">+95€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Para acuarios que van apoyados a lo largo, siendo esquinero (vista a dos lados, frontal y un lateral), montando un cajón que apoya en la lámina trasera y la lámina lateral que va la pared.</p>
+                                        <div class="rebosadero-selector">
+                                            <label style="font-size: 0.75rem; color: rgba(180, 200, 220, 0.8);">Posición:</label>
+                                            <select id="posicionEsquinero">
+                                                <option value="derecha">Esquina derecha</option>
+                                                <option value="izquierda">Esquina izquierda</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Rebosadero de Etapa -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoEtapa" onchange="seleccionarRebosadero('etapa')">
+                                            <label for="rebosaderoEtapa">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero de Etapa</span>
+                                                <span class="extra-price">+115€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Para acuarios que suelen ir apoyados en pared por un lateral (acuario en península) visto a tres lados, frontal, trasero y el lateral externo. Montando una lámina de lado a lado, con un recorte para el rebose del agua. Se instala en lateral izquierdo.</p>
+                                    </div>
+                                    
+                                    <!-- Rebosadero Esquinero Diagonal -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoDiagonal" onchange="seleccionarRebosadero('diagonal')">
+                                            <label for="rebosaderoDiagonal">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero Esquinero Diagonal</span>
+                                                <span class="extra-price">+75€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Igual que un rebosadero esquinero pero sin ser rectangular, una sola pieza en diagonal desde la lámina trasera hasta la lámina lateral. Para rebosado sencillo y con subidas montadas fuera de este cajón.</p>
+                                        <div class="rebosadero-selector">
+                                            <label style="font-size: 0.75rem; color: rgba(180, 200, 220, 0.8);">Posición:</label>
+                                            <select id="posicionDiagonal">
+                                                <option value="derecha">Esquina derecha</option>
+                                                <option value="izquierda">Esquina izquierda</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Rebosadero de Columna -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoColumna" onchange="seleccionarRebosadero('columna')">
+                                            <label for="rebosaderoColumna">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero de Columna</span>
+                                                <span class="extra-price">+145€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Rebosadero centrado en acuarios normalmente cúbicos o muy anchos, o acuarios vistos a cuatro caras. Estructura cuadrada en el centro del acuario.</p>
+                                    </div>
+                                    
+                                    <!-- Rebosadero de Cajón Externo -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="rebosaderoExterno" onchange="seleccionarRebosadero('externo')">
+                                            <label for="rebosaderoExterno">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Rebosadero de Cajón Externo</span>
+                                                <span class="extra-price">+115€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Estos rebosaderos pueden colocarse en cualquier lámina, y es esa pieza la que lleva un recorte para el rebose del agua. El rebosadero externo hace visible parte de la instalación.</p>
+                                        <div class="rebosadero-selector">
+                                            <label style="font-size: 0.75rem; color: rgba(180, 200, 220, 0.8);">Posición:</label>
+                                            <select id="posicionExterno">
+                                                <option value="trasera">Trasera centrado</option>
+                                                <option value="derecha">Lateral derecho</option>
+                                                <option value="izquierda">Lateral izquierdo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="checkbox-group optico-item">
-                                <input type="checkbox" id="opticoTrasera" onchange="recalcularConOpticos()">
-                                <label for="opticoTrasera">
-                                    <span class="checkbox-custom"></span>
-                                    <span class="optico-name" data-i18n="quote.back">Trasera</span>
-                                    <span class="optico-price" id="precioOpticoTrasera">+0€</span>
-                                </label>
+                            <!-- Vinilos -->
+                            <div class="extras-category">
+                                <h4 onclick="toggleSubcategory('vinilos')">
+                                    Vinilos
+                                    <span class="subcategory-toggle" id="vinilosToggle">+</span>
+                                </h4>
+                                <div id="vinilosContent" class="subcategory-content">
+                                    
+                                    <!-- Selector de Color de Vinilo -->
+                                    <div class="vinilo-color-selector" style="margin-bottom: 20px; padding: 15px; background: rgba(50, 50, 50, 0.3); border-radius: 8px;">
+                                        <label style="display: block; margin-bottom: 10px; color: #4a90e2; font-weight: 600; font-size: 0.95rem;">
+                                            Selecciona el color del vinilo:
+                                        </label>
+                                        <select id="colorVinilo" class="vinilo-color-select" style="width: 100%; padding: 10px; background: #2d2d2d; color: #e0e6ed; border: 1px solid #4a90e2; border-radius: 6px; font-size: 1rem; cursor: pointer;">
+                                            <option value="negro" selected>Negro</option>
+                                            <option value="blanco">Blanco</option>
+                                            <option value="azul">Azul (RAL 5012)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="extras-category-hint" style="margin-bottom: 8px;">
+                                        El vinilo se utiliza para los fondos o las láminas que quedan ciegas, y dan a una pared. En las configuraciones saldrá negro, pero pueden ponerse de cualquier color.
+                                    </div>
+                                    
+                                    <!-- Vinilo Lateral Derecho -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="extraViniloLateralDerecho" onchange="recalcularExtras(); aplicarVinilosEnVisualizador();">
+                                        <label for="extraViniloLateralDerecho">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name">Vinilo en Lateral derecho</span>
+                                            <span class="extra-price" id="precioViniloLateralDerecho">+0€</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Vinilo Lateral Izquierdo -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="extraViniloLateralIzquierdo" onchange="recalcularExtras(); aplicarVinilosEnVisualizador();">
+                                        <label for="extraViniloLateralIzquierdo">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name">Vinilo en Lateral izquierdo</span>
+                                            <span class="extra-price" id="precioViniloLateralIzquierdo">+0€</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Vinilo Lámina Trasera -->
+                                    <div class="checkbox-group extra-item">
+                                        <input type="checkbox" id="extraViniloTrasero" onchange="recalcularExtras(); aplicarVinilosEnVisualizador();">
+                                        <label for="extraViniloTrasero">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="extra-name">Vinilo en lámina trasera</span>
+                                            <span class="extra-price" id="precioViniloTrasero">+0€</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Vinilo Fondo -->
+                                    <div style="margin-top: 20px; padding: 15px; background: rgba(50, 50, 50, 0.3); border-radius: 8px;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                            <label style="color: #e0e6ed; font-weight: 500; font-size: 0.95rem; flex-shrink: 0;">Vinilo en la base:</label>
+                                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                                <select id="viniloFondo" onchange="recalcularExtras(); aplicarVinilosEnVisualizador();" style="flex: 1; padding: 8px; background: #2d2d2d; color: #e0e6ed; border: 1px solid #4a90e2; border-radius: 6px; font-size: 0.9rem; cursor: pointer;">
+                                                    <option value="no" selected>Sin vinilo en la base</option>
+                                                    <option value="negro">Vinilo en la base en color negro</option>
+                                                    <option value="blanco">Vinilo en la base en color blanco</option>
+                                                    <option value="azul">Vinilo en la base de color azul</option>
+                                                </select>
+                                                <span class="extra-price" id="precioViniloFondo" style="min-width: 60px; text-align: right;">+0€</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="checkbox-group optico-item">
-                                <input type="checkbox" id="opticoLateralIzq" onchange="recalcularConOpticos()">
-                                <label for="opticoLateralIzq">
-                                    <span class="checkbox-custom"></span>
-                                    <span class="optico-name" data-i18n="quote.leftSide">Lateral Izquierdo</span>
-                                    <span class="optico-price" id="precioOpticoLateralIzq">+0€</span>
-                                </label>
+                            <!-- Encintados -->
+                            <div class="extras-category">
+                                <h4 onclick="toggleSubcategory('encintados')">
+                                    Encintados
+                                    <span class="subcategory-toggle" id="encintadosToggle">+</span>
+                                </h4>
+                                <div id="encintadosContent" class="subcategory-content">
+                                    
+                                    <!-- Selector de Color de Encintado -->
+                                    <div class="vinilo-color-selector" style="margin-bottom: 20px; padding: 15px; background: rgba(50, 50, 50, 0.3); border-radius: 8px;">
+                                        <label style="display: block; margin-bottom: 10px; color: #4a90e2; font-weight: 600; font-size: 0.95rem;">
+                                            Color del encintado:
+                                        </label>
+                                        <select id="colorEncintado" class="vinilo-color-select" onchange="recalcularExtras(); aplicarEncintadoSuperficieEnVisualizador(); aplicarEncintadoBaseEnVisualizador(); aplicarViniladoRebosaderoEnVisualizador();" style="width: 100%; padding: 10px; background: #2d2d2d; color: #e0e6ed; border: 1px solid #4a90e2; border-radius: 6px; font-size: 1rem; cursor: pointer;">
+                                            <option value="negro" selected>Negro</option>
+                                            <option value="blanco">Blanco</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Encintado de Superficie -->
+                                    <div style="margin-bottom: 20px;">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraEncintadoSuperficie" onchange="recalcularExtras(); aplicarEncintadoSuperficieEnVisualizador();">
+                                            <label for="extraEncintadoSuperficie">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Encintado de superficie</span>
+                                                <span class="extra-price" id="precioEncintadoSuperficie">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="extras-category-hint" style="margin: 8px 0; font-size: 0.85rem;">Cinta de vinilo que elimina la visual de la linea de nivel de agua u oculta las juntas de refuerzos y tirantes.</p>
+                                        <div style="margin-top: 10px; padding-left: 32px;">
+                                            <label style="display: block; margin-bottom: 6px; color: rgba(180, 200, 220, 0.8); font-size: 0.85rem;">Aplicar en:</label>
+                                            <select id="perimetroEncintadoSuperficie" onchange="recalcularExtras(); aplicarEncintadoSuperficieEnVisualizador();" style="width: 100%; padding: 8px; background: #2d2d2d; color: #e0e6ed; border: 1px solid #555; border-radius: 6px; font-size: 0.9rem;">
+                                                <option value="frontal">Solo frontal</option>
+                                                <option value="frontal-derecho">Frontal y lateral derecho</option>
+                                                <option value="frontal-izquierdo">Frontal y lateral izquierdo</option>
+                                                <option value="frontal-derecho-trasera">Frontal, lateral derecho y trasera</option>
+                                                <option value="perimetro">Todo el perímetro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Encintado de Base -->
+                                    <div style="margin-bottom: 20px;">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraEncintadoBase" onchange="recalcularExtras(); aplicarEncintadoBaseEnVisualizador();">
+                                            <label for="extraEncintadoBase">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Encintado de base</span>
+                                                <span class="extra-price" id="precioEncintadoBase">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="extras-category-hint" style="margin: 8px 0; font-size: 0.85rem;">Cinta de vinilo en la base del acuario para evitar la visual de la linea del sustrato.</p>
+                                        <div style="margin-top: 10px; padding-left: 32px;">
+                                            <label style="display: block; margin-bottom: 6px; color: rgba(180, 200, 220, 0.8); font-size: 0.85rem;">Aplicar en:</label>
+                                            <select id="perimetroEncintadoBase" onchange="recalcularExtras(); aplicarEncintadoBaseEnVisualizador();" style="width: 100%; padding: 8px; background: #2d2d2d; color: #e0e6ed; border: 1px solid #555; border-radius: 6px; font-size: 0.9rem;">
+                                                <option value="frontal">Solo frontal</option>
+                                                <option value="frontal-derecho">Frontal y lateral derecho</option>
+                                                <option value="frontal-izquierdo">Frontal y lateral izquierdo</option>
+                                                <option value="frontal-derecho-trasera">Frontal, lateral derecho y trasera</option>
+                                                <option value="perimetro">Todo el perímetro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Vinilado en Rebosaderos (solo visible si hay rebosadero compatible activo) -->
+                                    <div id="viniladoRebosaderoContainer" style="margin-bottom: 20px; display: none;">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraViniladoRebosadero" onchange="recalcularExtras(); aplicarViniladoRebosaderoEnVisualizador();">
+                                            <label for="extraViniladoRebosadero">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name" id="nombreViniladoRebosadero">Vinilado en rebosaderos</span>
+                                                <span class="extra-price" id="precioViniladoRebosadero">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="extras-category-hint" style="margin: 8px 0; font-size: 0.85rem;">Colocación de pieza de vinilo en laterales de rebosaderos para evitar la visual interna de este.</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="checkbox-group optico-item">
-                                <input type="checkbox" id="opticoLateralDer" onchange="recalcularConOpticos()">
-                                <label for="opticoLateralDer">
-                                    <span class="checkbox-custom"></span>
-                                    <span class="optico-name" data-i18n="quote.rightSide">Lateral Derecho</span>
-                                    <span class="optico-price" id="precioOpticoLateralDer">+0€</span>
-                                </label>
+                            <!-- Otros acabados -->
+                            <div class="extras-category">
+                                <h4 onclick="toggleSubcategory('otrosAcabados')">
+                                    Otros Acabados
+                                    <span class="subcategory-toggle" id="otrosAcabadosToggle">+</span>
+                                </h4>
+                                <div id="otrosAcabadosContent" class="subcategory-content">
+                                    
+                                    <!-- Taladros para Overflow -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTaladrosOverflow" onchange="recalcularExtras()">
+                                            <label for="extraTaladrosOverflow">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Taladros para Overflow</span>
+                                                <span class="extra-price" id="precioTaladrosOverflow">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Dos perforaciones en diferentes medidas según modelo.</p>
+                                    </div>
+                                    
+                                    <!-- Taladro adicional para subida -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTaladroSubida" onchange="recalcularExtras()">
+                                            <label for="extraTaladroSubida">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Taladro adicional para subida</span>
+                                                <span class="extra-price" id="precioTaladroSubida">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Taladro fuera de cajón rebosadero por donde integrar impulsor de agua del sump o de filtro presurizado.</p>
+                                    </div>
+                                    
+                                    <!-- Taladro especial para vaciado -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTaladroVaciado" onchange="recalcularExtras()">
+                                            <label for="extraTaladroVaciado">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Taladro especial para vaciado</span>
+                                                <span class="extra-price" id="precioTaladroVaciado">+0€</span>
+                                            </label>
+                                        </div>
+                                        <p class="rebosadero-item-desc">Para urnas especificas, doble taladro con piezas externa para colocar el desague en el nivel mas bajo y poder vaciar por completo la urna.</p>
+                                    </div>
+                                    
+                                    <!-- Tapas para acuario (no correderas) -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTapasNoCorrederas" onchange="recalcularExtras()">
+                                            <label for="extraTapasNoCorrederas">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Tapas para acuario (no correderas)</span>
+                                                <span class="extra-price" id="precioTapasNoCorrederas">+0€</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tapas para acuario correderas -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTapasCorrederas" onchange="recalcularExtras()">
+                                            <label for="extraTapasCorrederas">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Tapas para acuario correderas</span>
+                                                <span class="extra-price" id="precioTapasCorrederas">+0€</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Taladros adicionales -->
+                                    <div class="rebosadero-item">
+                                        <div class="checkbox-group extra-item">
+                                            <input type="checkbox" id="extraTaladrosAdicionales" onchange="recalcularExtras()">
+                                            <label for="extraTaladrosAdicionales">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="extra-name">Taladros adicionales</span>
+                                                <span class="extra-price" id="precioTaladrosAdicionales">+0€</span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Selectores para taladros adicionales -->
+                                        <div class="rebosadero-selector" id="taladrosAdicionalesConfig" style="display: none;">
+                                            <div style="margin-bottom: 15px;">
+                                                <label style="font-size: 0.75rem; color: rgba(180, 200, 220, 0.8);">Medida del taladro:</label>
+                                                <select id="medidaTaladro" onchange="recalcularExtras()">
+                                                    <option value="pequeño" selected>De 8mm a 25mm (+14€/ud)</option>
+                                                    <option value="grande">De 32mm a 50mm (+19€/ud)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label style="font-size: 0.75rem; color: rgba(180, 200, 220, 0.8);">Cantidad de taladros:</label>
+                                                <select id="cantidadTaladros" onchange="recalcularExtras()">
+                                                    <option value="1" selected>1 taladro</option>
+                                                    <option value="2">2 taladros</option>
+                                                    <option value="3">3 taladros</option>
+                                                    <option value="4">4 taladros</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
                             </div>
+
                         </div>
                     </div>
 
@@ -215,10 +1039,6 @@
 
                     <!-- Botones de acción -->
                     <div class="action-buttons">
-                        <button class="btn-recalcular" onclick="nuevaCotizacion()">
-                            <span data-i18n="quote.newQuote">🔄 Nueva Cotización</span>
-                        </button>
-                        
                         <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
                             <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
                         </a>
@@ -231,23 +1051,28 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-top">
                 <div class="footer-section">
-                    <h3 data-i18n="footer.contact">Contacto</h3>
-                    <p>Email: info@coralineacuarios.com</p>
-                    <p>Tel: +34 XXX XXX XXX</p>
+                    <h4>Coraline Acuarios</h4>
+                    <p style="font-size: 0.9rem; line-height: 1.6;">Fabricación profesional de acuarios a medida en Barcelona.</p>
                 </div>
                 <div class="footer-section">
-                    <h3 data-i18n="footer.followUs">Síguenos</h3>
-                    <div class="social-links">
-                        <a href="#" aria-label="Facebook">📘</a>
-                        <a href="#" aria-label="Instagram">📷</a>
-                        <a href="#" aria-label="YouTube">📹</a>
-                    </div>
+                    <h4>Contacto</h4>
+                    <p style="font-size: 0.9rem; line-height: 1.8;">
+                        📧 <a href="mailto:info@coralineaquariums.com" style="color: var(--text-blue); text-decoration: none;">info@coralineaquariums.com</a><br>
+                        📱 <a href="tel:+34937044495" style="color: var(--text-blue); text-decoration: none;">937 04 44 95</a><br>
+                        📍 Calle Francisco Rojas 14, Mataró
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h4>Síguenos</h4>
+                    <p style="font-size: 0.9rem;">
+                        <a href="https://www.instagram.com/coralineaquariums/" target="_blank" rel="noopener noreferrer" style="color: var(--text-blue); text-decoration: none; display: inline-block; margin-right: 10px;">📷 Instagram</a>
+                    </p>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Coraline Acuarios - <span data-i18n="footer.rights">Todos los derechos reservados</span></p>
+            <div class="footer-bottom" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 2rem; padding-top: 1.5rem;">
+                <p>&copy; 2026 Coraline. <span data-i18n="footer.rights">Todos los derechos reservados</span>.</p>
                 <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.8;">
                     <a href="aviso-legal.html" style="color: var(--text-blue); text-decoration: none; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Aviso Legal</a> | 
                     <a href="politica-privacidad.html" style="color: var(--text-blue); text-decoration: none; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Política de Privacidad</a> | 
@@ -279,6 +1104,2418 @@
         // Token de seguridad (configuración inline)
         window.TOKEN_SEGURIDAD = 'oIw0QuTPH5EnBq4FPGDnQyZ0rw4LcP3y';
     </script>
+    
+    <!-- Funciones para extras desplegables -->
+    <script>
+        // Función para toggle del menú de extras
+        function toggleExtras() {
+            const content = document.getElementById('extrasContent');
+            const icon = document.getElementById('extrasToggleIcon');
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.classList.add('open');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('open');
+            }
+        }
+        
+        // Función para toggle de subcategorías
+        function toggleSubcategory(categoryId) {
+            const content = document.getElementById(categoryId + 'Content');
+            const icon = document.getElementById(categoryId + 'Toggle');
+            
+            // Cerrar todas las demás subcategorías primero (exclusión mutua)
+            const allSubcategories = ['opticos', 'rebosaderos', 'vinilos', 'encintados', 'taladros'];
+            allSubcategories.forEach(sub => {
+                if (sub !== categoryId) {
+                    const otherContent = document.getElementById(sub + 'Content');
+                    const otherIcon = document.getElementById(sub + 'Toggle');
+                    if (otherContent && otherContent.classList.contains('open')) {
+                        otherContent.classList.remove('open');
+                        otherIcon.classList.remove('open');
+                        otherIcon.textContent = '+';
+                    }
+                }
+            });
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+                icon.textContent = '+';
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+                icon.textContent = '−';
+            }
+        }
+        
+        // Variable global para almacenar el rebosadero seleccionado
+        let rebosaderoActivo = null;
+        
+        // Actualizar visibilidad y texto de la opción de vinilado de rebosadero
+        function actualizarOpcionViniladoRebosadero() {
+            const container = document.getElementById('viniladoRebosaderoContainer');
+            const nombreSpan = document.getElementById('nombreViniladoRebosadero');
+            
+            if (!container || !nombreSpan) return;
+            
+            // Solo mostrar si hay rebosadero de etapa o esquinero activo
+            if (rebosaderoActivo === 'etapa') {
+                container.style.display = 'block';
+                nombreSpan.textContent = 'Vinilado de rebosadero de etapa';
+            } else if (rebosaderoActivo === 'esquinero') {
+                const posEsquinero = document.getElementById('posicionEsquinero')?.value || 'derecha';
+                if (posEsquinero === 'derecha') {
+                    nombreSpan.textContent = 'Vinilado rebosadero esquinero derecho';
+                } else {
+                    nombreSpan.textContent = 'Vinilado rebosadero esquinero izquierdo';
+                }
+                container.style.display = 'block';
+            } else {
+                // Ocultar si no hay rebosadero compatible
+                container.style.display = 'none';
+                // Desmarcar checkbox si estaba marcado
+                const checkbox = document.getElementById('extraViniladoRebosadero');
+                if (checkbox) checkbox.checked = false;
+            }
+        }
+        
+        // Función para seleccionar rebosadero (exclusión mutua)
+        function seleccionarRebosadero(tipo) {
+            const checkboxes = {
+                'general': document.getElementById('rebosaderoGeneral'),
+                'esquinero': document.getElementById('rebosaderoEsquinero'),
+                'etapa': document.getElementById('rebosaderoEtapa'),
+                'diagonal': document.getElementById('rebosaderoDiagonal'),
+                'columna': document.getElementById('rebosaderoColumna'),
+                'externo': document.getElementById('rebosaderoExterno')
+            };
+            
+            // Si el actual está checked, es una nueva selección
+            if (checkboxes[tipo].checked) {
+                // Desmarcar todos los demás
+                Object.keys(checkboxes).forEach(key => {
+                    if (key !== tipo) {
+                        checkboxes[key].checked = false;
+                    }
+                });
+                rebosaderoActivo = tipo;
+                
+                // Crear rebosadero en 3D
+                const largo = parseFloat(document.getElementById('largo').value);
+                const ancho = parseFloat(document.getElementById('ancho').value);
+                const alto = parseFloat(document.getElementById('alto').value);
+                
+                switch(tipo) {
+                    case 'general':
+                        crearRebosaderoGeneral(largo, ancho, alto);
+                        console.log('Rebosadero general creado');
+                        break;
+                    case 'esquinero':
+                        const posEsquinero = document.getElementById('posicionEsquinero').value;
+                        crearRebosaderoEsquinero(largo, ancho, alto, posEsquinero);
+                        console.log('Rebosadero esquinero creado:', posEsquinero);
+                        break;
+                    case 'etapa':
+                        crearRebosaderoEtapa(largo, ancho, alto);
+                        console.log('Rebosadero de etapa creado');
+                        break;
+                    case 'diagonal':
+                        const posDiagonal = document.getElementById('posicionDiagonal').value;
+                        crearRebosaderoDiagonal(largo, ancho, alto, posDiagonal);
+                        console.log('Rebosadero diagonal creado:', posDiagonal);
+                        break;
+                    case 'columna':
+                        crearRebosaderoColumna(largo, ancho, alto);
+                        console.log('Rebosadero de columna creado');
+                        break;
+                    case 'externo':
+                        const posExterno = document.getElementById('posicionExterno').value;
+                        crearRebosaderoExterno(largo, ancho, alto, posExterno);
+                        console.log('Rebosadero externo creado:', posExterno);
+                        break;
+                }
+            } else {
+                // Si se desmarcó, limpiar el rebosadero activo
+                rebosaderoActivo = null;
+                eliminarRebosadero3D();
+                console.log('Rebosadero removido');
+            }
+            
+            // Recalcular extras
+            recalcularExtras();
+            
+            // Actualizar visibilidad y texto del vinilado de rebosadero
+            actualizarOpcionViniladoRebosadero();
+        }
+        
+        // Función para recalcular precio con extras
+        function recalcularExtras() {
+            // Obtener precio base desde window o del DOM
+            let precioBase;
+            if (window.precioBaseSinExtras !== undefined && window.precioBaseSinExtras !== null) {
+                precioBase = window.precioBaseSinExtras;
+            } else {
+                // Fallback: leer del DOM
+                const baseBox = document.getElementById('precioFinal');
+                precioBase = parseFloat(baseBox.textContent.replace('€', '').replace(',', '.')) || 0;
+                if (precioBase === 0 || baseBox.textContent === '-') {
+                    return;
+                }
+                window.precioBaseSinExtras = precioBase;
+            }
+
+            // Calcular extras
+            let totalExtras = 0;
+
+            // Rebosaderos (exclusión mutua, solo uno puede estar activo)
+            if (document.getElementById('rebosaderoGeneral')?.checked) totalExtras += 110;
+            if (document.getElementById('rebosaderoEsquinero')?.checked) totalExtras += 95;
+            if (document.getElementById('rebosaderoEtapa')?.checked) totalExtras += 115;
+            if (document.getElementById('rebosaderoDiagonal')?.checked) totalExtras += 75;
+            if (document.getElementById('rebosaderoColumna')?.checked) totalExtras += 145;
+            if (document.getElementById('rebosaderoExterno')?.checked) totalExtras += 115;
+
+            // Vinilos - Cálculo dinámico según medidas
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('alto').value) || 0;
+            
+            // Lateral derecho e izquierdo: ancho × alto / 10000 × 65€
+            let precioViniloLateralDerecho = Math.floor((ancho * alto / 10000) * 65);
+            document.getElementById('precioViniloLateralDerecho').textContent = '+' + precioViniloLateralDerecho + '€';
+            if (document.getElementById('extraViniloLateralDerecho')?.checked) totalExtras += precioViniloLateralDerecho;
+            
+            let precioViniloLateralIzquierdo = Math.floor((ancho * alto / 10000) * 65);
+            document.getElementById('precioViniloLateralIzquierdo').textContent = '+' + precioViniloLateralIzquierdo + '€';
+            if (document.getElementById('extraViniloLateralIzquierdo')?.checked) totalExtras += precioViniloLateralIzquierdo;
+            
+            // Lámina trasera: largo × alto / 10000 × 65€
+            let precioViniloTrasero = Math.floor((largo * alto / 10000) * 65);
+            document.getElementById('precioViniloTrasero').textContent = '+' + precioViniloTrasero + '€';
+            if (document.getElementById('extraViniloTrasero')?.checked) totalExtras += precioViniloTrasero;
+            
+            // Vinilo Fondo (base): largo × ancho / 10000 × 65€ - siempre muestra precio
+            let precioViniloFondo = Math.floor((largo * ancho / 10000) * 65);
+            const selectorFondo = document.getElementById('viniloFondo');
+            document.getElementById('precioViniloFondo').textContent = '+' + precioViniloFondo + '€';
+            if (selectorFondo && selectorFondo.value !== 'no') {
+                totalExtras += precioViniloFondo;
+            }
+
+            // Encintados
+            const colorEncintado = document.getElementById('colorEncintado')?.value || 'negro';
+            const multiplicadorColor = colorEncintado === 'blanco' ? 1.5 : 1;
+            
+            // Encintado de Superficie - cálculo según perímetro seleccionado
+            const perimetroSuperficie = document.getElementById('perimetroEncintadoSuperficie')?.value || 'frontal';
+            let longitudSuperficie = 0;
+            if (perimetroSuperficie === 'frontal') {
+                longitudSuperficie = largo;
+            } else if (perimetroSuperficie === 'frontal-derecho' || perimetroSuperficie === 'frontal-izquierdo') {
+                longitudSuperficie = largo + ancho;
+            } else if (perimetroSuperficie === 'frontal-derecho-trasera') {
+                longitudSuperficie = (largo * 2) + ancho;
+            } else if (perimetroSuperficie === 'perimetro') {
+                longitudSuperficie = (largo * 2) + (ancho * 2);
+            }
+            let precioEncintadoSuperficie = Math.ceil((longitudSuperficie / 10) * 0.75 * multiplicadorColor);
+            document.getElementById('precioEncintadoSuperficie').textContent = '+' + precioEncintadoSuperficie + '€';
+            if (document.getElementById('extraEncintadoSuperficie')?.checked) totalExtras += precioEncintadoSuperficie;
+            
+            // Encintado de Base - cálculo según perímetro seleccionado (igual que superficie)
+            const perimetroBase = document.getElementById('perimetroEncintadoBase')?.value || 'frontal';
+            let longitudBase = 0;
+            if (perimetroBase === 'frontal') {
+                longitudBase = largo;
+            } else if (perimetroBase === 'frontal-derecho' || perimetroBase === 'frontal-izquierdo') {
+                longitudBase = largo + ancho;
+            } else if (perimetroBase === 'frontal-derecho-trasera') {
+                longitudBase = (largo * 2) + ancho;
+            } else if (perimetroBase === 'perimetro') {
+                longitudBase = (largo * 2) + (ancho * 2);
+            }
+            let precioEncintadoBase = Math.ceil((longitudBase / 10) * 0.75 * multiplicadorColor);
+            document.getElementById('precioEncintadoBase').textContent = '+' + precioEncintadoBase + '€';
+            if (document.getElementById('extraEncintadoBase')?.checked) totalExtras += precioEncintadoBase;
+            
+            // Vinilado en Rebosaderos - (altura/10) × 4€ (x1.5 si color blanco)
+            let precioViniladoRebosadero = Math.floor((alto / 10) * 4 * multiplicadorColor);
+            document.getElementById('precioViniladoRebosadero').textContent = '+' + precioViniladoRebosadero + '€';
+            if (document.getElementById('extraViniladoRebosadero')?.checked) totalExtras += precioViniladoRebosadero;
+
+            // Otros acabados - Calcular y mostrar TODOS los precios siempre (sumar solo si checked)
+            
+            // Taladros para Overflow - Dos perforaciones en diferentes medidas
+            const precioOverflow = 35;
+            document.getElementById('precioTaladrosOverflow').textContent = '+' + precioOverflow + '€';
+            if (document.getElementById('extraTaladrosOverflow')?.checked) {
+                totalExtras += precioOverflow;
+            }
+            
+            // Taladro adicional para subida - Taladro fuera de cajón rebosadero
+            const precioSubida = 14;
+            document.getElementById('precioTaladroSubida').textContent = '+' + precioSubida + '€';
+            if (document.getElementById('extraTaladroSubida')?.checked) {
+                totalExtras += precioSubida;
+            }
+            
+            // Taladro especial para vaciado - Doble taladro con piezas externa
+            const precioVaciado = 35;
+            document.getElementById('precioTaladroVaciado').textContent = '+' + precioVaciado + '€';
+            if (document.getElementById('extraTaladroVaciado')?.checked) {
+                totalExtras += precioVaciado;
+            }
+            
+            // Tapas no correderas: largo × ancho / 10000 × 90€ redondeando hacia arriba
+            const precioTapasNoCorrederas = Math.ceil((largo * ancho / 10000) * 90);
+            document.getElementById('precioTapasNoCorrederas').textContent = '+' + precioTapasNoCorrederas + '€';
+            if (document.getElementById('extraTapasNoCorrederas')?.checked) {
+                totalExtras += precioTapasNoCorrederas;
+            }
+            
+            // Tapas correderas: (largo / 100 × 34€) + precio tapas no correderas
+            const precioTapasCorrederas = Math.ceil((largo / 100) * 34) + precioTapasNoCorrederas;
+            document.getElementById('precioTapasCorrederas').textContent = '+' + precioTapasCorrederas + '€';
+            if (document.getElementById('extraTapasCorrederas')?.checked) {
+                totalExtras += precioTapasCorrederas;
+            }
+            
+            // Taladros adicionales: precio por medida × cantidad
+            const medidaSelector = document.getElementById('medidaTaladro');
+            const cantidadSelector = document.getElementById('cantidadTaladros');
+            const precioUnidad = medidaSelector?.value === 'grande' ? 19 : 14;
+            const cantidad = parseInt(cantidadSelector?.value || '1');
+            const precioTaladrosAdicionales = precioUnidad * cantidad;
+            document.getElementById('precioTaladrosAdicionales').textContent = '+' + precioTaladrosAdicionales + '€';
+            if (document.getElementById('extraTaladrosAdicionales')?.checked) {
+                totalExtras += precioTaladrosAdicionales;
+            }
+            
+            // Cristales ópticos (leer precios desde window.ultimoCalculo)
+            if (window.ultimoCalculo && (window.ultimoCalculo.precioOpticoFrontalTrasero > 0 || window.ultimoCalculo.precioOpticoLateral > 0)) {
+                if (document.getElementById('opticoFrontal')?.checked) {
+                    totalExtras += Math.round(window.ultimoCalculo.precioOpticoFrontalTrasero);
+                }
+                if (document.getElementById('opticoTrasera')?.checked) {
+                    totalExtras += Math.round(window.ultimoCalculo.precioOpticoFrontalTrasero);
+                }
+                if (document.getElementById('opticoLateralIzq')?.checked) {
+                    totalExtras += Math.round(window.ultimoCalculo.precioOpticoLateral);
+                }
+                if (document.getElementById('opticoLateralDer')?.checked) {
+                    totalExtras += Math.round(window.ultimoCalculo.precioOpticoLateral);
+                }
+            }
+
+            // Actualizar precio final sumando extras al base original
+            const precioTotal = precioBase + totalExtras;
+            document.getElementById('precioFinal').textContent = precioTotal.toFixed(2) + '€';
+            console.log('Extras seleccionados: +' + totalExtras + '€, Precio total: ' + precioTotal + '€');
+        }
+    </script>
+    
+    <!-- Código del visualizador 3D -->
+    <script>
+        // Variables globales para el 3D
+        let scene, camera, renderer;
+        let acuarioGroup, refuerzosGroup, tirantesGroup, rebosaderoGroup;
+        let luzCenitalRebosadero = null; // Luz suave para iluminar rebosaderos negros
+        let viniloBasePlane = null; // Plano de vinilo en la base (con margen para mostrar junta)
+        let planosViniloRebosadero = []; // Planos de vinilo en rebosaderos (frontal y trasero para etapa)
+        let cintasEncintadoSuperficie = []; // Cintas de vinilo de 4cm en borde superior
+        let cintasEncintadoBase = []; // Cintas de vinilo de 5cm en borde inferior
+        let grosorActualMM = 10; // Grosor actual del acuario para recrear materiales
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraRotation = { x: 0.3, y: 0.5 };
+        let cameraDistance = 15;
+        let autoRotate = false;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let meshesClickeables = [];
+        let objetoResaltado = null;
+        
+        // Referencias a las piezas del acuario para cambiar color con ópticos
+        let piezas3D = {
+            base: null,
+            frontal: null,
+            trasera: null,
+            lateralIzq: null,
+            lateralDer: null
+        };
+        
+        // Info del rebosadero externo (para recortar vinilo en zona del cajón)
+        let rebosaderoExternoInfo = null;
+        
+        // Parches que tapan vinilo en zona de cajón externo (se actualizan)
+        let parchesVinilo = [];
+        
+        // Capas de vinilo opaco detrás del cristal
+        let capasVinilo = [];
+
+        // Mapeo de valores del selector a milímetros
+        const grosorMap = {
+            '1': 6,
+            '2': 8,
+            '3': 10,
+            '4': 12,
+            '5': 15,
+            '6': 19,
+            '7': 20
+        };
+        
+        // Inicializar 3D
+        function init3D() {
+            const canvas = document.getElementById('canvas3d');
+            if (!canvas) return;
+
+            try {
+                // Crear escena
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xB8C9D9);
+
+                // Crear cámara
+                const containerWidth = canvas.parentElement.clientWidth;
+                const containerHeight = 500;
+                camera = new THREE.PerspectiveCamera(50, containerWidth / containerHeight, 0.1, 1000);
+                camera.position.set(15, 7.5, 20);
+
+                // Crear renderer
+                renderer = new THREE.WebGLRenderer({ 
+                    canvas: canvas,
+                    antialias: true
+                });
+                renderer.setSize(containerWidth, containerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // Controles manuales de cámara
+                setupCameraControls(canvas);
+                setupClickDetection(canvas);
+
+                // Luces - Sistema multi-luz para brillos visibles desde todos los ángulos
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+                scene.add(ambientLight);
+                
+                // Luz principal frontal-superior
+                const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+                mainLight.position.set(10, 12, 18);
+                scene.add(mainLight);
+                
+                // Luz lateral izquierda para resaltar aristas
+                const leftLight = new THREE.DirectionalLight(0xffffff, 0.6);
+                leftLight.position.set(-15, 8, 10);
+                scene.add(leftLight);
+                
+                // Luz lateral derecha
+                const rightLight = new THREE.DirectionalLight(0xffffff, 0.6);
+                rightLight.position.set(15, 8, 10);
+                scene.add(rightLight);
+                
+                // Luz trasera para contornos
+                const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+                backLight.position.set(0, 10, -15);
+                scene.add(backLight);
+
+                // Iniciar animación
+                animate();
+
+                // Event listeners para actualizar en tiempo real
+                document.getElementById('largo').addEventListener('input', actualizar3DDesdeFormulario);
+                document.getElementById('ancho').addEventListener('input', actualizar3DDesdeFormulario);
+                document.getElementById('alto').addEventListener('input', actualizar3DDesdeFormulario);
+                document.getElementById('grosor').addEventListener('change', actualizar3DDesdeFormulario);
+                document.getElementById('colorSilicona').addEventListener('change', actualizar3DDesdeFormulario);
+                document.getElementById('tipoRefuerzo').addEventListener('change', actualizar3DDesdeFormulario);
+                
+                // Event listeners para checkboxes de cristales ópticos
+                const opticoFrontal = document.getElementById('opticoFrontal');
+                const opticoTrasera = document.getElementById('opticoTrasera');
+                const opticoLateralIzq = document.getElementById('opticoLateralIzq');
+                const opticoLateralDer = document.getElementById('opticoLateralDer');
+                
+                if (opticoFrontal) opticoFrontal.addEventListener('change', aplicarOpticosEnVisualizador);
+                if (opticoTrasera) opticoTrasera.addEventListener('change', aplicarOpticosEnVisualizador);
+                if (opticoLateralIzq) opticoLateralIzq.addEventListener('change', aplicarOpticosEnVisualizador);
+                if (opticoLateralDer) opticoLateralDer.addEventListener('change', aplicarOpticosEnVisualizador);
+                
+                // Event listeners para checkboxes de vinilos
+                const viniloLateralDer = document.getElementById('extraViniloLateralDerecho');
+                const viniloLateralIzq = document.getElementById('extraViniloLateralIzquierdo');
+                const viniloTrasero = document.getElementById('extraViniloTrasero');
+                const colorVinilo = document.getElementById('colorVinilo');
+                
+                if (viniloLateralDer) viniloLateralDer.addEventListener('change', aplicarVinilosEnVisualizador);
+                if (viniloLateralIzq) viniloLateralIzq.addEventListener('change', aplicarVinilosEnVisualizador);
+                if (viniloTrasero) viniloTrasero.addEventListener('change', aplicarVinilosEnVisualizador);
+                if (colorVinilo) colorVinilo.addEventListener('change', aplicarVinilosEnVisualizador);
+                
+                // Event listeners para selectores de posición de rebosaderos
+                const posEsquinero = document.getElementById('posicionEsquinero');
+                const posDiagonal = document.getElementById('posicionDiagonal');
+                const posExterno = document.getElementById('posicionExterno');
+                
+                if (posEsquinero) {
+                    posEsquinero.addEventListener('change', () => {
+                        if (rebosaderoActivo === 'esquinero') {
+                            const largo = parseFloat(document.getElementById('largo').value);
+                            const ancho = parseFloat(document.getElementById('ancho').value);
+                            const alto = parseFloat(document.getElementById('alto').value);
+                            crearRebosaderoEsquinero(largo, ancho, alto, posEsquinero.value);
+                        }
+                    });
+                }
+                if (posDiagonal) {
+                    posDiagonal.addEventListener('change', () => {
+                        if (rebosaderoActivo === 'diagonal') {
+                            const largo = parseFloat(document.getElementById('largo').value);
+                            const ancho = parseFloat(document.getElementById('ancho').value);
+                            const alto = parseFloat(document.getElementById('alto').value);
+                            crearRebosaderoDiagonal(largo, ancho, alto, posDiagonal.value);
+                        }
+                    });
+                }
+                if (posExterno) {
+                    posExterno.addEventListener('change', () => {
+                        if (rebosaderoActivo === 'externo') {
+                            const largo = parseFloat(document.getElementById('largo').value);
+                            const ancho = parseFloat(document.getElementById('ancho').value);
+                            const alto = parseFloat(document.getElementById('alto').value);
+                            crearRebosaderoExterno(largo, ancho, alto, posExterno.value);
+                        }
+                    });
+                }
+
+                // Event listener para mostrar/ocultar selectores de taladros adicionales
+                const extraTaladrosAdicionales = document.getElementById('extraTaladrosAdicionales');
+                if (extraTaladrosAdicionales) {
+                    extraTaladrosAdicionales.addEventListener('change', () => {
+                        const configDiv = document.getElementById('taladrosAdicionalesConfig');
+                        if (configDiv) {
+                            configDiv.style.display = extraTaladrosAdicionales.checked ? 'block' : 'none';
+                        }
+                    });
+                }
+
+                // Crear acuario inicial con valores por defecto 
+                actualizar3DDesdeFormulario();
+
+            } catch (error) {
+                console.error('Error inicializando 3D:', error);
+            }
+        }
+
+        function setupCameraControls(canvas) {
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                autoRotate = false;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                cameraRotation.y += deltaX * 0.005;
+                cameraRotation.x += deltaY * 0.005;
+                cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x));
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                updateCameraPosition();
+            });
+
+            canvas.addEventListener('mouseup', () => { isDragging = false; });
+            canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance += e.deltaY * 0.01;
+                cameraDistance = Math.max(5, Math.min(50, cameraDistance));
+                updateCameraPosition();
+            });
+
+            updateCameraPosition();
+        }
+
+        function setupClickDetection(canvas) {
+            let clickStartPos = { x: 0, y: 0 };
+            let wasDragging = false;
+            
+            canvas.addEventListener('mousedown', (e) => {
+                clickStartPos = { x: e.clientX, y: e.clientY };
+                wasDragging = false;
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                const dist = Math.sqrt(
+                    Math.pow(e.clientX - clickStartPos.x, 2) + 
+                    Math.pow(e.clientY - clickStartPos.y, 2)
+                );
+                if (dist > 5) wasDragging = true;
+            });
+            
+            canvas.addEventListener('click', (e) => {
+                if (wasDragging) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(meshesClickeables, false);
+                
+                if (intersects.length > 0) {
+                    const objeto = intersects[0].object;
+                    resaltarObjeto(objeto);
+                } else {
+                    desresaltarObjeto();
+                }
+            });
+        }
+
+        function resaltarObjeto(objeto) {
+            desresaltarObjeto();
+            objeto.userData.materialOriginal = objeto.material.clone();
+            objeto.material = objeto.material.clone();
+            objeto.material.opacity = 0.7;
+            objeto.material.emissive = new THREE.Color(0x4A90E2);
+            objeto.material.emissiveIntensity = 0.3;
+            objetoResaltado = objeto;
+        }
+
+        function desresaltarObjeto() {
+            if (objetoResaltado && objetoResaltado.userData.materialOriginal) {
+                objetoResaltado.material = objetoResaltado.userData.materialOriginal;
+                delete objetoResaltado.userData.materialOriginal;
+                objetoResaltado = null;
+            }
+        }
+
+        function updateCameraPosition() {
+            const x = cameraDistance * Math.cos(cameraRotation.x) * Math.sin(cameraRotation.y);
+            const y = cameraDistance * Math.sin(cameraRotation.x);
+            const z = cameraDistance * Math.cos(cameraRotation.x) * Math.cos(cameraRotation.y);
+            camera.position.set(x, y + 2.5, z);
+            camera.lookAt(0, 2.5, 0);
+        }
+
+        // Función para actualizar el 3D desde el formulario
+        function actualizar3DDesdeFormulario() {
+            const largo = parseInt(document.getElementById('largo').value);
+            const ancho = parseInt(document.getElementById('ancho').value);
+            const alto = parseInt(document.getElementById('alto').value);
+            const grosorSeleccion = document.getElementById('grosor').value;
+            const grosor = grosorMap[grosorSeleccion] || 10;
+            const tipoRefuerzo = document.getElementById('tipoRefuerzo').value;
+            const colorSilicona = document.getElementById('colorSilicona').value;
+            
+            // Determinar si tiene perimetrales y/o tirantes según el selector
+            const perimetrales = (tipoRefuerzo === 'perimetral' || tipoRefuerzo === 'perimetral-tirantes');
+            const tirantes = (tipoRefuerzo === 'perimetral-tirantes');
+            
+            // Solo actualizar si hay valores válidos
+            if (!largo || !ancho || !alto || largo < 30 || ancho < 30 || alto < 30) {
+                return;
+            }
+            
+            crearAcuario3D(largo, ancho, alto, grosor, colorSilicona);
+            
+            if (perimetrales) {
+                crearRefuerzos3D(largo, ancho, alto, grosor, tirantes, colorSilicona);
+            } else {
+                eliminarRefuerzos3D();
+            }
+            
+            if (tirantes && perimetrales) {
+                crearTirantes3D(largo, ancho, alto, grosor, colorSilicona);
+            } else {
+                eliminarTirantes3D();
+            }
+            
+            // Actualizar info overlay
+            const volumen = Math.round((largo * ancho * alto) / 1000);
+            document.getElementById('infoDimensionesOverlay').textContent = `${largo}cm × ${ancho}cm × ${alto}cm en ${grosor}mm`;
+            document.getElementById('infoVolumenOverlay').textContent = `${volumen} litros de capacidad`;
+            
+            // Actualizar rebosadero si hay uno activo
+            if (rebosaderoActivo) {
+                switch(rebosaderoActivo) {
+                    case 'general':
+                        crearRebosaderoGeneral(largo, ancho, alto);
+                        break;
+                    case 'esquinero':
+                        const posEsquinero = document.getElementById('posicionEsquinero').value;
+                        crearRebosaderoEsquinero(largo, ancho, alto, posEsquinero);
+                        break;
+                    case 'etapa':
+                        crearRebosaderoEtapa(largo, ancho, alto);
+                        break;
+                    case 'diagonal':
+                        const posDiagonal = document.getElementById('posicionDiagonal').value;
+                        crearRebosaderoDiagonal(largo, ancho, alto, posDiagonal);
+                        break;
+                    case 'columna':
+                        crearRebosaderoColumna(largo, ancho, alto);
+                        break;
+                    case 'externo':
+                        const posExterno = document.getElementById('posicionExterno').value;
+                        crearRebosaderoExterno(largo, ancho, alto, posExterno);
+                        break;
+                }
+            }
+        }
+
+        function crearAcuario3D(largo, ancho, alto, grosorMM, colorSilicona) {
+            // Guardar grosor actual
+            grosorActualMM = grosorMM;
+            
+            // Convertir todo a la misma unidad: decímetros (para consistencia visual)
+            const l = largo / 10;      // cm a dm
+            const a = ancho / 10;      // cm a dm
+            const h = alto / 10;       // cm a dm
+            const t = (grosorMM / 100) * 1.5;  // mm a dm, multiplicado por 1.5 para mejor visibilidad
+
+            if (acuarioGroup) scene.remove(acuarioGroup);
+            acuarioGroup = new THREE.Group();
+            meshesClickeables = [];
+            
+            // Limpiar capas de vinilo anteriores
+            capasVinilo.forEach(capa => {
+                if (capa.geometry) capa.geometry.dispose();
+                if (capa.material) capa.material.dispose();
+            });
+            capasVinilo = [];
+            
+            // Calcular tono verde botella cristalino según grosor (más grosor = más verde)
+            // 6mm = casi transparente, 20mm = verde botella visible
+            const intensidadVerde = Math.min(grosorMM / 20, 1); // 0 a 1
+            const rojo = 240 - (50 * intensidadVerde);    // 240 a 190 (bajar rojo para más verde)
+            const verde = 252 - (12 * intensidadVerde);   // 252 a 240 (mantener verde alto)
+            const azul = 245 - (25 * intensidadVerde);    // 245 a 220 (más azul que rojo para tono botella)
+            // Verde botella cristalino: RGB(240,252,245) a RGB(190,240,220) - notorio en 19mm
+            const colorCristal = (Math.round(rojo) << 16) | (Math.round(verde) << 8) | Math.round(azul);
+            
+            const matVidrio = new THREE.MeshPhysicalMaterial({
+                color: colorCristal,
+                metalness: 0.1,
+                roughness: 0.05,
+                transmission: 0.95,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide,
+                clearcoat: 0.6,
+                clearcoatRoughness: 0.1
+            });
+
+            // BASE
+            const base = new THREE.Mesh(new THREE.BoxGeometry(l, t, a), matVidrio.clone());
+            base.position.set(0, t / 2, 0);
+            base.userData = { tipo: 'cristal', nombre: 'Base', pieza: 'base' };
+            acuarioGroup.add(base);
+            meshesClickeables.push(base);
+            piezas3D.base = base;
+
+            // LATERALES
+            const profundidadLateral = a - 2 * t;
+            
+            const lateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, h, profundidadLateral), matVidrio.clone());
+            lateralIzq.position.set(-(l / 2 - t / 2), h / 2 + t, 0);
+            lateralIzq.userData = { tipo: 'cristal', nombre: 'Lateral Izquierdo', pieza: 'lateralIzq' };
+            acuarioGroup.add(lateralIzq);
+            meshesClickeables.push(lateralIzq);
+            piezas3D.lateralIzq = lateralIzq;
+            
+            const lateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, h, profundidadLateral), matVidrio.clone());
+            lateralDer.position.set(l / 2 - t / 2, h / 2 + t, 0);
+            lateralDer.userData = { tipo: 'cristal', nombre: 'Lateral Derecho', pieza: 'lateralDer' };
+            acuarioGroup.add(lateralDer);
+            meshesClickeables.push(lateralDer);
+            piezas3D.lateralDer = lateralDer;
+
+            // FRONTAL Y TRASERO
+            const frontal = new THREE.Mesh(new THREE.BoxGeometry(l, h, t), matVidrio.clone());
+            frontal.position.set(0, h / 2 + t, a / 2 - t / 2);
+            frontal.userData = { tipo: 'cristal', nombre: 'Frontal', pieza: 'frontal' };
+            acuarioGroup.add(frontal);
+            meshesClickeables.push(frontal);
+            piezas3D.frontal = frontal;
+
+            const trasera = new THREE.Mesh(new THREE.BoxGeometry(l, h, t), matVidrio.clone());
+            trasera.position.set(0, h / 2 + t, -(a / 2 - t / 2));
+            trasera.userData = { tipo: 'cristal', nombre: 'Trasera', pieza: 'trasera' };
+            acuarioGroup.add(trasera);
+            meshesClickeables.push(trasera);
+            piezas3D.trasera = trasera;
+            
+            // Aplicar cristales ópticos si están seleccionados
+            aplicarOpticosEnVisualizador();
+            
+            // Aplicar vinilos de color si están seleccionados (prioridad sobre ópticos)
+            aplicarVinilosEnVisualizador();
+            
+            // Aplicar encintados de superficie si están seleccionados
+            aplicarEncintadoSuperficieEnVisualizador();
+            
+            // Aplicar encintados de base si están seleccionados
+            aplicarEncintadoBaseEnVisualizador();
+            
+            // Aplicar vinilado de rebosaderos si está seleccionado
+            aplicarViniladoRebosaderoEnVisualizador();
+
+            // SILICONA
+            if (colorSilicona === 'negra') {
+                const matSilicona = new THREE.MeshStandardMaterial({ 
+                    color: 0x0a0a0a,
+                    roughness: 0.8,
+                    metalness: 0.1
+                });
+                const grosorSilicona = 0.002;
+                
+                // Juntas base-laterales
+                const siliconaBaseFrontal = new THREE.Mesh(new THREE.BoxGeometry(l, t, grosorSilicona), matSilicona);
+                siliconaBaseFrontal.position.set(0, t / 2, a / 2 - t + grosorSilicona / 2);
+                acuarioGroup.add(siliconaBaseFrontal);
+                
+                const siliconaBaseTrasera = new THREE.Mesh(new THREE.BoxGeometry(l, t, grosorSilicona), matSilicona);
+                siliconaBaseTrasera.position.set(0, t / 2, -(a / 2 - t + grosorSilicona / 2));
+                acuarioGroup.add(siliconaBaseTrasera);
+                
+                const siliconaBaseLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(grosorSilicona, t, profundidadLateral), matSilicona);
+                siliconaBaseLateralIzq.position.set(-(l / 2 - t + grosorSilicona / 2), t / 2, 0);
+                acuarioGroup.add(siliconaBaseLateralIzq);
+                
+                const siliconaBaseLateralDer = new THREE.Mesh(new THREE.BoxGeometry(grosorSilicona, t, profundidadLateral), matSilicona);
+                siliconaBaseLateralDer.position.set(l / 2 - t + grosorSilicona / 2, t / 2, 0);
+                acuarioGroup.add(siliconaBaseLateralDer);
+                
+                // Juntas verticales
+                const siliconaFrontalLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSilicona);
+                siliconaFrontalLateralIzq.position.set(-(l / 2 - t / 2), h / 2 + t, a / 2 - t);
+                acuarioGroup.add(siliconaFrontalLateralIzq);
+                
+                const siliconaFrontalLateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSilicona);
+                siliconaFrontalLateralDer.position.set(l / 2 - t / 2, h / 2 + t, a / 2 - t);
+                acuarioGroup.add(siliconaFrontalLateralDer);
+                
+                const siliconaTrLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSilicona);
+                siliconaTrLateralIzq.position.set(-(l / 2 - t / 2), h / 2 + t, -(a / 2 - t));
+                acuarioGroup.add(siliconaTrLateralIzq);
+                
+                const siliconaTrLateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSilicona);
+                siliconaTrLateralDer.position.set(l / 2 - t / 2, h / 2 + t, -(a / 2 - t));
+                acuarioGroup.add(siliconaTrLateralDer);
+            } else {
+                // Silicona transparente con tono gris sutil
+                const matSiliconaGris = new THREE.MeshStandardMaterial({ 
+                    color: 0x9A9A98,
+                    roughness: 0.6,
+                    metalness: 0.05,
+                    transparent: true,
+                    opacity: 0.35
+                });
+                const grosorSilicona = 0.002;
+                
+                // Juntas base-laterales
+                const siliconaBaseFrontal = new THREE.Mesh(new THREE.BoxGeometry(l, t, grosorSilicona), matSiliconaGris);
+                siliconaBaseFrontal.position.set(0, t / 2, a / 2 - t + grosorSilicona / 2);
+                acuarioGroup.add(siliconaBaseFrontal);
+                
+                const siliconaBaseTrasera = new THREE.Mesh(new THREE.BoxGeometry(l, t, grosorSilicona), matSiliconaGris);
+                siliconaBaseTrasera.position.set(0, t / 2, -(a / 2 - t + grosorSilicona / 2));
+                acuarioGroup.add(siliconaBaseTrasera);
+                
+                const siliconaBaseLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(grosorSilicona, t, profundidadLateral), matSiliconaGris);
+                siliconaBaseLateralIzq.position.set(-(l / 2 - t + grosorSilicona / 2), t / 2, 0);
+                acuarioGroup.add(siliconaBaseLateralIzq);
+                
+                const siliconaBaseLateralDer = new THREE.Mesh(new THREE.BoxGeometry(grosorSilicona, t, profundidadLateral), matSiliconaGris);
+                siliconaBaseLateralDer.position.set(l / 2 - t + grosorSilicona / 2, t / 2, 0);
+                acuarioGroup.add(siliconaBaseLateralDer);
+                
+                // Juntas verticales
+                const siliconaFrontalLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSiliconaGris);
+                siliconaFrontalLateralIzq.position.set(-(l / 2 - t / 2), h / 2 + t, a / 2 - t);
+                acuarioGroup.add(siliconaFrontalLateralIzq);
+                
+                const siliconaFrontalLateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSiliconaGris);
+                siliconaFrontalLateralDer.position.set(l / 2 - t / 2, h / 2 + t, a / 2 - t);
+                acuarioGroup.add(siliconaFrontalLateralDer);
+                
+                const siliconaTrLateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSiliconaGris);
+                siliconaTrLateralIzq.position.set(-(l / 2 - t / 2), h / 2 + t, -(a / 2 - t));
+                acuarioGroup.add(siliconaTrLateralIzq);
+                
+                const siliconaTrLateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, h, grosorSilicona), matSiliconaGris);
+                siliconaTrLateralDer.position.set(l / 2 - t / 2, h / 2 + t, -(a / 2 - t));
+                acuarioGroup.add(siliconaTrLateralDer);
+            }
+
+            scene.add(acuarioGroup);
+        }
+        
+        // Función para aplicar materiales ópticos según checkboxes
+        // NOTA: Los vinilos tienen prioridad sobre los ópticos
+        function aplicarOpticosEnVisualizador() {
+            // Material óptico (mucho más transparente, casi invisible, sin tinte)
+            const matOptico = new THREE.MeshPhysicalMaterial({
+                color: 0xFCFEFF, // Blanco casi puro, sin tintes
+                metalness: 0.05,
+                roughness: 0.01,
+                transmission: 0.99,  // Máxima transparencia
+                transparent: true,
+                opacity: 0.08,       // Muy bajo para casi invisible
+                side: THREE.DoubleSide,
+                clearcoat: 0.9,
+                clearcoatRoughness: 0.02,
+                ior: 1.52  // Índice de refracción del cristal óptico
+            });
+            
+            // Revisar checkboxes y aplicar material óptico
+            const opticoFrontal = document.getElementById('opticoFrontal');
+            const opticoTrasera = document.getElementById('opticoTrasera');
+            const opticoLateralIzq = document.getElementById('opticoLateralIzq');
+            const opticoLateralDer = document.getElementById('opticoLateralDer');
+            
+            // Material transparente estándar (para restaurar)
+            const matTransparente = crearMaterialCristalPorGrosor();
+            
+            // Checkboxes de vinilos (para verificar prioridad)
+            const viniloTrasero = document.getElementById('extraViniloTrasero');
+            const viniloLateralIzq = document.getElementById('extraViniloLateralIzquierdo');
+            const viniloLateralDer = document.getElementById('extraViniloLateralDerecho');
+            
+            // Frontal (no tiene vinilo, aplicar o restaurar)
+            if (opticoFrontal && opticoFrontal.checked && piezas3D.frontal) {
+                piezas3D.frontal.material.dispose();
+                piezas3D.frontal.material = matOptico.clone();
+            } else if (opticoFrontal && !opticoFrontal.checked && piezas3D.frontal) {
+                piezas3D.frontal.material.dispose();
+                piezas3D.frontal.material = matTransparente.clone();
+            }
+            
+            // Trasera (solo aplicar/restaurar si NO tiene vinilo activo)
+            if (opticoTrasera && piezas3D.trasera) {
+                if (!viniloTrasero || !viniloTrasero.checked) {
+                    if (opticoTrasera.checked) {
+                        piezas3D.trasera.material.dispose();
+                        piezas3D.trasera.material = matOptico.clone();
+                    } else {
+                        piezas3D.trasera.material.dispose();
+                        piezas3D.trasera.material = matTransparente.clone();
+                    }
+                }
+            }
+            
+            // Lateral izquierdo (solo aplicar/restaurar si NO tiene vinilo activo)
+            if (opticoLateralIzq && piezas3D.lateralIzq) {
+                if (!viniloLateralIzq || !viniloLateralIzq.checked) {
+                    if (opticoLateralIzq.checked) {
+                        piezas3D.lateralIzq.material.dispose();
+                        piezas3D.lateralIzq.material = matOptico.clone();
+                    } else {
+                        piezas3D.lateralIzq.material.dispose();
+                        piezas3D.lateralIzq.material = matTransparente.clone();
+                    }
+                }
+            }
+            
+            // Lateral derecho (solo aplicar/restaurar si NO tiene vinilo activo)
+            if (opticoLateralDer && piezas3D.lateralDer) {
+                if (!viniloLateralDer || !viniloLateralDer.checked) {
+                    if (opticoLateralDer.checked) {
+                        piezas3D.lateralDer.material.dispose();
+                        piezas3D.lateralDer.material = matOptico.clone();
+                    } else {
+                        piezas3D.lateralDer.material.dispose();
+                        piezas3D.lateralDer.material = matTransparente.clone();
+                    }
+                }
+            }
+        }
+
+        // Función para aplicar vinilos de color según checkboxes y selector
+        function aplicarVinilosEnVisualizador() {
+            // Limpiar parches anteriores
+            parchesVinilo.forEach(parche => {
+                if (parche.parent) parche.parent.remove(parche);
+                if (parche.geometry) parche.geometry.dispose();
+                if (parche.material) parche.material.dispose();
+            });
+            parchesVinilo = [];
+            
+            // Obtener el color seleccionado
+            const colorSelector = document.getElementById('colorVinilo');
+            const colorElegido = colorSelector ? colorSelector.value : 'negro';
+            
+            // Definir colores según el selector
+            let colorHex;
+            if (colorElegido === 'blanco') {
+                colorHex = 0xFFFFFF;
+            } else if (colorElegido === 'azul') {
+                colorHex = 0x2600cf; // Azul violeta
+            } else {
+                colorHex = 0x0a0a0a; // Negro oscuro para compensar tinte
+            }
+            
+            // Material de vinilo opaco (aplicado directamente al cristal)
+            const matVinilo = new THREE.MeshPhysicalMaterial({
+                color: colorHex,
+                metalness: 0.5,
+                roughness: 0.05,
+                transmission: 0,
+                transparent: false,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.02,
+                side: THREE.DoubleSide
+            });
+            
+            // Material transparente estándar (para restaurar)
+            const matTransparente = crearMaterialCristalPorGrosor();
+            
+            // Verificar si hay cajón externo activo para prevenir vinilo en esa pieza
+            let piezaConCajonExterno = null;
+            if (rebosaderoExternoInfo) {
+                piezaConCajonExterno = rebosaderoExternoInfo.posicion;
+            }
+            
+            // Revisar checkboxes y aplicar/restaurar materiales
+            const viniloLateralDer = document.getElementById('extraViniloLateralDerecho');
+            const viniloLateralIzq = document.getElementById('extraViniloLateralIzquierdo');
+            const viniloTrasero = document.getElementById('extraViniloTrasero');
+            
+            // Lateral Derecho (NO aplicar si tiene cajón externo)
+            if (viniloLateralDer && viniloLateralDer.checked && piezas3D.lateralDer && piezaConCajonExterno !== 'derecha') {
+                piezas3D.lateralDer.material.dispose();
+                piezas3D.lateralDer.material = matVinilo.clone();
+            } else if (piezas3D.lateralDer) {
+                piezas3D.lateralDer.material.dispose();
+                piezas3D.lateralDer.material = matTransparente.clone();
+            }
+            
+            // Lateral Izquierdo (NO aplicar si tiene cajón externo)
+            if (viniloLateralIzq && viniloLateralIzq.checked && piezas3D.lateralIzq && piezaConCajonExterno !== 'izquierda') {
+                piezas3D.lateralIzq.material.dispose();
+                piezas3D.lateralIzq.material = matVinilo.clone();
+            } else if (piezas3D.lateralIzq) {
+                piezas3D.lateralIzq.material.dispose();
+                piezas3D.lateralIzq.material = matTransparente.clone();
+            }
+            
+            // Trasera (NO aplicar si tiene cajón externo)
+            if (viniloTrasero && viniloTrasero.checked && piezas3D.trasera && piezaConCajonExterno !== 'trasera') {
+                piezas3D.trasera.material.dispose();
+                piezas3D.trasera.material = matVinilo.clone();
+            } else if (piezas3D.trasera) {
+                piezas3D.trasera.material.dispose();
+                piezas3D.trasera.material = matTransparente.clone();
+            }
+            
+            // Fondo (base) - crear plano con margen para mostrar junta de silicona
+            // Eliminar plano anterior si existe
+            if (viniloBasePlane) {
+                acuarioGroup.remove(viniloBasePlane);
+                if (viniloBasePlane.geometry) viniloBasePlane.geometry.dispose();
+                if (viniloBasePlane.material) viniloBasePlane.material.dispose();
+                viniloBasePlane = null;
+            }
+            
+            const selectorFondo = document.getElementById('viniloFondo');
+            if (selectorFondo && selectorFondo.value !== 'no' && piezas3D.base) {
+                // Obtener dimensiones del acuario
+                const largo = parseFloat(document.getElementById('largo').value) || 0;
+                const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+                const l = largo / 10; // cm a dm
+                const a = ancho / 10; // cm a dm
+                const t = (grosorActualMM / 100) * 1.5; // grosor en dm
+                
+                // Crear plano con margen (descontar grosor de cada lado)
+                const largoVinilo = l - 2 * t;
+                const anchoVinilo = a - 2 * t;
+                
+                let colorFondo;
+                if (selectorFondo.value === 'blanco') {
+                    colorFondo = 0xFFFFFF;
+                } else if (selectorFondo.value === 'azul') {
+                    colorFondo = 0x2600cf;
+                } else {
+                    colorFondo = 0x0a0a0a; // negro
+                }
+                
+                const matViniloFondo = new THREE.MeshPhysicalMaterial({
+                    color: colorFondo,
+                    metalness: 0.1,
+                    roughness: 0.8,
+                    transmission: 0,
+                    opacity: 1,
+                    transparent: false,
+                    side: THREE.DoubleSide
+                });
+                
+                // Crear plano horizontal sobre la base
+                const geometriaViniloBase = new THREE.PlaneGeometry(largoVinilo, anchoVinilo);
+                viniloBasePlane = new THREE.Mesh(geometriaViniloBase, matViniloFondo);
+                viniloBasePlane.rotation.x = -Math.PI / 2; // Rotar 90° para que quede horizontal
+                viniloBasePlane.position.set(0, t + 0.0001, 0); // Justo encima de la base
+                acuarioGroup.add(viniloBasePlane);
+            }
+        }
+
+        function aplicarViniladoRebosaderoEnVisualizador() {
+            // Eliminar planos anteriores si existen
+            planosViniloRebosadero.forEach(plano => {
+                if (acuarioGroup) acuarioGroup.remove(plano);
+                if (plano.geometry) plano.geometry.dispose();
+                if (plano.material) plano.material.dispose();
+            });
+            planosViniloRebosadero = [];
+            
+            const checkVinilado = document.getElementById('extraViniladoRebosadero');
+            if (!checkVinilado || !checkVinilado.checked) return;
+            
+            // Detectar automáticamente el tipo de rebosadero activo
+            if (!rebosaderoActivo || (rebosaderoActivo !== 'etapa' && rebosaderoActivo !== 'esquinero')) {
+                return; // Solo funciona con etapa y esquinero
+            }
+            
+            // Obtener dimensiones del acuario
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('alto').value) || 0;
+            const l = largo / 10; // cm a dm
+            const a = ancho / 10; // cm a dm
+            const h = alto / 10; // cm a dm
+            const t = (grosorActualMM / 100) * 1.5; // grosor en dm
+            
+            // Obtener color del selector de encintados
+            const colorEncintado = document.getElementById('colorEncintado')?.value || 'negro';
+            let colorVinilo;
+            if (colorEncintado === 'blanco') {
+                colorVinilo = 0xFFFFFF;
+            } else {
+                colorVinilo = 0x0a0a0a; // negro
+            }
+            
+            // Material con el color seleccionado (igual que las cintas de encintado)
+            const matViniloNegro = new THREE.MeshPhysicalMaterial({
+                color: colorVinilo,
+                metalness: 0.1,
+                roughness: 0.8,
+                transmission: 0,
+                opacity: 1,
+                transparent: false,
+                side: THREE.DoubleSide
+            });
+            
+            let anchoPlano, altoPlano, posX, posY, posZ, rotY;
+            
+            if (rebosaderoActivo === 'etapa') {
+                // Rebosadero de etapa: en el frontal Y trasera, a la izquierda
+                // Largo: 12cm desde el lateral izquierdo
+                // Alto: desde el suelo hasta el borde superior del lateral
+                const anchoVinilo = 1.2; // 12cm de ancho para el vinilo
+                anchoPlano = anchoVinilo; // 12cm de ancho (en dirección X)
+                altoPlano = h + t; // altura completa desde suelo hasta borde superior
+                posX = -l / 2 + anchoVinilo / 2; // centrado en los primeros 12cm desde el lateral izquierdo
+                posY = altoPlano / 2; // centrado verticalmente desde el suelo
+                
+                // Plano frontal
+                const geometriaFrontal = new THREE.PlaneGeometry(anchoPlano, altoPlano);
+                const planoFrontal = new THREE.Mesh(geometriaFrontal, matViniloNegro.clone());
+                planoFrontal.position.set(posX, posY, a / 2 + 0.0001);
+                planoFrontal.rotation.y = 0;
+                acuarioGroup.add(planoFrontal);
+                planosViniloRebosadero.push(planoFrontal);
+                
+                // Plano trasero
+                const geometriaTrasera = new THREE.PlaneGeometry(anchoPlano, altoPlano);
+                const planoTrasero = new THREE.Mesh(geometriaTrasera, matViniloNegro.clone());
+                planoTrasero.position.set(posX, posY, -a / 2 - 0.0001);
+                planoTrasero.rotation.y = Math.PI; // rotado 180 grados para mirar hacia el frente
+                acuarioGroup.add(planoTrasero);
+                planosViniloRebosadero.push(planoTrasero);
+                
+            } else if (rebosaderoActivo === 'esquinero') {
+                // Rebosadero esquinero: en el lateral (derecho o izquierdo)
+                const posEsquinero = document.getElementById('posicionEsquinero')?.value || 'derecha';
+                const anchoVinilo = 1.0; // 10cm de ancho para el vinilo
+                // Ancho: 10cm desde la esquina trasera hacia adelante
+                // Alto: desde el suelo hasta el borde superior del lateral
+                anchoPlano = anchoVinilo; // 10cm de ancho (en dirección Z, desde esquina trasera)
+                altoPlano = h + t; // altura completa desde suelo hasta borde superior
+                posY = altoPlano / 2; // centrado verticalmente desde el suelo
+                
+                if (posEsquinero === 'derecha') {
+                    // En el lateral derecho, desde esquina trasera hacia adelante 10cm
+                    posX = l / 2 + 0.0001; // lateral derecho, ligeramente hacia afuera
+                    posZ = -a / 2 + t + anchoVinilo / 2; // desde esquina trasera, 10cm hacia adelante
+                    rotY = Math.PI / 2; // mirando hacia la izquierda (interior del acuario)
+                } else {
+                    // En el lateral izquierdo, desde esquina trasera hacia adelante 10cm
+                    posX = -l / 2 - 0.0001; // lateral izquierdo, ligeramente hacia afuera
+                    posZ = -a / 2 + t + anchoVinilo / 2; // desde esquina trasera, 10cm hacia adelante
+                    rotY = -Math.PI / 2; // mirando hacia la derecha (interior del acuario)
+                }
+                
+                // Crear el plano del vinilado lateral (solo para esquinero)
+                const geometriaVinilado = new THREE.PlaneGeometry(anchoPlano, altoPlano);
+                const planoVinilado = new THREE.Mesh(geometriaVinilado, matViniloNegro);
+                planoVinilado.position.set(posX, posY, posZ);
+                planoVinilado.rotation.y = rotY;
+                acuarioGroup.add(planoVinilado);
+                planosViniloRebosadero.push(planoVinilado);
+            }
+        }
+
+        function aplicarEncintadoSuperficieEnVisualizador() {
+            // Eliminar cintas anteriores
+            cintasEncintadoSuperficie.forEach(cinta => {
+                if (acuarioGroup) acuarioGroup.remove(cinta);
+                if (cinta.geometry) cinta.geometry.dispose();
+                if (cinta.material) cinta.material.dispose();
+            });
+            cintasEncintadoSuperficie = [];
+            
+            const checkEncintado = document.getElementById('extraEncintadoSuperficie');
+            if (!checkEncintado || !checkEncintado.checked) return;
+            
+            const perimetro = document.getElementById('perimetroEncintadoSuperficie')?.value || 'frontal';
+            const colorEncintado = document.getElementById('colorEncintado')?.value || 'negro';
+            
+            // Determinar color según selector
+            let colorCinta;
+            if (colorEncintado === 'blanco') {
+                colorCinta = 0xFFFFFF;
+            } else {
+                colorCinta = 0x0a0a0a; // negro
+            }
+            
+            // Material de la cinta
+            const matCinta = new THREE.MeshPhysicalMaterial({
+                color: colorCinta,
+                metalness: 0.1,
+                roughness: 0.8,
+                transmission: 0,
+                opacity: 1,
+                transparent: false,
+                side: THREE.DoubleSide
+            });
+            
+            // Obtener dimensiones del acuario
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('alto').value) || 0;
+            const l = largo / 10; // cm a dm
+            const a = ancho / 10; // cm a dm
+            const h = alto / 10; // cm a dm
+            const t = (grosorActualMM / 100) * 1.5; // grosor en dm
+            const anchoCinta = 0.4; // 4cm
+            
+            // Posición Y de la cinta (pegada al borde superior, desde alto-4cm hasta alto)
+            const posY = h + t - anchoCinta / 2;
+            
+            // Crear cintas según el perímetro seleccionado
+            if (perimetro === 'frontal' || perimetro === 'frontal-derecho' || perimetro === 'frontal-izquierdo' || perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta frontal
+                const cintaFrontal = new THREE.Mesh(new THREE.PlaneGeometry(l, anchoCinta), matCinta.clone());
+                cintaFrontal.position.set(0, posY, a / 2 + 0.0001); // justo delante del frontal
+                acuarioGroup.add(cintaFrontal);
+                cintasEncintadoSuperficie.push(cintaFrontal);
+            }
+            
+            if (perimetro === 'frontal-derecho' || perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta lateral derecho
+                const cintaLateralDer = new THREE.Mesh(new THREE.PlaneGeometry(a, anchoCinta), matCinta.clone());
+                cintaLateralDer.position.set(l / 2 + 0.0001, posY, 0); // justo en lateral derecho
+                cintaLateralDer.rotation.y = Math.PI / 2; // rotar 90° para lateral
+                acuarioGroup.add(cintaLateralDer);
+                cintasEncintadoSuperficie.push(cintaLateralDer);
+            }
+            
+            if (perimetro === 'frontal-izquierdo' || perimetro === 'perimetro') {
+                // Cinta lateral izquierdo
+                const cintaLateralIzq = new THREE.Mesh(new THREE.PlaneGeometry(a, anchoCinta), matCinta.clone());
+                cintaLateralIzq.position.set(-l / 2 - 0.0001, posY, 0); // justo en lateral izquierdo
+                cintaLateralIzq.rotation.y = -Math.PI / 2; // rotar -90° para lateral
+                acuarioGroup.add(cintaLateralIzq);
+                cintasEncintadoSuperficie.push(cintaLateralIzq);
+            }
+            
+            if (perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta trasera
+                const cintaTrasera = new THREE.Mesh(new THREE.PlaneGeometry(l, anchoCinta), matCinta.clone());
+                cintaTrasera.position.set(0, posY, -a / 2 - 0.0001); // justo detrás de la trasera
+                cintaTrasera.rotation.y = Math.PI; // rotar 180° para trasera
+                acuarioGroup.add(cintaTrasera);
+                cintasEncintadoSuperficie.push(cintaTrasera);
+            }
+        }
+
+        function aplicarEncintadoBaseEnVisualizador() {
+            // Eliminar cintas anteriores
+            cintasEncintadoBase.forEach(cinta => {
+                if (acuarioGroup) acuarioGroup.remove(cinta);
+                if (cinta.geometry) cinta.geometry.dispose();
+                if (cinta.material) cinta.material.dispose();
+            });
+            cintasEncintadoBase = [];
+            
+            const checkEncintado = document.getElementById('extraEncintadoBase');
+            if (!checkEncintado || !checkEncintado.checked) return;
+            
+            const perimetro = document.getElementById('perimetroEncintadoBase')?.value || 'frontal';
+            const colorEncintado = document.getElementById('colorEncintado')?.value || 'negro';
+            
+            // Determinar color según selector
+            let colorCinta;
+            if (colorEncintado === 'blanco') {
+                colorCinta = 0xFFFFFF;
+            } else {
+                colorCinta = 0x0a0a0a; // negro
+            }
+            
+            // Material de la cinta
+            const matCinta = new THREE.MeshPhysicalMaterial({
+                color: colorCinta,
+                metalness: 0.1,
+                roughness: 0.8,
+                transmission: 0,
+                opacity: 1,
+                transparent: false,
+                side: THREE.DoubleSide
+            });
+            
+            // Obtener dimensiones del acuario
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('alto').value) || 0;
+            const l = largo / 10; // cm a dm
+            const a = ancho / 10; // cm a dm
+            const h = alto / 10; // cm a dm
+            const t = (grosorActualMM / 100) * 1.5; // grosor en dm
+            const anchoCinta = 0.5; // 5cm
+            
+            // Posición Y de la cinta (desde el suelo hasta 5cm de altura)
+            const posY = anchoCinta / 2;
+            
+            // Crear cintas según el perímetro seleccionado
+            if (perimetro === 'frontal' || perimetro === 'frontal-derecho' || perimetro === 'frontal-izquierdo' || perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta frontal
+                const cintaFrontal = new THREE.Mesh(new THREE.PlaneGeometry(l, anchoCinta), matCinta.clone());
+                cintaFrontal.position.set(0, posY, a / 2 + 0.0001); // justo delante del frontal
+                acuarioGroup.add(cintaFrontal);
+                cintasEncintadoBase.push(cintaFrontal);
+            }
+            
+            if (perimetro === 'frontal-derecho' || perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta lateral derecho
+                const cintaLateralDer = new THREE.Mesh(new THREE.PlaneGeometry(a, anchoCinta), matCinta.clone());
+                cintaLateralDer.position.set(l / 2 + 0.0001, posY, 0); // justo en lateral derecho
+                cintaLateralDer.rotation.y = Math.PI / 2; // rotar 90° para lateral
+                acuarioGroup.add(cintaLateralDer);
+                cintasEncintadoBase.push(cintaLateralDer);
+            }
+            
+            if (perimetro === 'frontal-izquierdo' || perimetro === 'perimetro') {
+                // Cinta lateral izquierdo
+                const cintaLateralIzq = new THREE.Mesh(new THREE.PlaneGeometry(a, anchoCinta), matCinta.clone());
+                cintaLateralIzq.position.set(-l / 2 - 0.0001, posY, 0); // justo en lateral izquierdo
+                cintaLateralIzq.rotation.y = -Math.PI / 2; // rotar -90° para lateral
+                acuarioGroup.add(cintaLateralIzq);
+                cintasEncintadoBase.push(cintaLateralIzq);
+            }
+            
+            if (perimetro === 'frontal-derecho-trasera' || perimetro === 'perimetro') {
+                // Cinta trasera
+                const cintaTrasera = new THREE.Mesh(new THREE.PlaneGeometry(l, anchoCinta), matCinta.clone());
+                cintaTrasera.position.set(0, posY, -a / 2 - 0.0001); // justo detrás de la trasera
+                cintaTrasera.rotation.y = Math.PI; // rotar 180° para trasera
+                acuarioGroup.add(cintaTrasera);
+                cintasEncintadoBase.push(cintaTrasera);
+            }
+        }
+
+        function calcularGrosorRefuerzos(grosorAcuarioMM) {
+            if (grosorAcuarioMM <= 8) return 8;
+            if (grosorAcuarioMM <= 10) return 8;
+            if (grosorAcuarioMM <= 12) return 10;
+            if (grosorAcuarioMM <= 15) return 12;
+            return 15;
+        }
+
+        function crearRefuerzos3D(largo, ancho, alto, grosorAcuarioMM, hayTirantes, colorSilicona) {
+            if (refuerzosGroup) acuarioGroup.remove(refuerzosGroup);
+            refuerzosGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const grosorAcuario = (grosorAcuarioMM / 100) * 1.5;  // Convertir mm a dm con factor visual
+            const grosorRefuerzosMM = calcularGrosorRefuerzos(grosorAcuarioMM);
+            const grosorRefuerzos = (grosorRefuerzosMM / 100) * 1.5;
+            
+            const matRefuerzo = new THREE.MeshPhysicalMaterial({
+                color: 0xC8E6FA,
+                metalness: 0.1,
+                roughness: 0.05,
+                transmission: 0.95,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide,
+                clearcoat: 0.6,
+                clearcoatRoughness: 0.1
+            });
+            
+            const anchoPerimetral = 0.8;
+            const grosorTirantesMM = hayTirantes ? calcularGrosorRefuerzos(grosorAcuarioMM) : 0;
+            const grosorTirantes = (grosorTirantesMM / 100) * 1.5;
+            
+            // Si hay tirantes, el perimetral baja el grosor del tirante
+            // Si no hay tirantes, el perimetral está enrasado al borde superior
+            const offsetPerimetral = hayTirantes ? -grosorTirantes : 0;
+            
+            const perimetralFrontal = new THREE.Mesh(new THREE.BoxGeometry(l, grosorRefuerzos, anchoPerimetral), matRefuerzo);
+            perimetralFrontal.userData = { tipo: 'perimetral', nombre: 'Perimetral Frontal' };
+            perimetralFrontal.position.set(0, h + grosorAcuario - grosorRefuerzos / 2 + offsetPerimetral, a / 2 - grosorAcuario - anchoPerimetral / 2);
+            refuerzosGroup.add(perimetralFrontal);
+            meshesClickeables.push(perimetralFrontal);
+            
+            const perimetralTrasero = new THREE.Mesh(new THREE.BoxGeometry(l, grosorRefuerzos, anchoPerimetral), matRefuerzo);
+            perimetralTrasero.userData = { tipo: 'perimetral', nombre: 'Perimetral Trasero' };
+            perimetralTrasero.position.set(0, h + grosorAcuario - grosorRefuerzos / 2 + offsetPerimetral, -a / 2 + grosorAcuario + anchoPerimetral / 2);
+            refuerzosGroup.add(perimetralTrasero);
+            meshesClickeables.push(perimetralTrasero);
+            
+            // Silicona siempre negra
+            if (colorSilicona === 'negra') {
+                const matSilicona = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8, metalness: 0.1 });
+                const grosorSilicona = 0.002;
+                
+                const silPerFrontal = new THREE.Mesh(new THREE.BoxGeometry(l, grosorRefuerzos, grosorSilicona), matSilicona);
+                silPerFrontal.position.set(0, h + grosorAcuario - grosorRefuerzos / 2 + offsetPerimetral, a / 2 - grosorAcuario - grosorSilicona / 2);
+                refuerzosGroup.add(silPerFrontal);
+                
+                const silPerTrasero = new THREE.Mesh(new THREE.BoxGeometry(l, grosorRefuerzos, grosorSilicona), matSilicona);
+                silPerTrasero.position.set(0, h + grosorAcuario - grosorRefuerzos / 2 + offsetPerimetral, -a / 2 + grosorAcuario + grosorSilicona / 2);
+                refuerzosGroup.add(silPerTrasero);
+            }
+            
+            acuarioGroup.add(refuerzosGroup);
+        }
+
+        function eliminarRefuerzos3D() {
+            if (refuerzosGroup) {
+                acuarioGroup.remove(refuerzosGroup);
+                refuerzosGroup = null;
+            }
+        }
+
+        function calcularTirantes(largoCM) {
+            if (largoCM <= 120) return 1;
+            if (largoCM <= 180) return 2;
+            if (largoCM <= 240) return 3;
+            return Math.ceil(largoCM / 60) - 1;
+        }
+
+        function crearTirantes3D(largo, ancho, alto, grosorAcuarioMM, colorSilicona) {
+            if (tirantesGroup) acuarioGroup.remove(tirantesGroup);
+            tirantesGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const grosorAcuario = (grosorAcuarioMM / 100) * 1.5;  // Convertir mm a dm con factor visual
+            const anchoTirante = a;
+            const grosorTirantesMM = calcularGrosorRefuerzos(grosorAcuarioMM);
+            const grosorTirantes = (grosorTirantesMM / 100) * 1.5;
+            const grosorRefuerzosMM = calcularGrosorRefuerzos(grosorAcuarioMM);
+            const grosorRefuerzos = (grosorRefuerzosMM / 100) * 1.5;
+            
+            const matTirante = new THREE.MeshPhysicalMaterial({
+                color: 0xC8E6FA,
+                metalness: 0.1,
+                roughness: 0.05,
+                transmission: 0.95,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide,
+                clearcoat: 0.6,
+                clearcoatRoughness: 0.1
+            });
+            
+            const largoTirante = 1.5;
+            const numTirantes = calcularTirantes(largo);
+            
+            // Tirante va ENCIMA del perimetral, enrasado al borde superior
+            const posY = h + grosorAcuario - grosorTirantes / 2;
+            
+            for (let i = 0; i < numTirantes; i++) {
+                let posX = numTirantes === 1 ? 0 : -l / 2 + (l / (numTirantes + 1)) * (i + 1);
+                
+                const tirante = new THREE.Mesh(new THREE.BoxGeometry(largoTirante, grosorTirantes, anchoTirante), matTirante);
+                tirante.userData = { tipo: 'tirante', nombre: `Tirante ${i + 1}` };
+                tirante.position.set(posX, posY, 0);
+                tirantesGroup.add(tirante);
+                meshesClickeables.push(tirante);
+                
+                // Silicona siempre negra
+                if (colorSilicona === 'negra') {
+                    const matSilicona = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8, metalness: 0.1 });
+                    const grosorSilicona = 0.002;
+                    
+                    // Juntas del tirante con frontal/trasero
+                    const silTiranteFrontal = new THREE.Mesh(new THREE.BoxGeometry(largoTirante, grosorSilicona, grosorAcuario), matSilicona);
+                    silTiranteFrontal.position.set(posX, posY - grosorTirantes / 2, a / 2 - grosorAcuario / 2);
+                    tirantesGroup.add(silTiranteFrontal);
+                    
+                    const silTiranteTrasero = new THREE.Mesh(new THREE.BoxGeometry(largoTirante, grosorSilicona, grosorAcuario), matSilicona);
+                    silTiranteTrasero.position.set(posX, posY - grosorTirantes / 2, -a / 2 + grosorAcuario / 2);
+                    tirantesGroup.add(silTiranteTrasero);
+                    
+                    // Juntas del tirante con el perimetral (debajo del tirante)
+                    const silTirantePerFrontal = new THREE.Mesh(new THREE.BoxGeometry(largoTirante, grosorSilicona, 0.8), matSilicona);
+                    silTirantePerFrontal.position.set(posX, posY - grosorTirantes / 2 - grosorSilicona, a / 2 - grosorAcuario - 0.8 / 2);
+                    tirantesGroup.add(silTirantePerFrontal);
+                    
+                    const silTirantePerTrasero = new THREE.Mesh(new THREE.BoxGeometry(largoTirante, grosorSilicona, 0.8), matSilicona);
+                    silTirantePerTrasero.position.set(posX, posY - grosorTirantes / 2 - grosorSilicona, -a / 2 + grosorAcuario + 0.8 / 2);
+                    tirantesGroup.add(silTirantePerTrasero);
+                }
+            }
+            
+            acuarioGroup.add(tirantesGroup);
+        }
+        
+        // ============================================
+        // FUNCIONES PARA REBOSADEROS 3D
+        // ============================================
+        
+        // Función auxiliar para crear material negro (mismo color que vinilo negro)
+        function crearMaterialNegro() {
+            return new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,  // Negro oscuro igual al vinilo
+                roughness: 0.05,
+                metalness: 0.5,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.02
+            });
+        }
+        
+        // Función auxiliar para crear material transparente (cajón externo)
+        function crearMaterialTransparente() {
+            return new THREE.MeshPhysicalMaterial({
+                color: 0xE0F0F8,  // Tono claro cristalino (8mm)
+                metalness: 0.1,
+                roughness: 0.05,
+                transmission: 0.96,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.DoubleSide,
+                clearcoat: 0.6,
+                clearcoatRoughness: 0.1
+            });
+        }
+        
+        // Función para recrear material de cristal según grosor actual
+        function crearMaterialCristalPorGrosor() {
+            const grosorMM = grosorActualMM;
+            
+            // Calcular tono verde botella cristalino según grosor
+            const intensidadVerde = Math.min(grosorMM / 20, 1);
+            const rojo = 240 - (50 * intensidadVerde);
+            const verde = 252 - (12 * intensidadVerde);
+            const azul = 245 - (25 * intensidadVerde);
+            const colorCristal = (Math.round(rojo) << 16) | (Math.round(verde) << 8) | Math.round(azul);
+            
+            return new THREE.MeshPhysicalMaterial({
+                color: colorCristal,
+                metalness: 0.1,
+                roughness: 0.05,
+                transmission: 0.95,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide,
+                clearcoat: 0.6,
+                clearcoatRoughness: 0.1
+            });
+        }
+        
+        // Eliminar rebosadero activo
+        function eliminarRebosadero3D() {
+            if (rebosaderoGroup) {
+                acuarioGroup.remove(rebosaderoGroup);
+                rebosaderoGroup = null;
+            }
+            // Limpiar info del rebosadero externo
+            rebosaderoExternoInfo = null;
+            
+            // Remover luz cenital si existe
+            if (luzCenitalRebosadero) {
+                scene.remove(luzCenitalRebosadero);
+                luzCenitalRebosadero = null;
+            }
+            
+            // Limpiar parches de vinilo
+            parchesVinilo.forEach(parche => {
+                if (parche.parent) parche.parent.remove(parche);
+                if (parche.geometry) parche.geometry.dispose();
+                if (parche.material) parche.material.dispose();
+            });
+            parchesVinilo = [];
+        }
+        
+        // Función para agregar luz cenital suave que ilumina los rebosaderos
+        function agregarLuzCenitalRebosadero(largoCM, anchoCM, altoCM) {
+            // Remover luz anterior si existe
+            if (luzCenitalRebosadero) {
+                scene.remove(luzCenitalRebosadero);
+                luzCenitalRebosadero = null;
+            }
+            
+            const l = largoCM / 10;
+            const a = anchoCM / 10;
+            const h = altoCM / 10;
+            
+            // Luz puntual suave desde arriba del acuario
+            luzCenitalRebosadero = new THREE.PointLight(0xffffff, 0.8, 20);
+            luzCenitalRebosadero.position.set(0, h + 2, 0); // 20cm por encima del acuario
+            scene.add(luzCenitalRebosadero);
+        }
+        
+        // 1. REBOSADERO GENERAL (cajón central en trasera)
+        function crearRebosaderoGeneral(largo, ancho, alto) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const l = largo / 10;      // cm a dm
+            const a = ancho / 10;      // cm a dm
+            const h = alto / 10;       // cm a dm
+            const t = 0.08 * 1.5;      // 8mm con factor visual
+            
+            // Medidas: 30cm x 10cm x (alto - 4cm)
+            const largoCajon = 3.0;    // 30cm
+            const anchoCajon = 1.0;    // 10cm
+            const altoCajon = h - 0.4; // alto - 4cm
+            
+            const matNegro = crearMaterialNegro();
+            
+            // Base del cajón (apoyada en la base del acuario)
+            const base = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, t, anchoCajon), matNegro);
+            base.position.set(0, t / 2 + t, -a / 2 + t + anchoCajon / 2);
+            rebosaderoGroup.add(base);
+            
+            // Pared frontal (la grande, hacia el interior del acuario)
+            const frontal = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, altoCajon, t), matNegro);
+            frontal.position.set(0, altoCajon / 2 + t, -a / 2 + t + anchoCajon - t / 2);
+            rebosaderoGroup.add(frontal);
+            
+            // Laterales (conectan la pared frontal con la trasera del acuario)
+            // Van pegados desde la trasera del acuario hasta la pared frontal
+            const lateralIzq = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, anchoCajon), matNegro);
+            lateralIzq.position.set(-largoCajon / 2 + t / 2, altoCajon / 2 + t, -a / 2 + t + anchoCajon / 2);
+            rebosaderoGroup.add(lateralIzq);
+            
+            const lateralDer = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, anchoCajon), matNegro);
+            lateralDer.position.set(largoCajon / 2 - t / 2, altoCajon / 2 + t, -a / 2 + t + anchoCajon / 2);
+            rebosaderoGroup.add(lateralDer);
+            
+            // ===== PEINES DEL REBOSADERO =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para las barras base horizontales
+            
+            // 1. PEINE FRONTAL (largo del cajón extendido)
+            const longitudFrontal = largoCajon - t; // Extendido hacia los laterales
+            const numPuasFrontal = Math.ceil(longitudFrontal / patronCompleto);
+            
+            // Base horizontal del peine frontal
+            const basePeineFrontal = new THREE.Mesh(
+                new THREE.BoxGeometry(longitudFrontal, grosorBase, grosorBase), 
+                matNegro
+            );
+            basePeineFrontal.position.set(
+                0, 
+                altoCajon + t + grosorBase / 2, 
+                -a / 2 + t + anchoCajon - t / 2 - grosorBase / 2
+            );
+            rebosaderoGroup.add(basePeineFrontal);
+            
+            // Púas verticales del peine frontal
+            for (let i = 0; i < numPuasFrontal; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -largoCajon / 2 + t / 2 + i * patronCompleto + anchoPua / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -a / 2 + t + anchoCajon - t / 2 - grosorBase / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 2. PEINE LATERAL IZQUIERDO (extendido hasta las esquinas)
+            const longitudLateral = anchoCajon - grosorBase; // Máxima extensión
+            const numPuasLateral = Math.ceil(longitudLateral / patronCompleto) - 1; // Ajustado para no sobresalir
+            
+            // Base horizontal del peine lateral izquierdo
+            const basePeineLateralIzq = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudLateral),
+                matNegro
+            );
+            basePeineLateralIzq.position.set(
+                -largoCajon / 2 + t / 2 + grosorBase / 2,
+                altoCajon + t + grosorBase / 2,
+                -a / 2 + t + longitudLateral / 2
+            );
+            rebosaderoGroup.add(basePeineLateralIzq);
+            
+            // Púas verticales del peine lateral izquierdo
+            for (let i = 0; i < numPuasLateral; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -largoCajon / 2 + t / 2 + grosorBase / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -a / 2 + t + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 3. PEINE LATERAL DERECHO (extendido hasta las esquinas)
+            const basePeineLateralDer = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudLateral),
+                matNegro
+            );
+            basePeineLateralDer.position.set(
+                largoCajon / 2 - t / 2 - grosorBase / 2,
+                altoCajon + t + grosorBase / 2,
+                -a / 2 + t + longitudLateral / 2
+            );
+            rebosaderoGroup.add(basePeineLateralDer);
+            
+            // Púas verticales del peine lateral derecho
+            for (let i = 0; i < numPuasLateral; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    largoCajon / 2 - t / 2 - grosorBase / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -a / 2 + t + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 4. TAPA DEL REBOSADERO (cubriendo el interior del cajón)
+            const grosorTapa = 0.02; // 2mm
+            const largoTapa = longitudFrontal;
+            const anchoTapa = longitudLateral;
+            
+            const tapa = new THREE.Mesh(
+                new THREE.BoxGeometry(largoTapa, grosorTapa, anchoTapa),
+                matNegro
+            );
+            tapa.position.set(
+                0,
+                altoCajon + t + grosorBase + alturaPeine + grosorTapa / 2,
+                -a / 2 + t + anchoTapa / 2
+            );
+            rebosaderoGroup.add(tapa);
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // 2. REBOSADERO ESQUINERO (cajón en esquina)
+        function crearRebosaderoEsquinero(largo, ancho, alto, posicion) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const t = 0.08 * 1.5;
+            
+            const largoCajon = 3.0;    // 30cm
+            const anchoCajon = 1.0;    // 10cm
+            const altoCajon = h - 0.4; // alto - 4cm
+            
+            const matNegro = crearMaterialNegro();
+            const xPos = posicion === 'izquierda' ? -l / 2 + t + largoCajon / 2 : l / 2 - t - largoCajon / 2;
+            
+            // Base
+            const base = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, t, anchoCajon), matNegro);
+            base.position.set(xPos, t / 2 + t, -a / 2 + t + anchoCajon / 2);
+            rebosaderoGroup.add(base);
+            
+            // Pared frontal (la grande, hacia el interior)
+            const frontal = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, altoCajon, t), matNegro);
+            frontal.position.set(xPos, altoCajon / 2 + t, -a / 2 + t + anchoCajon - t / 2);
+            rebosaderoGroup.add(frontal);
+            
+            // Lateral interno (conecta la pared frontal con el interior, perpendicular a la trasera)
+            const lateralInt = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, anchoCajon), matNegro);
+            if (posicion === 'izquierda') {
+                lateralInt.position.set(xPos + largoCajon / 2 - t / 2, altoCajon / 2 + t, -a / 2 + t + anchoCajon / 2);
+            } else {
+                lateralInt.position.set(xPos - largoCajon / 2 + t / 2, altoCajon / 2 + t, -a / 2 + t + anchoCajon / 2);
+            }
+            rebosaderoGroup.add(lateralInt);
+            
+            // ===== PEINES DEL REBOSADERO ESQUINERO (forma de L) =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para las barras base horizontales
+            
+            // 1. PEINE FRONTAL (largo del cajón)
+            const longitudFrontal = largoCajon - t;
+            const numPuasFrontal = Math.ceil(longitudFrontal / patronCompleto);
+            
+            // Base horizontal del peine frontal
+            const basePeineFrontal = new THREE.Mesh(
+                new THREE.BoxGeometry(longitudFrontal, grosorBase, grosorBase), 
+                matNegro
+            );
+            basePeineFrontal.position.set(
+                xPos, 
+                altoCajon + t + grosorBase / 2, 
+                -a / 2 + t + anchoCajon - t / 2 - grosorBase / 2
+            );
+            rebosaderoGroup.add(basePeineFrontal);
+            
+            // Púas verticales del peine frontal
+            const inicioXFrontal = posicion === 'izquierda' ? 
+                xPos - largoCajon / 2 + t / 2 : 
+                xPos - largoCajon / 2 + t / 2;
+            
+            for (let i = 0; i < numPuasFrontal; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    inicioXFrontal + i * patronCompleto + anchoPua / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -a / 2 + t + anchoCajon - t / 2 - grosorBase / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 2. PEINE LATERAL (perpendicular al frontal)
+            const longitudLateral = anchoCajon - grosorBase;
+            const numPuasLateral = Math.ceil(longitudLateral / patronCompleto) - 1;
+            
+            // Posición X del peine lateral depende de si está a izquierda o derecha
+            const xPosLateral = posicion === 'izquierda' ? 
+                xPos + largoCajon / 2 - t / 2 - grosorBase / 2 :
+                xPos - largoCajon / 2 + t / 2 + grosorBase / 2;
+            
+            // Base horizontal del peine lateral
+            const basePeineLateral = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudLateral),
+                matNegro
+            );
+            basePeineLateral.position.set(
+                xPosLateral,
+                altoCajon + t + grosorBase / 2,
+                -a / 2 + t + longitudLateral / 2
+            );
+            rebosaderoGroup.add(basePeineLateral);
+            
+            // Púas verticales del peine lateral
+            for (let i = 0; i < numPuasLateral; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    xPosLateral,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -a / 2 + t + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 3. TAPA DEL REBOSADERO ESQUINERO (forma de L)
+            const grosorTapa = 0.02; // 2mm
+            const largoTapa = longitudFrontal;
+            const anchoTapa = longitudLateral;
+            
+            const tapa = new THREE.Mesh(
+                new THREE.BoxGeometry(largoTapa, grosorTapa, anchoTapa),
+                matNegro
+            );
+            tapa.position.set(
+                xPos,
+                altoCajon + t + grosorBase + alturaPeine + grosorTapa / 2,
+                -a / 2 + t + anchoTapa / 2
+            );
+            rebosaderoGroup.add(tapa);
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // 3. REBOSADERO DE ETAPA (lámina lateral con muesca)
+        function crearRebosaderoEtapa(largo, ancho, alto) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const t = 0.08 * 1.5;
+            
+            const matNegro = crearMaterialNegro();
+            
+            // Lámina del tamaño del lateral, separada 10cm (1dm) hacia adentro
+            const separacion = 1.0; // 10cm
+            const profundidadLamina = a - 2 * t;
+            
+            // Muesca: 2/3 del ancho centrada, quitando 4cm del alto
+            const anchoMuesca = (a * 2) / 3;
+            const altoMuesca = 0.4; // 4cm
+            
+            // La lámina tiene forma de H invertida (parte superior con muesca)
+            // Parte inferior completa
+            const parteInferior = new THREE.Mesh(
+                new THREE.BoxGeometry(t, h - altoMuesca, profundidadLamina),
+                matNegro
+            );
+            parteInferior.position.set(-l / 2 + t + separacion, (h - altoMuesca) / 2 + t, 0);
+            rebosaderoGroup.add(parteInferior);
+            
+            // Parte superior izquierda
+            const anchoLateral = (a - anchoMuesca) / 2;
+            const parteSuperiorIzq = new THREE.Mesh(
+                new THREE.BoxGeometry(t, altoMuesca, anchoLateral),
+                matNegro
+            );
+            parteSuperiorIzq.position.set(
+                -l / 2 + t + separacion,
+                h + t - altoMuesca / 2,
+                -a / 2 + t + anchoLateral / 2
+            );
+            rebosaderoGroup.add(parteSuperiorIzq);
+            
+            // Parte superior derecha
+            const parteSuperiorDer = new THREE.Mesh(
+                new THREE.BoxGeometry(t, altoMuesca, anchoLateral),
+                matNegro
+            );
+            parteSuperiorDer.position.set(
+                -l / 2 + t + separacion,
+                h + t - altoMuesca / 2,
+                a / 2 - t - anchoLateral / 2
+            );
+            rebosaderoGroup.add(parteSuperiorDer);
+            
+            // ===== PEINE DEL REBOSADERO DE ETAPA (en la muesca) =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para la barra base horizontal
+            
+            // El peine va de lado a lado de la muesca
+            const longitudPeine = anchoMuesca;
+            const numPuas = Math.ceil(longitudPeine / patronCompleto);
+            
+            // Base horizontal del peine (en la muesca)
+            const basePeine = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudPeine), 
+                matNegro
+            );
+            basePeine.position.set(
+                -l / 2 + t + separacion + t / 2 + grosorBase / 2,
+                h + t - altoMuesca + grosorBase / 2,
+                0 // centrado
+            );
+            rebosaderoGroup.add(basePeine);
+            
+            // Púas verticales del peine
+            for (let i = 0; i < numPuas; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -l / 2 + t + separacion + t / 2 + grosorBase / 2,
+                    h + t - altoMuesca + grosorBase + alturaPeine / 2,
+                    -anchoMuesca / 2 + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // ===== TAPA DEL REBOSADERO DE ETAPA =====
+            const grosorTapa = 0.02; // 2mm
+            // Extender la tapa para cubrir también el grosor del cristal negro y parte del peine
+            const largoTapa = separacion + t + grosorBase; // Desde el lateral hasta después de la lámina negra
+            const anchoTapa = a - 2 * t; // Ancho completo del acuario
+            
+            const tapa = new THREE.Mesh(
+                new THREE.BoxGeometry(largoTapa, grosorTapa, anchoTapa),
+                matNegro
+            );
+            tapa.position.set(
+                -l / 2 + t + largoTapa / 2,
+                h + t - altoMuesca + grosorBase + alturaPeine + grosorTapa / 2,
+                0
+            );
+            rebosaderoGroup.add(tapa);
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // 4. REBOSADERO DIAGONAL (pieza diagonal en esquina)
+        function crearRebosaderoDiagonal(largo, ancho, alto, posicion) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const t = 0.08 * 1.5;
+            
+            const largoDiagonal = 2.5; // 25cm
+            const altoDiagonal = h - 0.4; // alto - 4cm
+            
+            const matNegro = crearMaterialNegro();
+            
+            // Calcular posición y rotación según esquina
+            const xPos = posicion === 'izquierda' ? -l / 2 + t : l / 2 - t;
+            const zPos = -a / 2 + t;
+            
+            // Crear plano diagonal
+            const diagonal = new THREE.Mesh(
+                new THREE.BoxGeometry(largoDiagonal, altoDiagonal, t),
+                matNegro
+            );
+            
+            // Rotar 45 grados y posicionar en esquina
+            diagonal.rotation.y = posicion === 'izquierda' ? Math.PI / 4 : -Math.PI / 4;
+            diagonal.position.set(
+                xPos + (posicion === 'izquierda' ? largoDiagonal / 3 : -largoDiagonal / 3),
+                altoDiagonal / 2 + t,
+                zPos + largoDiagonal / 3
+            );
+            
+            rebosaderoGroup.add(diagonal);
+            
+            // ===== PEINE DEL REBOSADERO DIAGONAL (en el borde superior de la diagonal) =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para la barra base horizontal
+            
+            // El peine va perpendicular a la diagonal (solo púas, sin base visible)
+            const longitudPeine = largoDiagonal - t;
+            const numPuas = Math.ceil(longitudPeine / patronCompleto);
+            
+            // Púas verticales del peine (distribuidas perpendicular a la diagonal)
+            for (let i = 0; i < numPuas; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                
+                // Calcular posición perpendicular a la diagonal (90º adicional)
+                const offset = -longitudPeine / 2 + i * patronCompleto + anchoPua / 2;
+                const angle = posicion === 'izquierda' ? (Math.PI / 4 + Math.PI / 2) : (-Math.PI / 4 + Math.PI / 2);
+                const offsetX = offset * Math.cos(angle);
+                const offsetZ = offset * Math.sin(angle);
+                
+                pua.position.set(
+                    xPos + (posicion === 'izquierda' ? largoDiagonal / 3 : -largoDiagonal / 3) + offsetX,
+                    altoDiagonal + t + alturaPeine / 2,
+                    zPos + largoDiagonal / 3 + offsetZ
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // 5. REBOSADERO DE COLUMNA (cajón cuadrado centrado)
+        function crearRebosaderoColumna(largo, ancho, alto) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const h = alto / 10;
+            const t = 0.08 * 1.5;
+            
+            const tamañoCajon = 2.0;    // 20cm x 20cm
+            const altoCajon = h - 0.4;  // alto - 4cm
+            
+            const matNegro = crearMaterialNegro();
+            
+            // Base
+            const base = new THREE.Mesh(new THREE.BoxGeometry(tamañoCajon, t, tamañoCajon), matNegro);
+            base.position.set(0, t / 2 + t, 0);
+            rebosaderoGroup.add(base);
+            
+            // 4 paredes
+            const paredFrontal = new THREE.Mesh(new THREE.BoxGeometry(tamañoCajon, altoCajon, t), matNegro);
+            paredFrontal.position.set(0, altoCajon / 2 + t, tamañoCajon / 2 - t / 2);
+            rebosaderoGroup.add(paredFrontal);
+            
+            const paredTrasera = new THREE.Mesh(new THREE.BoxGeometry(tamañoCajon, altoCajon, t), matNegro);
+            paredTrasera.position.set(0, altoCajon / 2 + t, -tamañoCajon / 2 + t / 2);
+            rebosaderoGroup.add(paredTrasera);
+            
+            const paredIzq = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, tamañoCajon - 2 * t), matNegro);
+            paredIzq.position.set(-tamañoCajon / 2 + t / 2, altoCajon / 2 + t, 0);
+            rebosaderoGroup.add(paredIzq);
+            
+            const paredDer = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, tamañoCajon - 2 * t), matNegro);
+            paredDer.position.set(tamañoCajon / 2 - t / 2, altoCajon / 2 + t, 0);
+            rebosaderoGroup.add(paredDer);
+            
+            // ===== PEINES DEL REBOSADERO DE COLUMNA (4 peines, uno por cada lado) =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para las barras base horizontales
+            
+            const longitudPeineLado = tamañoCajon - t;
+            const numPuasLado = Math.ceil(longitudPeineLado / patronCompleto);
+            
+            // 1. PEINE FRONTAL
+            const basePeineFrontal = new THREE.Mesh(
+                new THREE.BoxGeometry(longitudPeineLado, grosorBase, grosorBase), 
+                matNegro
+            );
+            basePeineFrontal.position.set(0, altoCajon + t + grosorBase / 2, tamañoCajon / 2 - t / 2 - grosorBase / 2);
+            rebosaderoGroup.add(basePeineFrontal);
+            
+            for (let i = 0; i < numPuasLado; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -longitudPeineLado / 2 + i * patronCompleto + anchoPua / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    tamañoCajon / 2 - t / 2 - grosorBase / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 2. PEINE TRASERO
+            const basePeineTrasero = new THREE.Mesh(
+                new THREE.BoxGeometry(longitudPeineLado, grosorBase, grosorBase), 
+                matNegro
+            );
+            basePeineTrasero.position.set(0, altoCajon + t + grosorBase / 2, -tamañoCajon / 2 + t / 2 + grosorBase / 2);
+            rebosaderoGroup.add(basePeineTrasero);
+            
+            for (let i = 0; i < numPuasLado; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -longitudPeineLado / 2 + i * patronCompleto + anchoPua / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -tamañoCajon / 2 + t / 2 + grosorBase / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            const longitudPeineLateral = tamañoCajon - 2 * t - grosorBase;
+            const numPuasLateral = Math.ceil(longitudPeineLateral / patronCompleto) - 1;
+            
+            // 3. PEINE IZQUIERDO
+            const basePeineIzq = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudPeineLateral), 
+                matNegro
+            );
+            basePeineIzq.position.set(-tamañoCajon / 2 + t / 2 + grosorBase / 2, altoCajon + t + grosorBase / 2, 0);
+            rebosaderoGroup.add(basePeineIzq);
+            
+            for (let i = 0; i < numPuasLateral; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    -tamañoCajon / 2 + t / 2 + grosorBase / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -longitudPeineLateral / 2 + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // 4. PEINE DERECHO
+            const basePeineDer = new THREE.Mesh(
+                new THREE.BoxGeometry(grosorBase, grosorBase, longitudPeineLateral), 
+                matNegro
+            );
+            basePeineDer.position.set(tamañoCajon / 2 - t / 2 - grosorBase / 2, altoCajon + t + grosorBase / 2, 0);
+            rebosaderoGroup.add(basePeineDer);
+            
+            for (let i = 0; i < numPuasLateral; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                pua.position.set(
+                    tamañoCajon / 2 - t / 2 - grosorBase / 2,
+                    altoCajon + t + grosorBase + alturaPeine / 2,
+                    -longitudPeineLateral / 2 + i * patronCompleto + anchoPua / 2
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // ===== TAPA DEL REBOSADERO DE COLUMNA (cuadrada) =====
+            const grosorTapa = 0.02; // 2mm
+            const tamañoTapa = tamañoCajon - t;
+            
+            const tapa = new THREE.Mesh(
+                new THREE.BoxGeometry(tamañoTapa, grosorTapa, tamañoTapa),
+                matNegro
+            );
+            tapa.position.set(
+                0,
+                altoCajon + t + grosorBase + alturaPeine + grosorTapa / 2,
+                0
+            );
+            rebosaderoGroup.add(tapa);
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // 6. REBOSADERO EXTERNO (cajón transparente con muesca)
+        function crearRebosaderoExterno(largo, ancho, alto, posicion) {
+            eliminarRebosadero3D();
+            rebosaderoGroup = new THREE.Group();
+            
+            const l = largo / 10;
+            const a = ancho / 10;
+            const h = alto / 10;
+            const t = 0.08 * 1.5;
+            
+            // Cajón: 40cm x 10cm x 30cm (transparente)
+            // Adaptar el largo del cajón al ancho del acuario cuando está en lateral
+            let largoCajon = 4.0;
+            if (posicion !== 'trasera') {
+                // Si está en lateral y el ancho del acuario es menor que 40cm, adaptar
+                const anchoDisponible = a - 2 * t; // Ancho interior del acuario
+                if (anchoDisponible < largoCajon) {
+                    largoCajon = anchoDisponible;
+                }
+            }
+            const anchoCajon = 1.0;
+            const altoCajon = 3.0;
+            
+            // Muesca: adaptar al largo del cajón (máximo 25cm)
+            const largoMuesca = Math.min(2.5, largoCajon - 0.5);
+            const altoMuesca = 0.4;
+            
+            const matTransparente = crearMaterialTransparente();
+            const matNegro = crearMaterialNegro();
+            
+            let posX = 0, posZ = 0, rotY = 0;
+            let peinePosX = 0, peinePosZ = 0, peineRotY = 0;
+            
+            if (posicion === 'trasera') {
+                // Centrado en trasera
+                posX = 0;
+                posZ = -a / 2 - anchoCajon / 2;
+                rotY = 0;
+                peinePosX = 0;
+                peinePosZ = -a / 2; // Tocando el cristal interior
+                peineRotY = 0;
+            } else if (posicion === 'derecha') {
+                posX = l / 2 + anchoCajon / 2;
+                posZ = 0;
+                rotY = Math.PI / 2;
+                peinePosX = l / 2; // Tocando el cristal interior
+                peinePosZ = 0;
+                peineRotY = Math.PI / 2;
+            } else { // izquierda
+                posX = -l / 2 - anchoCajon / 2;
+                posZ = 0;
+                rotY = Math.PI / 2;
+                peinePosX = -l / 2; // Tocando el cristal interior
+                peinePosZ = 0;
+                peineRotY = Math.PI / 2;
+            }
+            
+            // Calcular posY para que la parte superior del cajón esté alineada con el borde del cristal
+            const posYCajon = h + t - altoCajon / 2;
+            
+            // Guardar información del cajón externo para recortar vinilo
+            rebosaderoExternoInfo = {
+                posicion: posicion,
+                largoCajon: largoCajon,
+                altoCajon: altoCajon,
+                alto: alto,
+                t: t,
+                posYBase: posYCajon - altoCajon / 2, // Y donde empieza el cajón
+                posYTop: h + t // Y del borde superior del acuario
+            };
+            
+            // Base del cajón
+            const base = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, t, anchoCajon), matTransparente);
+            base.rotation.y = rotY;
+            base.position.set(posX, posYCajon - altoCajon / 2 + t / 2, posZ);
+            rebosaderoGroup.add(base);
+            
+            // Pared exterior
+            const exterior = new THREE.Mesh(new THREE.BoxGeometry(largoCajon, altoCajon, t), matTransparente);
+            exterior.rotation.y = rotY;
+            if (posicion === 'trasera') {
+                exterior.position.set(posX, posYCajon, posZ - anchoCajon / 2 + t / 2);
+            } else if (posicion === 'derecha') {
+                exterior.position.set(posX + anchoCajon / 2 - t / 2, posYCajon, posZ);
+            } else {
+                exterior.position.set(posX - anchoCajon / 2 + t / 2, posYCajon, posZ);
+            }
+            rebosaderoGroup.add(exterior);
+            
+            // Laterales del cajón
+            const lateral1 = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, anchoCajon - t), matTransparente);
+            lateral1.rotation.y = rotY;
+            if (posicion === 'trasera') {
+                lateral1.position.set(posX - largoCajon / 2 + t / 2, posYCajon, posZ);
+            } else {
+                lateral1.position.set(posX, posYCajon, posZ - largoCajon / 2 + t / 2);
+            }
+            rebosaderoGroup.add(lateral1);
+            
+            const lateral2 = new THREE.Mesh(new THREE.BoxGeometry(t, altoCajon, anchoCajon - t), matTransparente);
+            lateral2.rotation.y = rotY;
+            if (posicion === 'trasera') {
+                lateral2.position.set(posX + largoCajon / 2 - t / 2, posYCajon, posZ);
+            } else {
+                lateral2.position.set(posX, posYCajon, posZ + largoCajon / 2 - t / 2);
+            }
+            rebosaderoGroup.add(lateral2);
+            
+            // ===== PEINE EN LA MUESCA (parte interior del cajón, tocando el cristal) =====
+            const alturaPeine = 0.38; // 3.8cm
+            const anchoPua = 0.02; // 2mm por púa
+            const espacioEntrePuas = 0.02; // 2mm entre púas
+            const patronCompleto = anchoPua + espacioEntrePuas; // 4mm total por ciclo
+            const grosorBase = 0.03; // 3mm para la barra base horizontal
+            
+            const longitudPeine = largoMuesca;
+            const numPuas = Math.ceil(longitudPeine / patronCompleto);
+            
+            // Base horizontal del peine
+            const basePeine = new THREE.Mesh(
+                new THREE.BoxGeometry(largoMuesca, grosorBase, grosorBase), 
+                matNegro
+            );
+            basePeine.rotation.y = peineRotY;
+            basePeine.position.set(
+                peinePosX,
+                h + t - altoMuesca + grosorBase / 2,
+                peinePosZ
+            );
+            rebosaderoGroup.add(basePeine);
+            
+            // Púas verticales del peine
+            for (let i = 0; i < numPuas; i++) {
+                const pua = new THREE.Mesh(
+                    new THREE.BoxGeometry(anchoPua, alturaPeine, anchoPua),
+                    matNegro
+                );
+                
+                let puaX = peinePosX;
+                let puaZ = peinePosZ;
+                
+                if (posicion === 'trasera') {
+                    puaX = -largoMuesca / 2 + i * patronCompleto + anchoPua / 2;
+                } else {
+                    puaZ = -largoMuesca / 2 + i * patronCompleto + anchoPua / 2;
+                }
+                
+                pua.position.set(
+                    puaX,
+                    h + t - altoMuesca + grosorBase + alturaPeine / 2,
+                    puaZ
+                );
+                rebosaderoGroup.add(pua);
+            }
+            
+            // ===== TAPA DEL REBOSADERO EXTERNO (cubre el perímetro del cajón - transparente) =====
+            const grosorTapa = 0.02; // 2mm
+            
+            const tapa = new THREE.Mesh(
+                new THREE.BoxGeometry(largoCajon, grosorTapa, anchoCajon),
+                matTransparente
+            );
+            tapa.rotation.y = rotY;
+            tapa.position.set(
+                posX,
+                h + t - altoMuesca + grosorBase + alturaPeine + grosorTapa / 2,
+                posZ
+            );
+            rebosaderoGroup.add(tapa);
+            
+            // Agregar luz cenital suave para ver los rebosaderos
+            agregarLuzCenitalRebosadero(largo, ancho, alto);
+            
+            acuarioGroup.add(rebosaderoGroup);
+        }
+        
+        // ============================================
+        // FIN FUNCIONES REBOSADEROS
+        // ============================================
+
+        function eliminarTirantes3D() {
+            if (tirantesGroup) {
+                acuarioGroup.remove(tirantesGroup);
+                tirantesGroup = null;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (autoRotate) {
+                cameraRotation.y += 0.005;
+                updateCameraPosition();
+            }
+            
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init3D);
+        } else {
+            init3D();
+        }
+    </script>
+    
     <script src="js/logger.js"></script>
     <script src="js/script.js"></script>
     <script src="js/translations.js"></script>
