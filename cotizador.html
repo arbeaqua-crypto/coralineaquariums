@@ -1427,9 +1427,15 @@
             const tipoRefuerzo = document.getElementById('tipoRefuerzo').value;
             const colorSilicona = document.getElementById('colorSilicona').value;
             const litros = Math.round((largo * ancho * alto) / 1000);
-            const precioFinal = document.getElementById('precioFinal').textContent;
             
-            // Capturar cristales ópticos
+            // Obtener precio base del acuario (sin extras)
+            const precioBase = window.precioBaseSinExtras || 0;
+            
+            // CALCULAR TODOS LOS EXTRAS Y CREAR DESGLOSE
+            const extrasDesglose = [];
+            let totalExtras = 0;
+            
+            // ========== CALCULAR CRISTALES ÓPTICOS ==========
             const opticos = {
                 frontal: document.getElementById('opticoFrontal')?.checked || false,
                 trasera: document.getElementById('opticoTrasera')?.checked || false,
@@ -1437,27 +1443,63 @@
                 lateralDer: document.getElementById('opticoLateralDer')?.checked || false
             };
             
-            // Capturar rebosaderos
+            // Calcular precios ópticos
+            if (window.ultimoCalculo && (window.ultimoCalculo.precioOpticoFrontalTrasero > 0 || window.ultimoCalculo.precioOpticoLateral > 0)) {
+                if (opticos.frontal) {
+                    const precio = Math.round(window.ultimoCalculo.precioOpticoFrontalTrasero);
+                    totalExtras += precio;
+                    extrasDesglose.push({nombre: 'Cristal óptico frontal', precio: precio});
+                }
+                if (opticos.trasera) {
+                    const precio = Math.round(window.ultimoCalculo.precioOpticoFrontalTrasero);
+                    totalExtras += precio;
+                    extrasDesglose.push({nombre: 'Cristal óptico trasera', precio: precio});
+                }
+                if (opticos.lateralIzq) {
+                    const precio = Math.round(window.ultimoCalculo.precioOpticoLateral);
+                    totalExtras += precio;
+                    extrasDesglose.push({nombre: 'Cristal óptico lateral izquierdo', precio: precio});
+                }
+                if (opticos.lateralDer) {
+                    const precio = Math.round(window.ultimoCalculo.precioOpticoLateral);
+                    totalExtras += precio;
+                    extrasDesglose.push({nombre: 'Cristal óptico lateral derecho', precio: precio});
+                }
+            }
+            
+            // ========== CALCULAR REBOSADEROS ==========
             let rebosadero = 'ninguno';
             let rebosaderoConfig = {};
             if (document.getElementById('rebosaderoGeneral')?.checked) {
                 rebosadero = 'general';
+                totalExtras += 110;
+                extrasDesglose.push({nombre: 'Rebosadero General Interior', precio: 110});
             } else if (document.getElementById('rebosaderoEsquinero')?.checked) {
                 rebosadero = 'esquinero';
                 rebosaderoConfig.posicion = document.getElementById('posicionEsquinero')?.value || 'derecha';
+                totalExtras += 95;
+                extrasDesglose.push({nombre: 'Rebosadero Esquinero (' + rebosaderoConfig.posicion + ')', precio: 95});
             } else if (document.getElementById('rebosaderoEtapa')?.checked) {
                 rebosadero = 'etapa';
+                totalExtras += 115;
+                extrasDesglose.push({nombre: 'Rebosadero Doble Etapa', precio: 115});
             } else if (document.getElementById('rebosaderoDiagonal')?.checked) {
                 rebosadero = 'diagonal';
                 rebosaderoConfig.posicion = document.getElementById('posicionDiagonal')?.value || 'derecha';
+                totalExtras += 75;
+                extrasDesglose.push({nombre: 'Rebosadero Diagonal (' + rebosaderoConfig.posicion + ')', precio: 75});
             } else if (document.getElementById('rebosaderoColumna')?.checked) {
                 rebosadero = 'columna';
+                totalExtras += 145;
+                extrasDesglose.push({nombre: 'Rebosadero Columna Central', precio: 145});
             } else if (document.getElementById('rebosaderoExterno')?.checked) {
                 rebosadero = 'externo';
                 rebosaderoConfig.posicion = document.getElementById('posicionExterno')?.value || 'derecha';
+                totalExtras += 115;
+                extrasDesglose.push({nombre: 'Rebosadero Externo (' + rebosaderoConfig.posicion + ')', precio: 115});
             }
             
-            // Capturar vinilos
+            // ========== CALCULAR VINILOS ==========
             const vinilos = {
                 lateralDerecho: document.getElementById('extraViniloLateralDerecho')?.checked || false,
                 lateralIzquierdo: document.getElementById('extraViniloLateralIzquierdo')?.checked || false,
@@ -1466,13 +1508,30 @@
                 fondoColor: document.getElementById('viniloFondo')?.value || 'no'
             };
             
-            // Capturar vinilado de rebosadero
-            const viniladoRebosadero = {
-                activo: document.getElementById('extraViniladoRebosadero')?.checked || false,
-                color: document.getElementById('colorViniladoRebosadero')?.value || 'negro'
-            };
+            // Vinilos laterales e trasero
+            if (vinilos.lateralDerecho) {
+                const precio = Math.floor((ancho * alto / 10000) * 65);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Vinilo lateral derecho', precio: precio});
+            }
+            if (vinilos.lateralIzquierdo) {
+                const precio = Math.floor((ancho * alto / 10000) * 65);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Vinilo lateral izquierdo', precio: precio});
+            }
+            if (vinilos.trasero) {
+                const precio = Math.floor((largo * alto / 10000) * 65);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Lámina trasera', precio: precio});
+            }
+            if (vinilos.fondo && vinilos.fondo !== 'no') {
+                const precio = Math.floor((largo * ancho / 10000) * 65);
+                totalExtras += precio;
+                const colorTexto = vinilos.fondo === 'negro' ? 'Negro' : vinilos.fondo === 'azul' ? 'Azul' : vinilos.fondo === 'blanco' ? 'Blanco' : vinilos.fondo;
+                extrasDesglose.push({nombre: 'Vinilo fondo (' + colorTexto + ')', precio: precio});
+            }
             
-            // Capturar encintados
+            // ========== CALCULAR ENCINTADOS ==========
             const encintados = {
                 colorGeneral: document.getElementById('colorEncintado')?.value || 'negro',
                 superficie: {
@@ -1485,7 +1544,47 @@
                 }
             };
             
-            // Capturar otros acabados
+            const multiplicadorColor = encintados.colorGeneral === 'blanco' ? 1.5 : 1;
+            
+            if (encintados.superficie.activo) {
+                let longitudSuperficie = 0;
+                const perimetro = encintados.superficie.perimetro;
+                if (perimetro === 'frontal') longitudSuperficie = largo;
+                else if (perimetro === 'frontal-derecho' || perimetro === 'frontal-izquierdo') longitudSuperficie = largo + ancho;
+                else if (perimetro === 'frontal-derecho-trasera') longitudSuperficie = (largo * 2) + ancho;
+                else if (perimetro === 'perimetro') longitudSuperficie = (largo * 2) + (ancho * 2);
+                
+                const precio = Math.ceil((longitudSuperficie / 10) * 0.75 * multiplicadorColor);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Encintado superficie (' + perimetro + ', ' + encintados.colorGeneral + ')', precio: precio});
+            }
+            
+            if (encintados.base.activo) {
+                let longitudBase = 0;
+                const perimetro = encintados.base.perimetro;
+                if (perimetro === 'frontal') longitudBase = largo;
+                else if (perimetro === 'frontal-derecho' || perimetro === 'frontal-izquierdo') longitudBase = largo + ancho;
+                else if (perimetro === 'frontal-derecho-trasera') longitudBase = (largo * 2) + ancho;
+                else if (perimetro === 'perimetro') longitudBase = (largo * 2) + (ancho * 2);
+                
+                const precio = Math.ceil((longitudBase / 10) * 0.75 * multiplicadorColor);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Encintado base (' + perimetro + ', ' + encintados.colorGeneral + ')', precio: precio});
+            }
+            
+            // ========== VINILADO DE REBOSADERO ==========
+            const viniladoRebosadero = {
+                activo: document.getElementById('extraViniladoRebosadero')?.checked || false,
+                color: document.getElementById('colorViniladoRebosadero')?.value || 'negro'
+            };
+            
+            if (viniladoRebosadero.activo) {
+                const precio = Math.floor((alto / 10) * 4 * multiplicadorColor);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Vinilado rebosadero (' + viniladoRebosadero.color + ')', precio: precio});
+            }
+            
+            // ========== OTROS ACABADOS ==========
             const otrosAcabados = {
                 taladrosOverflow: document.getElementById('extraTaladrosOverflow')?.checked || false,
                 taladroSubida: document.getElementById('extraTaladroSubida')?.checked || false,
@@ -1498,6 +1597,43 @@
                     cantidad: parseInt(document.getElementById('cantidadTaladros')?.value) || 1
                 }
             };
+            
+            if (otrosAcabados.taladrosOverflow) {
+                totalExtras += 35;
+                extrasDesglose.push({nombre: 'Taladros para Overflow', precio: 35});
+            }
+            if (otrosAcabados.taladroSubida) {
+                totalExtras += 14;
+                extrasDesglose.push({nombre: 'Taladro adicional para subida', precio: 14});
+            }
+            if (otrosAcabados.taladroVaciado) {
+                totalExtras += 35;
+                extrasDesglose.push({nombre: 'Taladro especial para vaciado', precio: 35});
+            }
+            if (otrosAcabados.tapasNoCorrederas) {
+                const precio = Math.ceil((largo * ancho / 10000) * 90);
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Tapas no correderas', precio: precio});
+            }
+            if (otrosAcabados.tapasCorrederas) {
+                const precioTapasNoCorrederas = Math.ceil((largo * ancho / 10000) * 90);
+                const precio = Math.ceil((largo / 100) * 34) + precioTapasNoCorrederas;
+                totalExtras += precio;
+                extrasDesglose.push({nombre: 'Tapas correderas', precio: precio});
+            }
+            if (otrosAcabados.taladrosAdicionales.activo) {
+                const precioUnidad = otrosAcabados.taladrosAdicionales.medida === 'grande' ? 19 : 14;
+                const cantidad = otrosAcabados.taladrosAdicionales.cantidad;
+                const precio = precioUnidad * cantidad;
+                totalExtras += precio;
+                const medidaTexto = otrosAcabados.taladrosAdicionales.medida === 'grande' ? '32-50mm' : '8-25mm';
+                extrasDesglose.push({nombre: 'Taladros adicionales (' + medidaTexto + ', x' + cantidad + ')', precio: precio});
+            }
+            
+            // ========== CALCULAR PRECIO TOTAL ==========
+            const precioTotal = precioBase + totalExtras;
+            const precioTotalFormateado = precioTotal.toFixed(2) + '€';
+            const precioBaseFormateado = precioBase.toFixed(2) + '€';
             
             // Objeto completo de configuración
             const configuracion = {
@@ -1514,7 +1650,10 @@
                     colorSilicona: colorSilicona,
                     tipoRefuerzo: tipoRefuerzo
                 },
-                precio: precioFinal,
+                precioBase: precioBaseFormateado,
+                precio: precioTotalFormateado,
+                totalExtras: totalExtras.toFixed(2) + '€',
+                extrasDesglose: extrasDesglose,
                 opticos: opticos,
                 rebosadero: {
                     tipo: rebosadero,
@@ -1529,6 +1668,7 @@
             // Guardar en localStorage
             localStorage.setItem('configuracion-acuario', JSON.stringify(configuracion));
             console.log('✅ Configuración guardada:', configuracion);
+            console.log('💰 Precio base:', precioBaseFormateado, '+ Extras:', totalExtras.toFixed(2) + '€', '= Total:', precioTotalFormateado);
             
             // Redirigir a contacto.html
             window.location.href = 'contacto.html';

@@ -527,13 +527,56 @@
                 html += `</div>`;
             }
             
+            // DESGLOSE DE PRECIOS
+            html += `<div class="config-section">
+                <div class="config-section-title">💰 Desglose de Precios</div>`;
+            
+            // Precio base del acuario
+            if (config.precioBase) {
+                html += `
+                    <div class="config-item">
+                        <span class="config-label">Acuario base:</span>
+                        <span class="config-value">${config.precioBase}</span>
+                    </div>
+                `;
+            }
+            
+            // Mostrar desglose de extras si existen
+            if (config.extrasDesglose && config.extrasDesglose.length > 0) {
+                html += `<div style="margin-top: 15px; margin-bottom: 10px; padding-left: 15px; border-left: 3px solid rgba(102, 126, 234, 0.5);">
+                    <div style="color: #6eb9ff; font-weight: 600; margin-bottom: 10px; font-size: 0.95rem;">Extras añadidos:</div>`;
+                
+                config.extrasDesglose.forEach(extra => {
+                    html += `
+                        <div class="config-item" style="padding: 5px 0 5px 10px; border-left: 2px solid rgba(102, 126, 234, 0.2);">
+                            <span class="config-label" style="font-size: 0.9rem;">${extra.nombre}:</span>
+                            <span class="config-value" style="font-size: 0.9rem;">+${extra.precio}€</span>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+                
+                // Total de extras
+                if (config.totalExtras) {
+                    html += `
+                        <div class="config-item" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid rgba(102, 126, 234, 0.3);">
+                            <span class="config-label" style="font-weight: 700;">Subtotal extras:</span>
+                            <span class="config-value" style="font-weight: 700; color: #6eb9ff;">+${config.totalExtras}</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            html += `</div>`; // Cerrar config-section de desglose
+            
             // PRECIO FINAL
             if (config.precio) {
                 html += `
                     <div class="precio-destacado">
-                        <div>Precio Total</div>
+                        <div style="font-size: 16px; opacity: 0.9; margin-bottom: 8px;">Precio Total</div>
                         <div class="precio">${config.precio}</div>
-                        <div style="font-size: 14px; opacity: 0.9;">(IVA incluido)</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">(IVA incluido)</div>
                     </div>
                 `;
             }
