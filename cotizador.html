@@ -478,6 +478,89 @@
                 max-height: 50vh; /* No más del 50% de la pantalla en móvil */
             }
             
+            /* Grosor/silicona/refuerzos en tablet: 2 columnas */
+            .grosor-silicona-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Móvil vertical y pequeño */
+        @media (max-width: 768px) {
+            /* Grosor/silicona/refuerzos: 1 columna para mejor legibilidad */
+            .grosor-silicona-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+                margin: 1rem 0;
+            }
+            
+            .grosor-silicona-grid select {
+                width: 100%;
+                font-size: 0.95rem;
+                padding: 0.75rem;
+                height: auto;
+            }
+            
+            .grosor-silicona-grid .input-group label {
+                font-size: 0.85rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Canvas 3D optimizado para móvil vertical */
+            #canvas3d {
+                height: 300px;
+                max-height: 45vh;
+            }
+            
+            .vista-3d-integrada {
+                margin: 1rem 0;
+            }
+            
+            /* Ajustar padding general en móvil */
+            .cotizador-form {
+                padding: 1.2rem;
+            }
+            
+            .cotizador-form h2 {
+                font-size: 1.2rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-hint {
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Móvil horizontal (landscape) */
+        @media (max-width: 900px) and (orientation: landscape) {
+            #canvas3d {
+                height: 250px;
+                max-height: 60vh; /* Más espacio en horizontal */
+            }
+            
+            .grosor-silicona-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 cols en horizontal cabe bien */
+                gap: 0.6rem;
+            }
+        }
+        
+        /* Móviles muy pequeños */
+        @media (max-width: 480px) {
+            #canvas3d {
+                height: 280px;
+                max-height: 40vh;
+            }
+            
+            .grosor-silicona-grid select {
+                font-size: 0.9rem;
+                padding: 0.7rem;
+            }
+            
+            .cotizador-form {
+                padding: 1rem;
+            }
+        }
+            
             /* Mejorar usabilidad del canvas en móvil */
             .visualizador-container {
                 margin-bottom: 20px;
@@ -1664,6 +1747,28 @@
             '7': 20
         };
         
+        // Función auxiliar para calcular altura óptima del canvas según pantalla
+        function getOptimalCanvasHeight() {
+            const screenWidth = window.innerWidth;
+            const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+            
+            let height;
+            if (screenWidth <= 480) {
+                height = isLandscape ? 250 : 280;
+            } else if (screenWidth <= 768) {
+                height = isLandscape ? 250 : 300;
+            } else if (screenWidth <= 1024) {
+                height = 350;
+            } else {
+                height = 500;
+            }
+            
+            // Limitar al max-height definido en CSS
+            const maxHeightVh = isLandscape ? 0.6 : 0.45;
+            const maxHeight = window.innerHeight * maxHeightVh;
+            return Math.min(height, maxHeight);
+        }
+        
         // Inicializar 3D
         function init3D() {
             const canvas = document.getElementById('canvas3d');
@@ -1674,9 +1779,11 @@
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xB8C9D9);
 
-                // Crear cámara
+                // Calcular tamaño inicial del canvas según pantalla
                 const containerWidth = canvas.parentElement.clientWidth;
-                const containerHeight = 500;
+                const containerHeight = getOptimalCanvasHeight();
+                
+                // Crear cámara
                 camera = new THREE.PerspectiveCamera(50, containerWidth / containerHeight, 0.1, 1000);
                 camera.position.set(15, 7.5, 20);
 
@@ -1726,8 +1833,9 @@
                     const container = canvas.parentElement;
                     if (!container) return;
                     
+                    // Obtener dimensiones óptimas
                     const newWidth = container.clientWidth;
-                    const newHeight = window.innerWidth <= 768 ? 400 : 500; // Altura ajustada para móvil
+                    const newHeight = getOptimalCanvasHeight();
                     
                     // Actualizar tamaño del renderer
                     renderer.setSize(newWidth, newHeight);
@@ -1736,14 +1844,15 @@
                     camera.aspect = newWidth / newHeight;
                     camera.updateProjectionMatrix();
                     
-                    console.log('📱 Canvas redimensionado:', newWidth, 'x', newHeight);
+                    const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+                    console.log('📱 Canvas redimensionado:', newWidth, 'x', newHeight, '| Orientación:', isLandscape ? 'horizontal' : 'vertical');
                 }
                 
                 // Listeners para cambios de tamaño y orientación
                 window.addEventListener('resize', handleCanvasResize);
                 window.addEventListener('orientationchange', () => {
-                    // Pequeño delay para que el navegador termine de rotar
-                    setTimeout(handleCanvasResize, 100);
+                    // Delay para que el navegador termine de rotar completamente
+                    setTimeout(handleCanvasResize, 200);
                 });
 
                 // Event listeners para actualizar en tiempo real
