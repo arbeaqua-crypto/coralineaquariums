@@ -364,13 +364,24 @@
         });
         
         function cargarConfiguracion() {
-            const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
+            const configJSON = localStorage.getItem('configuracion-acuario');
+            console.log('🔍 Cargando configuración desde localStorage...');
+            console.log('📦 JSON recuperado:', configJSON);
+            
+            const config = JSON.parse(configJSON || '{}');
+            console.log('📊 Objeto configuración:', config);
+            
             const detallesDiv = document.getElementById('config-detalles');
             
             if (Object.keys(config).length === 0) {
                 detallesDiv.innerHTML = '<p style="color: rgba(255,255,255,0.7);">No hay configuración guardada. <a href="cotizador.html" style="color: #6eb9ff;">Volver al cotizador</a></p>';
                 return;
             }
+            
+            console.log('💰 Precio en config:', config.precio);
+            console.log('💰 Precio base en config:', config.precioBase);
+            console.log('💰 Total extras en config:', config.totalExtras);
+            console.log('📝 Desglose extras:', config.extrasDesglose);
             
             let html = '';
             

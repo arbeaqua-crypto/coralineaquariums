@@ -1418,6 +1418,8 @@
         
         // Función para guardar toda la configuración antes de ir a contacto.html
         function guardarConfiguracionYSolicitar() {
+            console.log('🚀 Iniciando guardarConfiguracionYSolicitar()');
+            
             const largo = parseInt(document.getElementById('largo').value) || 0;
             const ancho = parseInt(document.getElementById('ancho').value) || 0;
             const alto = parseInt(document.getElementById('alto').value) || 0;
@@ -1428,8 +1430,24 @@
             const colorSilicona = document.getElementById('colorSilicona').value;
             const litros = Math.round((largo * ancho * alto) / 1000);
             
+            // Obtener precio TOTAL actual del DOM (ya incluye extras)
+            const precioTotalElement = document.getElementById('precioFinal');
+            const precioTotalTexto = precioTotalElement ? precioTotalElement.textContent : '0€';
+            const precioTotalActual = parseFloat(precioTotalTexto.replace('€', '').replace(',', '.')) || 0;
+            
+            console.log('💰 Precio total mostrado en pantalla:', precioTotalActual + '€');
+            console.log('💰 window.precioBaseSinExtras:', window.precioBaseSinExtras);
+            
             // Obtener precio base del acuario (sin extras)
-            const precioBase = window.precioBaseSinExtras || 0;
+            let precioBase = window.precioBaseSinExtras || 0;
+            
+            // Si no hay precio base guardado, asumir que el precio actual ES el base
+            if (precioBase === 0 || precioBase === null || precioBase === undefined) {
+                console.warn('⚠️ No hay precioBaseSinExtras, usando precio actual como base');
+                precioBase = precioTotalActual;
+            }
+            
+            console.log('📊 Precio base determinado:', precioBase + '€');
             
             // CALCULAR TODOS LOS EXTRAS Y CREAR DESGLOSE
             const extrasDesglose = [];
@@ -1631,9 +1649,15 @@
             }
             
             // ========== CALCULAR PRECIO TOTAL ==========
-            const precioTotal = precioBase + totalExtras;
+            // Usar el precio total REAL de la pantalla (que ya incluye todos los extras calculados correctamente)
+            const precioTotal = precioTotalActual;
             const precioTotalFormateado = precioTotal.toFixed(2) + '€';
             const precioBaseFormateado = precioBase.toFixed(2) + '€';
+            
+            console.log('📝 Desglose de extras:', extrasDesglose);
+            console.log('💰 Total extras calculado:', totalExtras.toFixed(2) + '€');
+            console.log('💰 Precio final:', precioTotalFormateado);
+            console.log('🔍 Verificación: precioBase (' + precioBase + ') + totalExtras (' + totalExtras + ') = ' + (precioBase + totalExtras));
             
             // Objeto completo de configuración
             const configuracion = {
@@ -1667,8 +1691,8 @@
             
             // Guardar en localStorage
             localStorage.setItem('configuracion-acuario', JSON.stringify(configuracion));
-            console.log('✅ Configuración guardada:', configuracion);
-            console.log('💰 Precio base:', precioBaseFormateado, '+ Extras:', totalExtras.toFixed(2) + '€', '= Total:', precioTotalFormateado);
+            console.log('✅ Configuración guardada en localStorage');
+            console.log('📦 Datos completos:', configuracion);
             
             // Redirigir a contacto.html
             window.location.href = 'contacto.html';
