@@ -5,7 +5,7 @@
 # Habilitar reescritura de URLs
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /www2/
+    RewriteBase /
     
     # Forzar HTTPS (recomendado para producción)
     # Descomenta estas líneas cuando tengas SSL instalado
