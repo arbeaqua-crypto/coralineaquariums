@@ -3368,11 +3368,41 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             sessionId: payload.sessionId,
             token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
-        await fetch(EMAIL_BACKEND_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(datosNotif)
-        });
+
+        let backendOK = false;
+        try {
+            const resp = await fetch(EMAIL_BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(datosNotif),
+                keepalive: true
+            });
+            const txt = await resp.text();
+            console.log('📡 Respuesta backend Coraline:', resp.status, txt);
+            try {
+                const json = JSON.parse(txt);
+                backendOK = !!json.success;
+                if (!backendOK) console.warn('⚠️ Backend devolvió success=false:', json);
+            } catch (_) {
+                backendOK = resp.ok;
+            }
+        } catch (errFetch) {
+            console.warn('⚠️ Fetch al backend falló:', errFetch.message);
+        }
+
+        // RESPALDO: si el backend no confirmó éxito, abrimos el cliente de correo
+        // del usuario con el mensaje pre-rellenado a info@coralineaquariums.com
+        // para que el usuario solo tenga que pulsar "Enviar".
+        if (!backendOK) {
+            console.warn('↩ Activando respaldo mailto: a info@coralineaquariums.com');
+            const asuntoMailto = encodeURIComponent('Solicitud presupuesto web — ' + (datosCliente.nombre || 'cliente'));
+            const cuerpoMailto = encodeURIComponent(cuerpoTexto);
+            const mailtoUrl = 'mailto:info@coralineaquariums.com'
+                + '?subject=' + asuntoMailto
+                + '&body=' + cuerpoMailto;
+            // Abrir en nueva pestaña para no perder la página actual
+            window.open(mailtoUrl, '_blank');
+        }
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
     }
