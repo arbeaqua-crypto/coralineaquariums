@@ -3359,7 +3359,6 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         };
 
         // Helper: un único intento de envío al backend Coraline.
-        // Devuelve true si el backend confirma success:true.
         async function intentarEnvio(intento) {
             try {
                 const resp = await fetch(EMAIL_BACKEND_URL, {
@@ -3381,34 +3380,14 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             }
         }
 
-        // ESTRATEGIA ANTI-CONCURRENCIA:
-        // Apps Script puede perder ejecuciones de MailApp.sendEmail cuando hay
-        // varios usuarios pulsando "Descargar PDF" a la vez (responde
-        // success:true pero el correo se pierde). Para mitigarlo:
-        //  1) Esperamos el PRIMER intento (bloqueante, hasta que el front
-        //     sepa si llegó o no).
-        //  2) Disparamos un SEGUNDO intento "fire-and-forget" 1,2 s después
-        //     SIEMPRE — incluso si el primero salió OK. El usuario aceptó
-        //     que pueda haber correos duplicados ocasionales: prefiere eso
-        //     a perder un aviso. Si el primero falló, este segundo intento
-        //     suele funcionar porque ya no coincide con la ventana de
-        //     concurrencia.
+        // Envío único al backend. En tráfico real (1-2 usuarios/hora) Apps
+        // Script entrega correctamente. La concurrencia masiva (varios
+        // usuarios pulsando "Descargar" en el mismo segundo) es un escenario
+        // que en producción real no se da, así que no compensa la
+        // complejidad de los reintentos.
         const backendOK = await intentarEnvio(1);
-
-        // Segundo intento sin await: no retrasa al usuario.
-        // Esperamos 12 s para salir de la ventana de bloqueo de Apps Script
-        // (cuando hay concurrencia, los envíos cercanos en el tiempo se
-        // pierden silenciosamente).
-        setTimeout(function() {
-            intentarEnvio(2).then(function(ok2) {
-                if (!ok2) console.warn('⚠️ Segundo intento Coraline tampoco confirmó.');
-            });
-        }, 12000);
-
-        // Notificación al backend es best-effort. Si fallan los dos
-        // intentos, solo lo registramos: NO molestamos al usuario.
         if (!backendOK) {
-            console.warn('⚠️ Primer intento Coraline no confirmado. Segundo intento en curso en background.');
+            console.warn('⚠️ Notificación a Coraline no confirmada.');
         }
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
