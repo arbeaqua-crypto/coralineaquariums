@@ -1683,16 +1683,23 @@ function generarPDFPresupuesto(payload, cliente) {
 
     // ---------- pie de página (en todas) ----------
     function dibujarPie(numPag, totalPag) {
-        const yPie = alto - 12;
+        const yPie = alto - 16;
         setBordePDF(PDF_COLORS.azulBorde);
         doc.setLineWidth(0.2);
         doc.line(margen, yPie, ancho - margen, yPie);
 
+        // Línea principal de contacto
         setTextoPDF(PDF_COLORS.grisSuave);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
-        doc.text('Coraline Aquariums  ·  info@coralineaquariums.com  ·  +34 937 04 44 95', margen, yPie + 5);
-        doc.text('Página ' + numPag + ' de ' + totalPag, ancho - margen, yPie + 5, { align: 'right' });
+        doc.text('Coraline Aquariums  ·  info@coralineaquariums.com  ·  +34 937 04 44 95', margen, yPie + 4);
+        doc.text('Página ' + numPag + ' de ' + totalPag, ancho - margen, yPie + 4, { align: 'right' });
+
+        // Datos legales de empresa (más pequeño y más claro)
+        doc.setFontSize(6.5);
+        doc.setTextColor(170, 180, 190);
+        doc.text('Bcn Reef Dream Corals S.L. · Concepción Arenal 317 Local 2, 08030 Barcelona · NIF B-66707670 · Taller: c/ Francisco Rojas 14, 08301 Mataró', margen, yPie + 8.5);
+        doc.text('Copyright © 2026 · Coraline es una marca registrada.', margen, yPie + 11.5);
     }
 
     // ---------- gestión de páginas ----------
@@ -1704,7 +1711,7 @@ function generarPDFPresupuesto(payload, cliente) {
         y = 22;
     }
     function reservar(necesario) {
-        if (y + necesario <= alto - 18) return;
+        if (y + necesario <= alto - 22) return;
         nuevaPagina();
     }
 
