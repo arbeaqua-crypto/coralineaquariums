@@ -1905,6 +1905,73 @@ function generarPDFPresupuesto(payload, cliente) {
         dibujarCajaCodigo(codigoRecuperacion);
     }
 
+    // --- Botón "Enviarnos este presupuesto" (mailto con datos en el cuerpo) ---
+    try {
+        const m = payload.cotizador.medidas;
+        const lineasCuerpo = [
+            'Hola Coraline,',
+            '',
+            'Os envío la configuración de mi presupuesto para más información:',
+            '',
+            'DATOS DE CONTACTO',
+            '- Nombre: ' + (cliente.nombre || ''),
+            '- Teléfono: ' + (cliente.telefono || ''),
+            '- Email: ' + (cliente.email || ''),
+            '',
+            'CONFIGURACIÓN DEL ACUARIO',
+            '- Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm',
+            '- Grosor: ' + m.grosor,
+            '- Capacidad: ' + payload.cotizador.litros + ' litros',
+            '- Refuerzo: ' + payload.cotizador.tipoRefuerzo,
+            '- Silicona: ' + payload.cotizador.colorSilicona,
+            '',
+            'DESGLOSE'
+        ];
+        (payload.desglose.lineas || []).forEach(function(item) {
+            const prefijo = item.tipo === 'subitem' ? '   · ' : (item.tipo === 'total' ? '* ' : '- ');
+            lineasCuerpo.push(prefijo + item.nombre + ': ' + (Number(item.precio) || 0).toFixed(2) + ' €');
+        });
+        lineasCuerpo.push('');
+        lineasCuerpo.push('TOTAL: ' + (payload.cotizador.precioFinal || 0).toFixed(2) + ' € (IVA incluido)');
+        if (codigoRecuperacion) {
+            lineasCuerpo.push('');
+            lineasCuerpo.push('Código de recuperación: ' + codigoRecuperacion);
+        }
+        lineasCuerpo.push('');
+        lineasCuerpo.push('Gracias.');
+
+        const asunto = encodeURIComponent('Presupuesto desde la web — ' + (cliente.nombre || 'cliente'));
+        const cuerpo = encodeURIComponent(lineasCuerpo.join('\n'));
+        const mailtoURL = 'mailto:info@coralineaquariums.com?subject=' + asunto + '&body=' + cuerpo;
+
+        // Caja-botón clicable
+        reservar(20);
+        const altoBoton = 11;
+        setRellenoPDF(PDF_COLORS.azulMarca);
+        setBordePDF(PDF_COLORS.azulOscuro);
+        doc.setLineWidth(0.4);
+        doc.roundedRect(margen, y, anchoUtil, altoBoton, 2, 2, 'FD');
+
+        setTextoPDF(PDF_COLORS.blanco);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.textWithLink('✉  Enviarnos este presupuesto por email', ancho / 2, y + 7, {
+            url: mailtoURL,
+            align: 'center'
+        });
+        // Toda la zona del botón también es enlace
+        doc.link(margen, y, anchoUtil, altoBoton, { url: mailtoURL });
+        y += altoBoton + 3;
+
+        setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.text('Al pulsar se abrirá tu cliente de correo con todos los datos del presupuesto en el cuerpo del email.', margen, y);
+        y += 5;
+    } catch (e) {
+        console.warn('No se pudo generar el botón mailto del PDF:', e.message);
+    }
+
     // --- Nota legal pequeña ---
     reservar(14);
     setTextoPDF(PDF_COLORS.grisSuave);
@@ -3084,22 +3151,30 @@ function abrirModalDatosPDF(payload) {
         '<div style="background:#fff;border-radius:10px;width:min(460px,100%);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);font-family:\'Rajdhani\',Helvetica,Arial,sans-serif;">' +
             '<div style="background:#EAF6FC;border-bottom:2px solid #52C8FF;padding:14px 18px;">' +
                 '<h3 style="margin:0;color:#256391;font-family:\'Orbitron\',Helvetica,Arial,sans-serif;font-size:16px;letter-spacing:1px;">DATOS PARA EL PRESUPUESTO</h3>' +
-                '<p style="margin:4px 0 0;font-size:13px;color:#456;">Necesitamos tu nombre y al menos un dato de contacto (email o teléfono) para preparar el PDF.</p>' +
+                '<p style="margin:4px 0 0;font-size:13px;color:#456;">Estos datos aparecerán en tu presupuesto en PDF.</p>' +
             '</div>' +
             '<div style="padding:18px;">' +
-                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Nombre <span style="color:#d33;">*</span></label>' +
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Nombre</label>' +
                 '<input id="mdp-nombre" type="text" maxlength="60" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
 
-                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Email</label>' +
-                '<input id="mdp-email" type="email" maxlength="80" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
-
                 '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Teléfono</label>' +
-                '<input id="mdp-telefono" type="tel" maxlength="20" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:6px;">' +
-                '<p id="mdp-aviso" style="font-size:12px;color:#888;margin:6px 0 14px;">* Indica al menos email o teléfono.</p>' +
+                '<input id="mdp-telefono" type="tel" maxlength="20" placeholder="9 dígitos" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
 
-                '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Correo electrónico</label>' +
+                '<input id="mdp-email" type="email" maxlength="80" placeholder="nombre@dominio.com" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
+
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Modo de contacto</label>' +
+                '<select id="mdp-modo" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:6px;background:#fff;">' +
+                    '<option value="">— Selecciona una opción —</option>' +
+                    '<option value="llamada">Que me llamen</option>' +
+                    '<option value="whatsapp">Por WhatsApp</option>' +
+                    '<option value="email">Por email</option>' +
+                    '<option value="ninguno">Que no me contacten</option>' +
+                '</select>' +
+
+                '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
                     '<button id="mdp-cancelar" type="button" style="background:#eee;color:#456;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:600;">Cancelar</button>' +
-                    '<button id="mdp-aceptar" type="button" disabled style="background:#B4D7EB;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:not-allowed;font-weight:700;letter-spacing:0.5px;">DESCARGAR PDF</button>' +
+                    '<button id="mdp-aceptar" type="button" disabled style="background:#B4D7EB;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:not-allowed;font-weight:700;letter-spacing:0.5px;">PROCEDER A LA DESCARGA</button>' +
                 '</div>' +
             '</div>' +
         '</div>';
@@ -3109,41 +3184,51 @@ function abrirModalDatosPDF(payload) {
     const $nombre = document.getElementById('mdp-nombre');
     const $email = document.getElementById('mdp-email');
     const $tel = document.getElementById('mdp-telefono');
+    const $modo = document.getElementById('mdp-modo');
     const $aceptar = document.getElementById('mdp-aceptar');
-    const $aviso = document.getElementById('mdp-aviso');
 
-    function emailValido(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
-    function telefonoValido(v) { return /^[+\d][\d\s\-]{6,}$/.test(v.trim()); }
+    function emailValido(v) {
+        return /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(v.trim());
+    }
+    function telefonoValido(v) {
+        const limpio = v.replace(/[\s\-]/g, '').replace(/^\+34/, '');
+        return /^\d{9}$/.test(limpio);
+    }
 
     function validar() {
         const okNombre = $nombre.value.trim().length >= 2;
+        const tieneEmail = $email.value.trim().length > 0;
+        const tieneTel = $tel.value.trim().length > 0;
         const okEmail = emailValido($email.value);
         const okTel = telefonoValido($tel.value);
-        const okContacto = okEmail || okTel;
-        const valido = okNombre && okContacto;
+        const modo = $modo.value;
+
+        // Reglas según el modo de contacto elegido
+        let okContacto = false;
+        if (modo === 'email')               okContacto = okEmail;
+        else if (modo === 'llamada' || modo === 'whatsapp') okContacto = okTel;
+        else if (modo === 'ninguno')        okContacto = true;
+
+        // Si rellena un campo, ha de tener formato correcto aunque no sea el del modo elegido
+        const formatoOk = (!tieneEmail || okEmail) && (!tieneTel || okTel);
+        const valido = okNombre && !!modo && okContacto && formatoOk;
 
         if (valido) {
             $aceptar.disabled = false;
             $aceptar.style.background = '#52C8FF';
             $aceptar.style.cursor = 'pointer';
-            $aviso.style.color = '#3a8a3a';
-            $aviso.textContent = '✓ Datos correctos.';
         } else {
             $aceptar.disabled = true;
             $aceptar.style.background = '#B4D7EB';
             $aceptar.style.cursor = 'not-allowed';
-            $aviso.style.color = '#888';
-            if (!okNombre) {
-                $aviso.textContent = '* Introduce tu nombre.';
-            } else if (!okContacto) {
-                $aviso.textContent = '* Indica al menos email o teléfono.';
-            }
         }
     }
     $nombre.addEventListener('input', validar);
     $email.addEventListener('input', validar);
     $tel.addEventListener('input', validar);
+    $modo.addEventListener('change', validar);
     setTimeout(function() { $nombre.focus(); }, 50);
+    validar();
 
     document.getElementById('mdp-cancelar').onclick = function() { overlay.remove(); };
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
@@ -3153,7 +3238,8 @@ function abrirModalDatosPDF(payload) {
         const datos = {
             nombre: $nombre.value.trim(),
             email: $email.value.trim(),
-            telefono: $tel.value.trim()
+            telefono: $tel.value.trim(),
+            modoContacto: $modo.value
         };
         overlay.remove();
         ejecutarDescargaPDFConDatos(payload, datos);
@@ -3179,11 +3265,19 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
 
     // Enviar notificación interna a Coraline (sin pdfBase64, datos directamente en el cuerpo)
     try {
+        const etiquetasModo = {
+            llamada:  'Llamada telefónica',
+            whatsapp: 'WhatsApp',
+            email:    'Email',
+            ninguno:  'No desea ser contactado'
+        };
         const datosNotif = {
             accion: 'notificacion_descarga_pdf',
             nombre: datosCliente.nombre,
             email: datosCliente.email,
             telefono: datosCliente.telefono,
+            modoContacto: datosCliente.modoContacto || '',
+            modoContactoTexto: etiquetasModo[datosCliente.modoContacto] || '—',
             configuracion: payload.cotizador,
             desglose: payload.desglose,
             codigoRecuperacion: payload.codigoRecuperacion,
