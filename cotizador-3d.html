@@ -1974,7 +1974,7 @@
 
                             <!-- Botones de acción -->
                             <div class="desglose-actions">
-                                <button class="btn-enviar-presupuesto" onclick="enviarPresupuestoDetallado()">Enviar presupuesto</button>
+                                <button class="btn-enviar-presupuesto" onclick="enviarPresupuestoDetallado()">Enviar PDF por correo</button>
                                 <button class="btn-descargar-pdf" onclick="descargarPresupuestoPDF()">Descargar PDF</button>
                             </div>
                         </div>
@@ -2066,7 +2066,7 @@
                     </div>
                     <div class="protocolo-field">
                         <label for="protocoloTelefono">Telefono</label>
-                        <input type="tel" id="protocoloTelefono" placeholder="Tu telefono (opcional)">
+                        <input type="tel" id="protocoloTelefono" placeholder="Tu telefono">
                     </div>
                     <div class="protocolo-field full">
                         <label for="protocoloEmail">Correo electronico</label>
@@ -2079,7 +2079,7 @@
                 </div>
                 <div class="protocolo-foot">
                     <button type="button" class="protocolo-btn ghost" onclick="cerrarModalProtocolo()">Cancelar</button>
-                    <button type="button" id="protocoloAccionBtn" class="protocolo-btn main" onclick="ejecutarAccionProtocolo()">Descargar PDF</button>
+                    <button type="button" id="protocoloAccionBtn" class="protocolo-btn main" onclick="ejecutarAccionProtocolo()" disabled>Descargar PDF</button>
                 </div>
             </div>
         </div>

@@ -1365,21 +1365,32 @@ function abrirModalProtocolo(modo) {
 
     document.getElementById('protocoloModo').value = modo;
 
+    const TEXTO_AYUDA = 'Indicanos tu nombre y tus datos. También puedes poner cualquier comentario que quieras hacernos, o aquello que necesites equipar en tu configuración y que no esté en las opciones de nuestro cotizador.';
+
+    // Limpiar campos al abrir
+    document.getElementById('protocoloNombre').value = '';
+    document.getElementById('protocoloTelefono').value = '';
+    document.getElementById('protocoloEmail').value = '';
+    if (document.getElementById('protocoloNotas')) document.getElementById('protocoloNotas').value = '';
+
     if (modo === 'enviar') {
-        titulo.textContent = 'Enviar presupuesto en PDF';
-        ayuda.textContent = 'Nombre y correo son obligatorios. Tambien puedes indicar telefono e instrucciones.';
-        boton.textContent = 'Enviar presupuesto';
+        titulo.textContent = 'Enviar presupuesto en PDF por correo';
+        ayuda.textContent = TEXTO_AYUDA;
+        boton.textContent = 'Enviar PDF por correo';
         campoNotas.style.display = '';
         campoNombre.required = true;
         campoEmail.required = true;
     } else {
-        titulo.textContent = 'Descargar desglose en PDF';
-        ayuda.textContent = 'Puedes completar tus datos opcionalmente antes de descargar el PDF.';
+        titulo.textContent = 'Descargar presupuesto en PDF';
+        ayuda.textContent = TEXTO_AYUDA;
         boton.textContent = 'Descargar PDF';
-        campoNotas.style.display = 'none';
-        campoNombre.required = false;
+        campoNotas.style.display = '';
+        campoNombre.required = true;
         campoEmail.required = false;
     }
+
+    boton.disabled = true;
+    verificarCamposProtocolo();
 
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -1402,10 +1413,9 @@ function ejecutarAccionProtocolo() {
     };
 
     if (modo === 'enviar') {
-        if (!cliente.nombre || !cliente.email) {
-            alert('Para enviar presupuesto, nombre y correo son obligatorios.');
-            return;
-        }
+        if (!cliente.nombre || !cliente.email) return;
+    } else {
+        if (!cliente.nombre || (!cliente.telefono && !cliente.email)) return;
     }
 
     const payload = obtenerSalidaCotizador();
@@ -1442,6 +1452,26 @@ function ejecutarAccionProtocolo() {
     cerrarModalProtocolo();
 }
 
+function verificarCamposProtocolo() {
+    const modo = document.getElementById('protocoloModo')?.value || 'descargar';
+    const nombre = (document.getElementById('protocoloNombre')?.value || '').trim();
+    const telefono = (document.getElementById('protocoloTelefono')?.value || '').trim();
+    const email = (document.getElementById('protocoloEmail')?.value || '').trim();
+    const boton = document.getElementById('protocoloAccionBtn');
+    if (!boton) return;
+
+    let valido;
+    if (modo === 'enviar') {
+        valido = nombre.length > 0 && email.length > 0;
+    } else {
+        valido = nombre.length > 0 && (telefono.length > 0 || email.length > 0);
+    }
+
+    boton.disabled = !valido;
+    boton.style.opacity = valido ? '1' : '0.42';
+    boton.style.cursor = valido ? 'pointer' : 'not-allowed';
+}
+
 window.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('protocoloModal');
     if (modal) {
@@ -1451,6 +1481,11 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    ['protocoloNombre', 'protocoloTelefono', 'protocoloEmail'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', verificarCamposProtocolo);
+    });
 });
 
 function enviarPresupuestoDetallado() {
