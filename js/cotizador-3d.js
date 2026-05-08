@@ -2228,19 +2228,19 @@ function enviarPresupuestoDetallado() {
         const precioTexto = precioEl ? precioEl.textContent.replace(/[^\d.,]/g, '').replace(',', '.') : '0';
         const precio = parseFloat(precioTexto) || 0;
         
-        // Calcular subtotal e IVA
-        const iva = Math.round(precio * 100 / 121 * 21 * 100) / 100;
-        const subtotal = precio - iva;
+        // Calcular subtotal e IVA (inverso: si total es 336.04 con 21% IVA, subtotal = 336.04 / 1.21)
+        const subtotal = precio / 1.21;
+        const iva = precio - subtotal;
         
         // Crear desglose simple
         const desglose = {
             acuarioBase: {
                 descripcion: 'Acuario personalizado',
-                precio: subtotal
+                precio: Math.round(subtotal * 100) / 100
             },
             items: [],
-            subtotal: subtotal,
-            iva: iva,
+            subtotal: Math.round(subtotal * 100) / 100,
+            iva: Math.round(iva * 100) / 100,
             total: precio
         };
         
