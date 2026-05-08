@@ -3266,20 +3266,9 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
     localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
     registrarProtocolo(payload);
 
-    let doc;
-    try {
-        doc = generarPDFPresupuesto(payload, datosCliente);
-        descargarDocumentoPDF(doc, datosCliente);
-    } catch (error) {
-        alert('No se pudo generar el PDF: ' + error.message);
-        return;
-    }
-
-    // Enviar notificación interna a Coraline.
-    // Usamos accion='enviar_presupuesto' (handler que YA existe en el Apps Script desplegado)
-    // y metemos toda la información extra dentro de los campos que el handler suele leer
-    // (mensaje/comentarios), de modo que llegue al correo info@coralineaquariums.com
-    // aunque no haya cambios en el backend.
+    // PASO 1: notificar al backend ANTES de descargar el PDF.
+    // Si lo hacemos al revés, cancelar el diálogo "Guardar como" o cerrar la
+    // pestaña puede abortar el fetch y nunca llega el correo a Coraline.
     try {
         const etiquetasModo = {
             llamada:  'Llamada telefónica',
@@ -3396,6 +3385,17 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         }
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
+    }
+
+    // PASO 2: ahora sí, generar y descargar el PDF (después de que el correo
+    // ya esté en el buzón de Coraline). Si la descarga se cancela, el aviso
+    // interno YA se ha enviado.
+    try {
+        const doc = generarPDFPresupuesto(payload, datosCliente);
+        descargarDocumentoPDF(doc, datosCliente);
+    } catch (error) {
+        alert('No se pudo generar el PDF: ' + error.message);
+        return;
     }
 
     setTimeout(function() {
