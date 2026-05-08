@@ -1920,36 +1920,28 @@ function generarPDFPresupuesto(payload, cliente) {
     // --- Botón "Enviarnos este presupuesto" (mailto con datos en el cuerpo) ---
     try {
         const m = payload.cotizador.medidas;
+        // IMPORTANTE: el cuerpo del mailto debe ser CORTO. URLs largas en
+        // anotaciones PDF se truncan en algunos lectores y Outlook puede
+        // rellenar el destinatario con la cuenta por defecto. Mantener el
+        // total < 500 caracteres asegura compatibilidad universal.
         const lineasCuerpo = [
             'Hola Coraline,',
             '',
-            'Os envío la configuración de mi presupuesto para más información:',
+            'Os envío mi solicitud de presupuesto:',
             '',
-            'DATOS DE CONTACTO',
-            '- Nombre: ' + (cliente.nombre || ''),
-            '- Teléfono: ' + (cliente.telefono || ''),
-            '- Email: ' + (cliente.email || ''),
+            'Nombre: ' + (cliente.nombre || ''),
+            'Teléfono: ' + (cliente.telefono || ''),
+            'Email: ' + (cliente.email || ''),
             '',
-            'CONFIGURACIÓN DEL ACUARIO',
-            '- Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm',
-            '- Grosor: ' + m.grosor,
-            '- Capacidad: ' + payload.cotizador.litros + ' litros',
-            '- Refuerzo: ' + payload.cotizador.tipoRefuerzo,
-            '- Silicona: ' + payload.cotizador.colorSilicona,
-            '',
-            'DESGLOSE'
+            'Acuario: ' + m.largo + 'x' + m.ancho + 'x' + m.alto + ' cm, grosor ' + m.grosor + ' mm',
+            'Capacidad: ' + payload.cotizador.litros + ' L',
+            'Total: ' + (payload.cotizador.precioFinal || 0).toFixed(2) + ' € (IVA incl.)'
         ];
-        (payload.desglose.lineas || []).forEach(function(item) {
-            const prefijo = item.tipo === 'subitem' ? '   · ' : (item.tipo === 'total' ? '* ' : '- ');
-            lineasCuerpo.push(prefijo + item.nombre + ': ' + (Number(item.precio) || 0).toFixed(2) + ' €');
-        });
-        lineasCuerpo.push('');
-        lineasCuerpo.push('TOTAL: ' + (payload.cotizador.precioFinal || 0).toFixed(2) + ' € (IVA incluido)');
         if (codigoRecuperacion) {
-            lineasCuerpo.push('');
-            lineasCuerpo.push('Código de recuperación: ' + codigoRecuperacion);
+            lineasCuerpo.push('Código: ' + codigoRecuperacion);
         }
         lineasCuerpo.push('');
+        lineasCuerpo.push('Adjunto el PDF con el desglose completo.');
         lineasCuerpo.push('Gracias.');
 
         const asunto = encodeURIComponent('Presupuesto desde la web — ' + (cliente.nombre || 'cliente'));
