@@ -1960,7 +1960,7 @@ function generarPDFPresupuesto(payload, cliente) {
         setTextoPDF(PDF_COLORS.blanco);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
-        doc.textWithLink('✉  Enviarnos este presupuesto por email', ancho / 2, y + 7, {
+        doc.textWithLink('Enviarnos este presupuesto por email', ancho / 2, y + 7, {
             url: mailtoURL,
             align: 'center'
         });
