@@ -8,6 +8,8 @@ const CONFIG = {
     googleSheetsAPI: 'https://script.google.com/macros/s/AKfycbz8UDsTG35-KOZVmP-nu9v7WRl2tlT7pZYkcOdK4Ucsl-b8hGPuAdgswn-8bavHGlat/exec'
 };
 
+const EMAIL_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxAak1iknG-WeltAhbWbU9wCx9wYGEVgTLSPR9IlVYGQ-r2F5f6vAHIZHQnBheNNVAA/exec';
+
 // Variables globales
 let ultimoCalculo = null;
 let historialCotizaciones = [];
@@ -1352,6 +1354,51 @@ function abrirBorradorCorreo(destino, asunto, cuerpo, cc) {
     window.location.href = 'mailto:' + encodeURIComponent(destino) + '?' + partes.join('&');
 }
 
+async function enviarSolicitudPresupuestoBackend(payload, cliente) {
+    const m = payload.cotizador.medidas;
+    const datos = {
+        accion: 'enviar_presupuesto',
+        nombre: cliente.nombre,
+        apellidos: '',
+        email: cliente.email,
+        medioContacto: cliente.telefono ? 'telefono' : 'email',
+        telefono: cliente.telefono || '',
+        mensaje: cliente.instrucciones || '',
+        configuracion: {
+            largo: m.largo,
+            ancho: m.ancho,
+            alto: m.alto,
+            grosor: m.grosor,
+            litros: payload.cotizador.litros,
+            precio: payload.cotizador.precioFinal,
+            refuerzos: {
+                perimetrales: /perimetral/i.test(payload.cotizador.tipoRefuerzo || ''),
+                tirantes: /tirante/i.test(payload.cotizador.tipoRefuerzo || '')
+            },
+            opticos: payload.cotizador.opticos || {}
+        },
+        historialCotizaciones: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]'),
+        token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
+    };
+
+    const response = await fetch(EMAIL_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(datos)
+    });
+
+    if (!response.ok) {
+        throw new Error('Error en la conexión con el servidor (HTTP ' + response.status + ')');
+    }
+
+    const resultado = await response.json();
+    if (!resultado.success) {
+        throw new Error(resultado.message || resultado.error || 'No se pudo enviar la solicitud');
+    }
+
+    return resultado;
+}
+
 function abrirModalProtocolo(modo) {
     const modal = document.getElementById('protocoloModal');
     if (!modal) return;
@@ -1403,7 +1450,7 @@ function cerrarModalProtocolo() {
     modal.setAttribute('aria-hidden', 'true');
 }
 
-function ejecutarAccionProtocolo() {
+async function ejecutarAccionProtocolo() {
     const modo = document.getElementById('protocoloModo')?.value || 'descargar';
     const cliente = {
         nombre: (document.getElementById('protocoloNombre')?.value || '').trim(),
@@ -1428,28 +1475,43 @@ function ejecutarAccionProtocolo() {
     payload.cliente = cliente;
     registrarProtocolo(payload);
 
-    let doc;
-    try {
-        doc = generarPDFPresupuesto(payload, cliente);
-    } catch (error) {
-        alert('No se pudo generar el PDF: ' + error.message);
-        return;
-    }
-
-    const archivo = descargarDocumentoPDF(doc, cliente);
-    const resumen = construirTextoResumen(payload, cliente);
-
     if (modo === 'enviar') {
-        const asuntoCliente = 'Presupuesto Coraline Aquariums - ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR';
-        const cuerpoCliente = resumen + '\n\nAdjunta manualmente el PDF descargado (' + archivo + ') antes de enviar.';
-        abrirBorradorCorreo(cliente.email, asuntoCliente, cuerpoCliente, 'info@coralineaquariums.com');
+        const boton = document.getElementById('protocoloAccionBtn');
+        const textoOriginal = boton ? boton.textContent : '';
+
+        if (boton) {
+            boton.disabled = true;
+            boton.textContent = 'Enviando...';
+        }
+
+        try {
+            await enviarSolicitudPresupuestoBackend(payload, cliente);
+            cerrarModalProtocolo();
+            alert('Solicitud enviada correctamente a Coraline Aquariums.');
+        } catch (error) {
+            alert('No se pudo enviar la solicitud: ' + error.message);
+        } finally {
+            if (boton) {
+                boton.textContent = textoOriginal || 'Enviar PDF por correo';
+                verificarCamposProtocolo();
+            }
+        }
     } else {
+        let doc;
+        try {
+            doc = generarPDFPresupuesto(payload, cliente);
+        } catch (error) {
+            alert('No se pudo generar el PDF: ' + error.message);
+            return;
+        }
+
+        const archivo = descargarDocumentoPDF(doc, cliente);
+        const resumen = construirTextoResumen(payload, cliente);
         const asuntoInterno = 'Copia interna descarga PDF - ' + (cliente.nombre || 'usuario sin nombre');
         const cuerpoInterno = resumen + '\n\nArchivo descargado localmente: ' + archivo;
         abrirBorradorCorreo('info@coralineaquariums.com', asuntoInterno, cuerpoInterno);
+        cerrarModalProtocolo();
     }
-
-    cerrarModalProtocolo();
 }
 
 function verificarCamposProtocolo() {
