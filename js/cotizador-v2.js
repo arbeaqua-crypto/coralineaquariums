@@ -1156,63 +1156,228 @@ function capturarEstadoCotizadorParaCodigo() {
     return estado;
 }
 
+// Mapa de perimetros para encoding
+var PERIMETRO_ENCODE = { '': 0, 'frontal': 1, 'frontal-derecho': 2, 'frontal-izquierdo': 3, 'frontal-derecho-trasera': 4, 'perimetro': 5 };
+var PERIMETRO_DECODE = ['', 'frontal', 'frontal-derecho', 'frontal-izquierdo', 'frontal-derecho-trasera', 'perimetro'];
+
 function generarCodigoRecuperacionActual() {
-    const estado = capturarEstadoCotizadorParaCodigo();
-    return 'CRL3D-' + base64UrlEncodeUtf8(JSON.stringify(estado));
+    var L = parseInt(document.getElementById('largo')?.value) || 0;
+    var A = parseInt(document.getElementById('ancho')?.value) || 0;
+    var H = parseInt(document.getElementById('alto')?.value) || 0;
+    var G = parseInt(document.getElementById('grosor')?.value) || 3;
+
+    // silicona: 0=transparente, 1=negro, 2=blanco
+    var silVal = document.getElementById('colorSilicona')?.value || 'transparente';
+    var sil = silVal === 'negro' ? 1 : silVal === 'blanco' ? 2 : 0;
+
+    // refuerzo: 0=ninguno, 1=perimetral, 2=perimetral+tirantes
+    var refVal = document.getElementById('tipoRefuerzo')?.value || 'ninguno';
+    var ref = refVal === 'perimetral-tirantes' ? 2 : refVal === 'perimetral' ? 1 : 0;
+
+    // opticos (4 bits)
+    var oF = document.getElementById('opticoFrontal')?.checked ? 1 : 0;
+    var oT = document.getElementById('opticoTrasera')?.checked ? 1 : 0;
+    var oLI = document.getElementById('opticoLateralIzq')?.checked ? 1 : 0;
+    var oLD = document.getElementById('opticoLateralDer')?.checked ? 1 : 0;
+    var opt = oF | (oT << 1) | (oLI << 2) | (oLD << 3);
+
+    // rebosadero: 0=ninguno, 1-6
+    var reb = 0;
+    var rebIds = ['rebosaderoGeneral','rebosaderoEsquinero','rebosaderoEtapa','rebosaderoDiagonal','rebosaderoColumna','rebosaderoExterno'];
+    rebIds.forEach(function(id, i) { if (document.getElementById(id)?.checked) reb = i + 1; });
+
+    // vinilos urna
+    var vLD = document.getElementById('extraViniloLateralDerecho')?.checked ? 1 : 0;
+    var vLI = document.getElementById('extraViniloLateralIzquierdo')?.checked ? 1 : 0;
+    var vT = document.getElementById('extraViniloTrasero')?.checked ? 1 : 0;
+    var vFVal = document.getElementById('viniloFondo')?.value || 'no';
+    var vF = vFVal === 'negro' ? 1 : vFVal === 'blanco' ? 2 : vFVal === 'azul' ? 3 : 0;
+
+    // encintados
+    var encSAct = document.getElementById('extraEncintadoSuperficie')?.checked;
+    var encS = encSAct ? (PERIMETRO_ENCODE[document.getElementById('perimetroEncintadoSuperficie')?.value] || 1) : 0;
+    var encBAct = document.getElementById('extraEncintadoBase')?.checked;
+    var encB = encBAct ? (PERIMETRO_ENCODE[document.getElementById('perimetroEncintadoBase')?.value] || 1) : 0;
+
+    // soporte: 0=ninguno, 1=acero_pul, 2=acero_col, 3=acero_sin, 4=mesa_blanco, 5=mesa_negro
+    var sop = 0;
+    if (document.getElementById('checkEstructuraAcero')?.checked) {
+        if (document.getElementById('acabadoSinPulir')?.checked) sop = 3;
+        else if (document.getElementById('acabadoColor')?.checked) sop = 2;
+        else sop = 1;
+    } else if (document.getElementById('checkMesaMelamina')?.checked) {
+        sop = document.getElementById('mesaMelaminaNegro')?.checked ? 5 : 4;
+    }
+
+    // sump
+    var sump = document.getElementById('checkSump')?.checked ? 1 : 0;
+
+    // Empaquetar en 32 bits
+    // [1:0] sil, [3:2] ref, [7:4] opticos, [10:8] rebosadero
+    // [11] vLD, [12] vLI, [13] vT, [15:14] vF
+    // [18:16] encS, [21:19] encB, [24:22] sop, [25] sump
+    var flags = 0;
+    flags |= (sil & 0x3);
+    flags |= (ref & 0x3) << 2;
+    flags |= (opt & 0xF) << 4;
+    flags |= (reb & 0x7) << 8;
+    flags |= vLD << 11;
+    flags |= vLI << 12;
+    flags |= vT << 13;
+    flags |= (vF & 0x3) << 14;
+    flags |= (encS & 0x7) << 16;
+    flags |= (encB & 0x7) << 19;
+    flags |= (sop & 0x7) << 22;
+    flags |= sump << 25;
+
+    var hex = (flags >>> 0).toString(16).toUpperCase().padStart(7, '0');
+    return 'CRL-' + L + '-' + A + '-' + H + '-' + G + '-' + hex;
 }
 
 async function aplicarCodigoRecuperacion(codigo) {
-    const raw = (codigo || '').trim();
-    if (!raw.startsWith('CRL3D-')) {
-        throw new Error('Formato de código inválido.');
+    var raw = (codigo || '').trim();
+
+    // Compatibilidad con códigos largos del formato anterior (CRL3D-...)
+    if (raw.startsWith('CRL3D-')) {
+        return await _aplicarCodigoLegado(raw);
     }
 
-    const json = base64UrlDecodeUtf8(raw.slice(6));
-    const estado = JSON.parse(json);
-    if (!estado || !estado.v) {
-        throw new Error('Código no reconocido.');
+    if (!raw.startsWith('CRL-')) {
+        throw new Error('Formato de código inválido. Debe empezar por CRL-');
     }
 
+    var partes = raw.slice(4).split('-');
+    if (partes.length !== 5) {
+        throw new Error('Código incompleto (se esperan 5 secciones separadas por -).');
+    }
+
+    var L = partes[0], A = partes[1], H = partes[2], G = partes[3];
+    var flags = parseInt(partes[4], 16);
+    if (isNaN(flags)) throw new Error('Código corrupto.');
+
+    var setVal = function(id, val) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.value = val;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    var setChk = function(id, val) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.checked = !!val;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    // Desmarcar todos los checkboxes primero
     document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(el) {
-        if (el.id && !el.id.startsWith('protocolo')) {
-            el.checked = false;
-        }
+        if (el.id && !el.id.startsWith('protocolo')) el.checked = false;
     });
 
+    // Medidas
+    setVal('largo', L);  setVal('ancho', A);  setVal('alto', H);  setVal('grosor', G);
+
+    // Decodificar flags
+    var sil  = flags & 0x3;
+    var ref  = (flags >> 2) & 0x3;
+    var opt  = (flags >> 4) & 0xF;
+    var reb  = (flags >> 8) & 0x7;
+    var vLD  = (flags >> 11) & 0x1;
+    var vLI  = (flags >> 12) & 0x1;
+    var vT   = (flags >> 13) & 0x1;
+    var vF   = (flags >> 14) & 0x3;
+    var encS = (flags >> 16) & 0x7;
+    var encB = (flags >> 19) & 0x7;
+    var sop  = (flags >> 22) & 0x7;
+    var sump = (flags >> 25) & 0x1;
+
+    // Silicona y refuerzo
+    setVal('colorSilicona', ['transparente','negro','blanco'][sil] || 'transparente');
+    setVal('tipoRefuerzo', ['ninguno','perimetral','perimetral-tirantes'][ref] || 'ninguno');
+
+    // Ópticos
+    setChk('opticoFrontal', opt & 1);
+    setChk('opticoTrasera', (opt >> 1) & 1);
+    setChk('opticoLateralIzq', (opt >> 2) & 1);
+    setChk('opticoLateralDer', (opt >> 3) & 1);
+
+    // Rebosadero
+    var rebIds2 = ['rebosaderoGeneral','rebosaderoEsquinero','rebosaderoEtapa','rebosaderoDiagonal','rebosaderoColumna','rebosaderoExterno'];
+    rebIds2.forEach(function(id) { setChk(id, false); });
+    if (reb >= 1 && reb <= 6) setChk(rebIds2[reb - 1], true);
+
+    // Vinilos urna
+    setChk('extraViniloLateralDerecho', vLD);
+    setChk('extraViniloLateralIzquierdo', vLI);
+    setChk('extraViniloTrasero', vT);
+    setVal('viniloFondo', ['no','negro','blanco','azul'][vF] || 'no');
+
+    // Encintados
+    setChk('extraEncintadoSuperficie', encS > 0);
+    if (encS > 0) setVal('perimetroEncintadoSuperficie', PERIMETRO_DECODE[encS] || 'frontal');
+    setChk('extraEncintadoBase', encB > 0);
+    if (encB > 0) setVal('perimetroEncintadoBase', PERIMETRO_DECODE[encB] || 'frontal');
+
+    // Soporte
+    if (sop >= 1 && sop <= 3) {
+        setChk('checkEstructuraAcero', true);
+        if (typeof toggleEstructuraAcero === 'function') toggleEstructuraAcero();
+        if (sop === 1) setChk('acabadoPulidoMatizado', true);
+        else if (sop === 2) setChk('acabadoColor', true);
+        else if (sop === 3) setChk('acabadoSinPulir', true);
+        if (typeof seleccionarAcabadoAcero === 'function') {
+            seleccionarAcabadoAcero(sop === 1 ? 'pulidoMatizado' : sop === 2 ? 'color' : 'sinPulir');
+        }
+    } else if (sop >= 4 && sop <= 5) {
+        setChk('checkMesaMelamina', true);
+        if (typeof toggleMesaMelamina === 'function') toggleMesaMelamina();
+        setChk(sop === 5 ? 'mesaMelaminaNegro' : 'mesaMelaminaBlanco', true);
+    }
+
+    // Sump
+    if (sump) {
+        setChk('checkSump', true);
+        if (typeof window.gestionarCambioSump === 'function') {
+            window.gestionarCambioSump(document.getElementById('checkSump'));
+        }
+    }
+
+    // Recalcular
+    if (typeof calcularPrecio === 'function') await calcularPrecio();
+    if (typeof recalcularSoporte === 'function') recalcularSoporte();
+    if (typeof generarDesgloseCompleto === 'function') generarDesgloseCompleto();
+
+    localStorage.setItem('ultimo-codigo-configuracion', raw);
+}
+
+// Función de compatibilidad para códigos del formato anterior (CRL3D-...)
+async function _aplicarCodigoLegado(raw) {
+    const json = base64UrlDecodeUtf8(raw.slice(6));
+    const estado = JSON.parse(json);
+    if (!estado || !estado.v) throw new Error('Código no reconocido.');
+
+    document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(el) {
+        if (el.id && !el.id.startsWith('protocolo')) el.checked = false;
+    });
     Object.keys(estado.inputs || {}).forEach(function(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
+        const el = document.getElementById(id); if (!el) return;
         el.value = estado.inputs[id];
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
     Object.keys(estado.selects || {}).forEach(function(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
+        const el = document.getElementById(id); if (!el) return;
         el.value = estado.selects[id];
         el.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
     Object.keys(estado.checks || {}).forEach(function(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
+        const el = document.getElementById(id); if (!el) return;
         el.checked = true;
         el.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
-    if (typeof calcularPrecio === 'function') {
-        await calcularPrecio();
-    }
-
-    if (typeof recalcularSoporte === 'function') {
-        recalcularSoporte();
-    }
-
-    if (typeof generarDesgloseCompleto === 'function') {
-        generarDesgloseCompleto();
-    }
-
+    if (typeof calcularPrecio === 'function') await calcularPrecio();
+    if (typeof recalcularSoporte === 'function') recalcularSoporte();
+    if (typeof generarDesgloseCompleto === 'function') generarDesgloseCompleto();
     localStorage.setItem('ultimo-codigo-configuracion', raw);
 }
 
@@ -1498,16 +1663,18 @@ function descargarDocumentoPDF(doc, cliente) {
     const nombreSeguro = (cliente.nombre || 'cliente').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     const fecha = new Date().toISOString().slice(0, 10);
     const archivo = 'presupuesto-coraline-' + (nombreSeguro || 'cliente') + '-' + fecha + '.pdf';
-    // Usar blob + <a download> para activar el diálogo nativo del navegador sin abrir ventana nueva
-    const blob = doc.output('blob');
+    // Usar arraybuffer + tipo octet-stream para forzar descarga y evitar que el navegador abra el PDF en una ventana nueva
+    const bytes = doc.output('arraybuffer');
+    const blob = new Blob([bytes], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = archivo;
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 500);
     return archivo;
 }
 
@@ -2614,10 +2781,25 @@ async function descargarPresupuestoPDF() {
         return;
     }
 
-    // Enviar copia de la configuración a Coraline en segundo plano
+    // Enviar notificación interna a Coraline con la configuración descargada
     try {
         const pdfBase64 = doc.output('datauristring').split(',')[1];
-        await enviarSolicitudPresupuestoBackend(payload, { nombre: 'cliente', email: '', telefono: '' }, pdfBase64);
+        const datosNotif = {
+            accion: 'notificacion_descarga_pdf',
+            nombre: 'Descarga PDF (sin datos de contacto)',
+            configuracion: payload.cotizador,
+            desglose: payload.desglose,
+            codigoRecuperacion: payload.codigoRecuperacion,
+            sessionId: payload.sessionId,
+            historialCotizaciones: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]'),
+            pdfBase64: pdfBase64,
+            token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
+        };
+        await fetch(EMAIL_BACKEND_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(datosNotif)
+        });
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
     }
