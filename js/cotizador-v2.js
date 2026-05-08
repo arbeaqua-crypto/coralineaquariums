@@ -1553,6 +1553,48 @@ function construirTextoResumen(payload, cliente) {
     return lineas.join('\n');
 }
 
+// ============================================================
+// PRECARGA DEL LOGO PARA PDF
+// ============================================================
+window.__LOGO_CORALINE_B64 = null;
+window.__LOGO_CORALINE_RATIO = 1; // ancho/alto
+(function precargarLogoCoraline() {
+    try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            try {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth || 400;
+                c.height = img.naturalHeight || 400;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                window.__LOGO_CORALINE_B64 = c.toDataURL('image/png');
+                window.__LOGO_CORALINE_RATIO = c.width / c.height;
+            } catch (e) {
+                console.warn('No se pudo convertir logo a base64:', e.message);
+            }
+        };
+        img.onerror = function() { console.warn('No se pudo cargar el logo Coraline para el PDF.'); };
+        img.src = 'images/logocoraline.PNG';
+    } catch (e) { /* silencioso */ }
+})();
+
+// ============================================================
+// PALETA DE COLORES (tonos azulados suaves, fondos claros)
+// ============================================================
+const PDF_COLORS = {
+    azulMarca:    [82, 200, 255],   // #52C8FF
+    azulOscuro:   [37, 99, 145],    // #256391  (títulos)
+    azulMedio:    [110, 175, 215],  // #6EAFD7
+    azulSuave:    [234, 246, 252],  // #EAF6FC  (banda cabecera)
+    azulFila:    [245, 250, 254],   // #F5FAFE  (fila alterna tabla)
+    azulBorde:    [180, 215, 235],  // #B4D7EB
+    grisTxt:      [60, 70, 80],     // texto principal
+    grisSuave:    [120, 130, 140],  // texto secundario
+    blanco:       [255, 255, 255]
+};
+
 function generarPDFPresupuesto(payload, cliente) {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         throw new Error('No se pudo cargar la libreria de PDF.');
@@ -1560,101 +1602,320 @@ function generarPDFPresupuesto(payload, cliente) {
 
     const jsPDFCtor = window.jspdf.jsPDF;
     const doc = new jsPDFCtor({ unit: 'mm', format: 'a4' });
-    const ancho = doc.internal.pageSize.getWidth();
-    const alto = doc.internal.pageSize.getHeight();
+    const ancho = doc.internal.pageSize.getWidth();   // 210
+    const alto  = doc.internal.pageSize.getHeight();  // 297
     const margen = 14;
-    let y = 16;
+    const anchoUtil = ancho - margen * 2;
+    let y = 0;
 
-    function salto(necesario) {
-        if (y + necesario <= alto - 14) return;
-        doc.addPage();
-        y = 16;
-    }
+    // ---------- helpers de color ----------
+    function setRellenoPDF(c) { doc.setFillColor(c[0], c[1], c[2]); }
+    function setBordePDF(c)   { doc.setDrawColor(c[0], c[1], c[2]); }
+    function setTextoPDF(c)   { doc.setTextColor(c[0], c[1], c[2]); }
 
-    function titulo(txt) {
-        salto(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        doc.text(txt, margen, y);
-        y += 6;
-    }
+    // ---------- cabecera (página 1) ----------
+    function dibujarCabeceraPrincipal() {
+        // Banda azul suave de fondo
+        setRellenoPDF(PDF_COLORS.azulSuave);
+        doc.rect(0, 0, ancho, 34, 'F');
+        // Línea inferior fina azul marca
+        setRellenoPDF(PDF_COLORS.azulMarca);
+        doc.rect(0, 34, ancho, 0.8, 'F');
 
-    function linea(txt, bold) {
-        const texto = String(txt || '');
-        const bloques = doc.splitTextToSize(texto, ancho - (margen * 2));
-        salto((bloques.length * 4.5) + 1);
-        doc.setFont('helvetica', bold ? 'bold' : 'normal');
-        doc.setFontSize(9.5);
-        doc.text(bloques, margen, y);
-        y += (bloques.length * 4.5);
-    }
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('Coraline Aquariums', margen, y);
-    y += 6;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text('Presupuesto detallado de acuario a medida', margen, y);
-    y += 7;
-
-    doc.setDrawColor(82, 200, 255);
-    doc.line(margen, y, ancho - margen, y);
-    y += 7;
-
-    titulo('Datos de cliente');
-    linea('Nombre: ' + (cliente.nombre || 'No informado'));
-    linea('Telefono: ' + (cliente.telefono || 'No informado'));
-    linea('Email: ' + (cliente.email || 'No informado'));
-    if (cliente.instrucciones) {
-        linea('Instrucciones: ' + cliente.instrucciones);
-    }
-    y += 2;
-
-    const m = payload.cotizador.medidas;
-    titulo('Configuracion del acuario');
-    linea('Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm');
-    linea('Grosor: ' + m.grosor);
-    linea('Capacidad: ' + payload.cotizador.litros + ' litros');
-    linea('Refuerzo: ' + payload.cotizador.tipoRefuerzo);
-    linea('Silicona: ' + payload.cotizador.colorSilicona);
-    y += 2;
-
-    titulo('Desglose economico');
-    payload.desglose.lineas.forEach(function(item) {
-        if (item.tipo === 'total') {
-            linea(item.nombre + ': ' + item.precio.toFixed(2) + ' EUR', true);
-        } else if (item.tipo === 'subitem') {
-            linea('  - ' + item.nombre + ': ' + item.precio.toFixed(2) + ' EUR');
-        } else {
-            linea('- ' + item.nombre + ': ' + item.precio.toFixed(2) + ' EUR');
+        // Logo (si está cargado)
+        let xTexto = margen;
+        if (window.__LOGO_CORALINE_B64) {
+            try {
+                const altoLogo = 22;
+                const anchoLogo = altoLogo * (window.__LOGO_CORALINE_RATIO || 1);
+                doc.addImage(window.__LOGO_CORALINE_B64, 'PNG', margen, 6, anchoLogo, altoLogo);
+                xTexto = margen + anchoLogo + 6;
+            } catch (e) { /* fallback sin logo */ }
         }
-    });
 
-    y += 4;
-    titulo('Totales');
-    linea('Subtotal sin IVA: ' + payload.cotizador.precioSinIva.toFixed(2) + ' EUR');
-    linea('IVA (21%): ' + payload.cotizador.iva.toFixed(2) + ' EUR');
-    linea('TOTAL FINAL: ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR', true);
+        // Nombre marca
+        setTextoPDF(PDF_COLORS.azulOscuro);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(20);
+        doc.text('CORALINE AQUARIUMS', xTexto, 16);
 
+        // Subtítulo
+        setTextoPDF(PDF_COLORS.grisTxt);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Acuarios a medida — Presupuesto detallado', xTexto, 22);
+
+        // Fecha alineada a la derecha
+        const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFontSize(9);
+        doc.text(fecha, ancho - margen, 16, { align: 'right' });
+        doc.setFontSize(8);
+        doc.text('coralineaquariums.com', ancho - margen, 21, { align: 'right' });
+    }
+
+    // ---------- cabecera reducida (páginas siguientes) ----------
+    function dibujarCabeceraSlim() {
+        setRellenoPDF(PDF_COLORS.azulSuave);
+        doc.rect(0, 0, ancho, 14, 'F');
+        setRellenoPDF(PDF_COLORS.azulMarca);
+        doc.rect(0, 14, ancho, 0.4, 'F');
+        setTextoPDF(PDF_COLORS.azulOscuro);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('CORALINE AQUARIUMS', margen, 9);
+        setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Presupuesto detallado', ancho - margen, 9, { align: 'right' });
+    }
+
+    // ---------- pie de página (en todas) ----------
+    function dibujarPie(numPag, totalPag) {
+        const yPie = alto - 12;
+        setBordePDF(PDF_COLORS.azulBorde);
+        doc.setLineWidth(0.2);
+        doc.line(margen, yPie, ancho - margen, yPie);
+
+        setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Coraline Aquariums  ·  info@coralineaquariums.com  ·  +34 937 04 44 95', margen, yPie + 5);
+        doc.text('Página ' + numPag + ' de ' + totalPag, ancho - margen, yPie + 5, { align: 'right' });
+    }
+
+    // ---------- gestión de páginas ----------
+    let numeroPaginaActual = 1;
+    function nuevaPagina() {
+        doc.addPage();
+        numeroPaginaActual++;
+        dibujarCabeceraSlim();
+        y = 22;
+    }
+    function reservar(necesario) {
+        if (y + necesario <= alto - 18) return;
+        nuevaPagina();
+    }
+
+    // ---------- componentes de contenido ----------
+    function tituloSeccion(txt) {
+        reservar(14);
+        // Pequeña barra azul a la izquierda
+        setRellenoPDF(PDF_COLORS.azulMarca);
+        doc.rect(margen, y, 2.2, 6.5, 'F');
+        // Fondo azul muy suave del título
+        setRellenoPDF(PDF_COLORS.azulSuave);
+        doc.rect(margen + 2.2, y, anchoUtil - 2.2, 6.5, 'F');
+        // Texto
+        setTextoPDF(PDF_COLORS.azulOscuro);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text(txt.toUpperCase(), margen + 5, y + 4.5);
+        y += 9;
+    }
+
+    function dibujarCajaInfo(filas) {
+        // Caja con borde azul suave; cada fila: etiqueta gris + valor en oscuro
+        const padX = 4;
+        const padY = 3;
+        const altoFila = 5.2;
+        const altoCaja = padY * 2 + filas.length * altoFila;
+        reservar(altoCaja + 3);
+
+        setBordePDF(PDF_COLORS.azulBorde);
+        setRellenoPDF(PDF_COLORS.blanco);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margen, y, anchoUtil, altoCaja, 1.5, 1.5, 'FD');
+
+        let yy = y + padY + 3.5;
+        filas.forEach(function(f) {
+            setTextoPDF(PDF_COLORS.grisSuave);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(f.label + ':', margen + padX, yy);
+
+            setTextoPDF(PDF_COLORS.grisTxt);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9.5);
+            const valor = String(f.valor == null || f.valor === '' ? '—' : f.valor);
+            doc.text(valor, margen + 42, yy);
+            yy += altoFila;
+        });
+        y += altoCaja + 3;
+    }
+
+    function dibujarTablaDesglose(lineas) {
+        const colPrecioX = ancho - margen - 4;
+        const altoFila = 6.2;
+        const padX = 4;
+
+        // Cabecera de tabla
+        reservar(altoFila + 4);
+        setRellenoPDF(PDF_COLORS.azulMarca);
+        doc.rect(margen, y, anchoUtil, altoFila, 'F');
+        setTextoPDF(PDF_COLORS.blanco);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.text('CONCEPTO', margen + padX, y + 4.2);
+        doc.text('IMPORTE', colPrecioX, y + 4.2, { align: 'right' });
+        y += altoFila;
+
+        let alterna = false;
+        lineas.forEach(function(item) {
+            reservar(altoFila + 1);
+            const esTotal = item.tipo === 'total';
+            const esSub = item.tipo === 'subitem';
+
+            if (esTotal) {
+                setRellenoPDF(PDF_COLORS.azulSuave);
+                doc.rect(margen, y, anchoUtil, altoFila, 'F');
+            } else if (alterna) {
+                setRellenoPDF(PDF_COLORS.azulFila);
+                doc.rect(margen, y, anchoUtil, altoFila, 'F');
+            }
+            // borde inferior fino
+            setBordePDF(PDF_COLORS.azulBorde);
+            doc.setLineWidth(0.1);
+            doc.line(margen, y + altoFila, ancho - margen, y + altoFila);
+
+            // texto
+            setTextoPDF(esTotal ? PDF_COLORS.azulOscuro : PDF_COLORS.grisTxt);
+            doc.setFont('helvetica', esTotal ? 'bold' : (esSub ? 'normal' : 'normal'));
+            doc.setFontSize(esTotal ? 10 : 9.5);
+            const sangria = esSub ? 8 : 0;
+            const nombre = (esSub ? '› ' : '') + String(item.nombre || '');
+            doc.text(nombre, margen + padX + sangria, y + 4.3);
+
+            const precio = (Number(item.precio) || 0).toFixed(2) + ' €';
+            doc.setFont('helvetica', 'bold');
+            doc.text(precio, colPrecioX, y + 4.3, { align: 'right' });
+
+            y += altoFila;
+            alterna = !alterna;
+        });
+        y += 2;
+    }
+
+    function dibujarCajaTotal(subtotal, iva, total) {
+        reservar(28);
+        const altoCaja = 24;
+        // Fondo azul suave + borde azul marca
+        setRellenoPDF(PDF_COLORS.azulSuave);
+        setBordePDF(PDF_COLORS.azulMarca);
+        doc.setLineWidth(0.7);
+        doc.roundedRect(margen, y, anchoUtil, altoCaja, 2, 2, 'FD');
+
+        setTextoPDF(PDF_COLORS.grisTxt);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.5);
+        doc.text('Subtotal sin IVA', margen + 5, y + 7);
+        doc.text('IVA (21%)',         margen + 5, y + 12.5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(subtotal.toFixed(2) + ' €', margen + 70, y + 7);
+        doc.text(iva.toFixed(2) + ' €',      margen + 70, y + 12.5);
+
+        // Total grande, alineado a la derecha
+        setTextoPDF(PDF_COLORS.azulOscuro);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('TOTAL', ancho - margen - 5, y + 9, { align: 'right' });
+        doc.setFontSize(20);
+        doc.text(total.toFixed(2) + ' €', ancho - margen - 5, y + 18, { align: 'right' });
+
+        y += altoCaja + 4;
+    }
+
+    function dibujarCajaCodigo(codigo) {
+        reservar(20);
+        const altoCaja = 16;
+        setBordePDF(PDF_COLORS.azulMedio);
+        setRellenoPDF(PDF_COLORS.blanco);
+        doc.setLineWidth(0.4);
+        doc.setLineDashPattern([1.2, 1.2], 0);
+        doc.roundedRect(margen, y, anchoUtil, altoCaja, 1.5, 1.5, 'FD');
+        doc.setLineDashPattern([], 0);
+
+        setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.text('CÓDIGO DE RECUPERACIÓN DE LA CONFIGURACIÓN', margen + 4, y + 5);
+
+        setTextoPDF(PDF_COLORS.azulOscuro);
+        doc.setFont('courier', 'bold');
+        doc.setFontSize(13);
+        doc.text(String(codigo), margen + anchoUtil / 2, y + 12, { align: 'center' });
+        y += altoCaja + 4;
+    }
+
+    // ============================================================
+    // RENDERIZADO
+    // ============================================================
+    dibujarCabeceraPrincipal();
+    y = 42;
+
+    // --- Datos cliente ---
+    tituloSeccion('Datos de cliente');
+    dibujarCajaInfo([
+        { label: 'Nombre',   valor: cliente.nombre || 'No informado' },
+        { label: 'Teléfono', valor: cliente.telefono || 'No informado' },
+        { label: 'Email',    valor: cliente.email || 'No informado' }
+    ]);
+    if (cliente.instrucciones) {
+        setTextoPDF(PDF_COLORS.grisTxt);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(9);
+        const txt = doc.splitTextToSize('Instrucciones: ' + cliente.instrucciones, anchoUtil);
+        reservar(txt.length * 4 + 2);
+        doc.text(txt, margen, y);
+        y += txt.length * 4 + 2;
+    }
+
+    // --- Configuración acuario ---
+    const m = payload.cotizador.medidas;
+    tituloSeccion('Configuración del acuario');
+    dibujarCajaInfo([
+        { label: 'Medidas',    valor: m.largo + ' × ' + m.ancho + ' × ' + m.alto + ' cm' },
+        { label: 'Grosor',     valor: m.grosor },
+        { label: 'Capacidad',  valor: payload.cotizador.litros + ' litros' },
+        { label: 'Refuerzo',   valor: payload.cotizador.tipoRefuerzo },
+        { label: 'Silicona',   valor: payload.cotizador.colorSilicona }
+    ]);
+
+    // --- Desglose económico ---
+    tituloSeccion('Desglose económico');
+    dibujarTablaDesglose(payload.desglose.lineas || []);
+
+    // --- Totales ---
+    dibujarCajaTotal(
+        payload.cotizador.precioSinIva || 0,
+        payload.cotizador.iva || 0,
+        payload.cotizador.precioFinal || 0
+    );
+
+    // --- Código de recuperación ---
     const codigoRecuperacion = payload.codigoRecuperacion || localStorage.getItem('ultimo-codigo-configuracion') || '';
     if (codigoRecuperacion) {
-        y += 3;
-        titulo('Codigo de recuperacion');
-        linea(codigoRecuperacion, true);
+        dibujarCajaCodigo(codigoRecuperacion);
     }
 
-    y += 4;
-    titulo('Contacto');
-    linea('Email: info@coralineaquariums.com');
-    linea('Telefono: +34 937 04 44 95');
-    linea('Web: https://coralineaquariums.com');
-
-    const pie = 'Documento generado por protocolo web local sin backend. Fecha: ' + new Date().toLocaleString();
+    // --- Nota legal pequeña ---
+    reservar(14);
+    setTextoPDF(PDF_COLORS.grisSuave);
+    doc.setFont('helvetica', 'italic');
     doc.setFontSize(8);
-    doc.setTextColor(80, 80, 80);
-    doc.text(pie, margen, alto - 8);
+    const nota = 'Documento informativo generado automáticamente. Los precios pueden variar según verificación técnica final. ' +
+                 'Para confirmar el pedido, contacta con nosotros en info@coralineaquariums.com.';
+    const lineasNota = doc.splitTextToSize(nota, anchoUtil);
+    doc.text(lineasNota, margen, y);
+    y += lineasNota.length * 3.5;
+
+    // --- Pies en todas las páginas ---
+    const totalPags = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPags; i++) {
+        doc.setPage(i);
+        dibujarPie(i, totalPags);
+    }
 
     return doc;
 }
