@@ -3396,11 +3396,14 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         const backendOK = await intentarEnvio(1);
 
         // Segundo intento sin await: no retrasa al usuario.
+        // Esperamos 12 s para salir de la ventana de bloqueo de Apps Script
+        // (cuando hay concurrencia, los envíos cercanos en el tiempo se
+        // pierden silenciosamente).
         setTimeout(function() {
             intentarEnvio(2).then(function(ok2) {
                 if (!ok2) console.warn('⚠️ Segundo intento Coraline tampoco confirmó.');
             });
-        }, 1200);
+        }, 12000);
 
         // Notificación al backend es best-effort. Si fallan los dos
         // intentos, solo lo registramos: NO molestamos al usuario.
