@@ -1882,7 +1882,41 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 function enviarPresupuestoDetallado() {
-    alert('El envío directo por correo desde este botón está desactivado. Usa "Solicitar Presupuesto Personalizado" para enviarnos tu configuración.');
+    // Guardar el estado completo del cotizador en localStorage antes de ir a contacto.html
+    const payload = obtenerSalidaCotizador();
+    if (!payload) {
+        alert('Debes calcular el presupuesto antes de solicitar presupuesto.');
+        return;
+    }
+
+    const codigoRecuperacion = generarCodigoRecuperacionActual();
+    payload.codigoRecuperacion = codigoRecuperacion;
+    localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
+
+    // Guardar desglose completo con líneas de precios
+    localStorage.setItem('presupuesto-detallado', JSON.stringify(payload.desglose));
+
+    // Guardar configuración con datos completos para que contacto.html pueda enviarlos
+    const m = payload.cotizador.medidas;
+    localStorage.setItem('configuracion-acuario', JSON.stringify({
+        largo: m.largo,
+        ancho: m.ancho,
+        alto: m.alto,
+        grosor: m.grosor,
+        litros: payload.cotizador.litros,
+        precio: payload.cotizador.precioFinal,
+        precioSinIva: payload.cotizador.precioSinIva,
+        iva: payload.cotizador.iva,
+        colorSilicona: payload.cotizador.colorSilicona,
+        tipoRefuerzo: payload.cotizador.tipoRefuerzo,
+        refuerzos: {
+            perimetrales: /perimetral/i.test(payload.cotizador.tipoRefuerzo || ''),
+            tirantes: /tirante/i.test(payload.cotizador.tipoRefuerzo || '')
+        },
+        opticos: payload.cotizador.opticos || {},
+        codigoRecuperacion: codigoRecuperacion
+    }));
+
     window.location.href = 'contacto.html';
 }
 

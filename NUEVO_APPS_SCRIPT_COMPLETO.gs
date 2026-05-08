@@ -723,9 +723,9 @@ function procesarSolicitudPresupuesto(datos) {
       timestamp: new Date().toISOString()
     });
     
-    // Validar datos obligatorios
-    if (!datos.nombre || !datos.email) {
-      throw new Error('Faltan datos obligatorios: nombre y email');
+    // Validar datos obligatorios (solo nombre requerido; email o telefono opcionales)
+    if (!datos.nombre) {
+      throw new Error('Falta el nombre del cliente');
     }
     
     // Guardar en Google Sheets
@@ -821,7 +821,7 @@ function enviarEmailCliente(datos) {
  */
 function enviarEmailCoraline(datos) {
   try {
-  const asunto = `🐠 Nueva Solicitud de Presupuesto - ${datos.nombre} ${datos.apellidos}`;
+  const asunto = `🐠 Nueva Solicitud de Presupuesto - ${datos.nombre}${datos.telefono ? ' | Tel: ' + datos.telefono : ''}${datos.email ? ' | ' + datos.email : ''}`;
   
   let htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
@@ -957,8 +957,32 @@ function enviarEmailCoraline(datos) {
     });
   }
   
-  // Agregar desglose si existe
-  if (datos.desglose && datos.desglose.acuarioBase) {
+  // Desglose del presupuesto (nuevo formato: desglose.lineas)
+  if (datos.desglose && datos.desglose.lineas && datos.desglose.lineas.length > 0) {
+    htmlBody += `
+        <h3 style="color: #333; margin-top: 30px;">💰 Desglose del Presupuesto (detallado)</h3>
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+          <tr style="background: #667eea; color: white;">
+            <th style="padding: 8px 12px; border: 1px solid #555; text-align: left;">Concepto</th>
+            <th style="padding: 8px 12px; border: 1px solid #555; text-align: right;">Precio</th>
+          </tr>
+    `;
+    datos.desglose.lineas.forEach(function(l) {
+      const isTotalRow = l.tipo === 'total';
+      const isSubitem  = l.tipo === 'subitem';
+      const bgColor = isTotalRow ? '#f0f4ff' : 'white';
+      const fontW   = isTotalRow ? 'bold' : 'normal';
+      const leftPad = isSubitem  ? '28px' : '12px';
+      htmlBody += `
+          <tr style="background: ${bgColor};">
+            <td style="padding: 7px ${leftPad}; border: 1px solid #ddd; font-weight: ${fontW};">${l.nombre}</td>
+            <td style="padding: 7px 12px; border: 1px solid #ddd; text-align: right; font-weight: ${fontW};">${typeof l.precio === 'number' ? l.precio.toFixed(2) + ' &euro;' : l.precioTexto || ''}</td>
+          </tr>`;
+    });
+    htmlBody += `</table>`;
+
+  // Formato antiguo de desglose por compatibilidad
+  } else if (datos.desglose && datos.desglose.acuarioBase) {
     htmlBody += `
         <h3 style="color: #333; margin-top: 30px;">💰 Desglose del Presupuesto</h3>
         <table style="width: 100%; border-collapse: collapse; background: white;">
@@ -1015,26 +1039,27 @@ function enviarEmailCoraline(datos) {
           </tr>
         </table>
     `;
-  }
+  }  // fin if desglose
   
   htmlBody += `
         <div style="background: #e3f2fd; border: 1px solid #2196F3; padding: 15px; margin-top: 30px; border-radius: 5px;">
           <p style="margin: 0; color: #1976D2;">
-            <strong>📧 Responder a:</strong> ${datos.email}<br>
-            <strong>📱 Teléfono:</strong> ${datos.telefono || 'No proporcionado'}
+            <strong>📧 Email de contacto:</strong> ${datos.email || '(no proporcionado)'}<br>
+            <strong>📱 Teléfono:</strong> ${datos.telefono || '(no proporcionado)'}
           </p>
         </div>
       </div>
     </div>
   `;
   
-  MailApp.sendEmail({
+  const emailOpts = {
     to: EMAIL_DESTINO,
     subject: asunto,
     htmlBody: htmlBody,
-    name: 'Sistema Coraline Aquariums',
-    replyTo: datos.email
-  });
+    name: 'Sistema Coraline Aquariums'
+  };
+  if (datos.email) emailOpts.replyTo = datos.email;
+  MailApp.sendEmail(emailOpts);
   
   } catch (error) {
     Logger.log('Error al enviar email a Coraline: ' + error.toString());
