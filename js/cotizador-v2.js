@@ -3176,6 +3176,8 @@ function abrirModalDatosPDF(payload) {
                     '<option value="ninguno">Que no me contacten</option>' +
                 '</select>' +
 
+                '<p id="mdp-aviso" style="margin:10px 0 0;font-size:12.5px;color:#a05a00;background:#FFF6E5;border:1px solid #F0D08A;border-radius:6px;padding:8px 10px;line-height:1.35;">Por favor, rellena este formulario para completar e identificar tu presupuesto. ¡Gracias!</p>' +
+
                 '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
                     '<button id="mdp-cancelar" type="button" style="background:#eee;color:#456;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:600;">Cancelar</button>' +
                     '<button id="mdp-aceptar" type="button" disabled style="background:#B4D7EB;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:not-allowed;font-weight:700;letter-spacing:0.5px;">PROCEDER A LA DESCARGA</button>' +
@@ -3201,30 +3203,36 @@ function abrirModalDatosPDF(payload) {
 
     function validar() {
         const okNombre = $nombre.value.trim().length >= 2;
-        const tieneEmail = $email.value.trim().length > 0;
         const tieneTel = $tel.value.trim().length > 0;
         const okEmail = emailValido($email.value);
         const okTel = telefonoValido($tel.value);
         const modo = $modo.value;
 
-        // Reglas según el modo de contacto elegido
-        let okContacto = false;
-        if (modo === 'email')               okContacto = okEmail;
-        else if (modo === 'llamada' || modo === 'whatsapp') okContacto = okTel;
-        else if (modo === 'ninguno')        okContacto = true;
+        // Reglas:
+        // - Nombre y email son SIEMPRE obligatorios (independiente del modo).
+        // - Modo de contacto siempre obligatorio.
+        // - Si modo = llamada o whatsapp, el teléfono es obligatorio.
+        // - Si el usuario rellena el teléfono aunque no lo necesite, debe ser válido.
+        let okTelefonoSegunModo = true;
+        if (modo === 'llamada' || modo === 'whatsapp') {
+            okTelefonoSegunModo = okTel; // obligatorio y válido
+        } else if (tieneTel) {
+            okTelefonoSegunModo = okTel; // opcional pero si está, válido
+        }
 
-        // Si rellena un campo, ha de tener formato correcto aunque no sea el del modo elegido
-        const formatoOk = (!tieneEmail || okEmail) && (!tieneTel || okTel);
-        const valido = okNombre && !!modo && okContacto && formatoOk;
+        const valido = okNombre && okEmail && !!modo && okTelefonoSegunModo;
 
+        const $aviso = document.getElementById('mdp-aviso');
         if (valido) {
             $aceptar.disabled = false;
             $aceptar.style.background = '#52C8FF';
             $aceptar.style.cursor = 'pointer';
+            if ($aviso) $aviso.style.display = 'none';
         } else {
             $aceptar.disabled = true;
             $aceptar.style.background = '#B4D7EB';
             $aceptar.style.cursor = 'not-allowed';
+            if ($aviso) $aviso.style.display = 'block';
         }
     }
     $nombre.addEventListener('input', validar);
