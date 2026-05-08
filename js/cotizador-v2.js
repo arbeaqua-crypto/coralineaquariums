@@ -3374,8 +3374,7 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             const resp = await fetch(EMAIL_BACKEND_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(datosNotif),
-                keepalive: true
+                body: JSON.stringify(datosNotif)
             });
             const txt = await resp.text();
             console.log('📡 Respuesta backend Coraline:', resp.status, txt);
