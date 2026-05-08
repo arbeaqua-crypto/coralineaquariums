@@ -735,8 +735,7 @@
                 localStorage.removeItem('configuracion-acuario');
                 localStorage.removeItem('historialCotizaciones');
                 
-                // Redirigir a página de confirmación
-                alert('\u2705 Solicitud enviada correctamente. Te contactaremos pronto.');
+                // Redirigir directamente a página de confirmación (sin alert)
                 window.location.href = 'confirmacion-enviado.html';
                 
             } catch (error) {

@@ -13,13 +13,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitud Enviada - Coraline Aquariums</title>
+    <link rel="icon" type="image/png" href="images/favicon.PNG">
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #e0e6ed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .confirmacion-container {
@@ -27,15 +30,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .confirmacion-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(33, 80, 120, 0.95));
+            border: 1px solid rgba(110, 185, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             padding: 50px;
-            max-width: 600px;
+            max-width: 640px;
             text-align: center;
             animation: slideUp 0.5s ease-out;
         }
@@ -54,12 +58,13 @@
         .check-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c5364 0%, #6eb9ff 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 30px;
+            box-shadow: 0 8px 24px rgba(110, 185, 255, 0.35);
             animation: scaleIn 0.5s ease-out 0.2s both;
         }
 
@@ -90,23 +95,44 @@
         }
 
         .confirmacion-card h1 {
-            color: #333;
-            font-size: 2.5em;
+            color: #ffffff;
+            font-size: 2.2em;
             margin-bottom: 20px;
+            font-weight: 700;
         }
 
         .confirmacion-card p {
-            color: #666;
-            font-size: 1.2em;
+            color: rgba(224, 230, 237, 0.85);
+            font-size: 1.1em;
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+
+        .confirmacion-card a.email-link {
+            color: #6eb9ff;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed rgba(110, 185, 255, 0.5);
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .confirmacion-card a.email-link:hover {
+            color: #a8d4ff;
+            border-bottom-color: #a8d4ff;
         }
 
         .redirect-info {
-            background: #f8f9fa;
+            background: rgba(15, 32, 39, 0.6);
+            border: 1px solid rgba(110, 185, 255, 0.25);
             border-radius: 10px;
             padding: 20px;
             margin: 30px 0;
+        }
+
+        .redirect-info p {
+            color: rgba(224, 230, 237, 0.85);
+            font-size: 1em;
+            margin: 0 0 10px 0;
         }
 
         .codigo-box {
@@ -126,8 +152,8 @@
             margin-top: 8px;
             padding: 8px 12px;
             background: transparent;
-            border: 1px solid #667eea;
-            color: #667eea;
+            border: 1px solid #6eb9ff;
+            color: #6eb9ff;
             border-radius: 8px;
             font-size: 0.85em;
             font-weight: 600;
@@ -136,64 +162,72 @@
         }
 
         .btn-copiar-codigo:hover {
-            background: #667eea;
-            color: white;
+            background: rgba(110, 185, 255, 0.15);
+            color: #ffffff;
         }
 
         .countdown {
             font-size: 2em;
             font-weight: bold;
-            color: #667eea;
+            color: #6eb9ff;
             margin: 10px 0;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 10px;
         }
 
         .btn-home {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c5364 0%, #6eb9ff 100%);
             color: white;
-            padding: 15px 40px;
+            padding: 14px 36px;
             border-radius: 50px;
             text-decoration: none;
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: 600;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(110, 185, 255, 0.35);
         }
 
         .btn-home:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 6px 20px rgba(110, 185, 255, 0.55);
         }
 
         .btn-secondary {
             display: inline-block;
             background: transparent;
-            color: #4b5563;
-            padding: 12px 30px;
+            color: #e0e6ed;
+            padding: 13px 30px;
             border-radius: 50px;
             text-decoration: none;
             font-size: 1em;
             font-weight: 600;
-            border: 1px solid #d1d5db;
-            margin-left: 10px;
+            border: 1px solid rgba(224, 230, 237, 0.35);
             transition: all 0.25s ease;
         }
 
         .btn-secondary:hover {
-            color: #111827;
-            border-color: #9ca3af;
+            color: #ffffff;
+            border-color: #6eb9ff;
             transform: translateY(-1px);
         }
 
         .contact-info {
             margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #eee;
+            padding-top: 25px;
+            border-top: 1px solid rgba(224, 230, 237, 0.15);
         }
 
         .contact-info p {
-            font-size: 0.9em;
-            color: #999;
+            font-size: 0.95em;
+            color: rgba(224, 230, 237, 0.7);
+            margin: 0;
         }
 
         @media (max-width: 768px) {
@@ -224,7 +258,7 @@
             
             <p>
                 Puedes recuperar tu proyecto siempre que quieras con este código, añadiéndolo al final del cotizador.<br><br>
-                Cualquier duda que tengas o que quisieras consultar con nosotros, así como solicitarnos acabados o añadidos al acuario que no hayas visto, puedes llamarnos o enviarnos un correo en <strong>info@coralineaquariums.com</strong>
+                Cualquier duda que tengas o que quisieras consultar con nosotros, así como solicitarnos acabados o añadidos al acuario que no hayas visto, puedes llamarnos o enviarnos un correo en <a href="mailto:info@coralineaquariums.com" class="email-link"><strong>info@coralineaquariums.com</strong></a>
             </p>
 
             <div class="redirect-info">
@@ -234,13 +268,15 @@
                 <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #999;">Guárdalo para cargar esta misma configuración en el cotizador 3D.</p>
             </div>
 
-            <a href="index.html" class="btn-home">Volver al Inicio</a>
-            <a href="cotizador-3d.html" class="btn-secondary">Volver al Cotizador</a>
+            <div class="acciones">
+                <a href="index.html" class="btn-home">Volver al Inicio</a>
+                <a href="cotizador-3d.html" class="btn-secondary">Volver al Cotizador</a>
+            </div>
 
             <div class="contact-info">
                 <p>
                     Si tienes alguna pregunta urgente, contáctanos en:<br>
-                    <strong>info@coralineaquariums.com</strong>
+                    <a href="mailto:info@coralineaquariums.com" class="email-link"><strong>info@coralineaquariums.com</strong></a>
                 </p>
             </div>
         </div>
