@@ -3302,10 +3302,17 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         lineasResumen.push('Refuerzo: ' + payload.cotizador.tipoRefuerzo);
         lineasResumen.push('Silicona: ' + payload.cotizador.colorSilicona);
         lineasResumen.push('');
-        lineasResumen.push('=== DESGLOSE ECONÓMICO ===');
+        lineasResumen.push('=== DESGLOSE COMPLETO ===');
+        let categoriaPrev = '';
         (payload.desglose.lineas || []).forEach(function(item) {
+            if (item.categoria && item.categoria !== categoriaPrev) {
+                lineasResumen.push('');
+                lineasResumen.push('— ' + item.categoria.toUpperCase() + ' —');
+                categoriaPrev = item.categoria;
+            }
+            const precioStr = item.precioTexto || ((Number(item.precio) || 0).toFixed(2) + ' €');
             const prefijo = item.tipo === 'subitem' ? '   · ' : (item.tipo === 'total' ? '* ' : '- ');
-            lineasResumen.push(prefijo + item.nombre + ': ' + (Number(item.precio) || 0).toFixed(2) + ' €');
+            lineasResumen.push(prefijo + item.nombre + ': ' + precioStr);
         });
         lineasResumen.push('');
         lineasResumen.push('TOTAL (IVA incluido): ' + (payload.cotizador.precioFinal || 0).toFixed(2) + ' €');
