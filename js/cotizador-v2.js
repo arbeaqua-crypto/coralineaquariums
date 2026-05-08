@@ -3389,18 +3389,10 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             console.warn('⚠️ Fetch al backend falló:', errFetch.message);
         }
 
-        // RESPALDO: si el backend no confirmó éxito, abrimos el cliente de correo
-        // del usuario con el mensaje pre-rellenado a info@coralineaquariums.com
-        // para que el usuario solo tenga que pulsar "Enviar".
+        // Notificación al backend es best-effort. Si falla, NO molestamos al
+        // usuario abriendo su cliente de correo: simplemente lo registramos.
         if (!backendOK) {
-            console.warn('↩ Activando respaldo mailto: a info@coralineaquariums.com');
-            const asuntoMailto = encodeURIComponent('Solicitud presupuesto web — ' + (datosCliente.nombre || 'cliente'));
-            const cuerpoMailto = encodeURIComponent(cuerpoTexto);
-            const mailtoUrl = 'mailto:info@coralineaquariums.com'
-                + '?subject=' + asuntoMailto
-                + '&body=' + cuerpoMailto;
-            // Abrir en nueva pestaña para no perder la página actual
-            window.open(mailtoUrl, '_blank');
+            console.warn('⚠️ Notificación a Coraline no confirmada (backend). Continuando sin abrir mailto.');
         }
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
