@@ -1974,7 +1974,6 @@
 
                             <!-- Botones de acción -->
                             <div class="desglose-actions">
-                                <button class="btn-enviar-presupuesto" onclick="enviarPresupuestoDetallado()">Enviar PDF por correo</button>
                                 <button class="btn-descargar-pdf" onclick="descargarPresupuestoPDF()">Descargar PDF</button>
                             </div>
                         </div>
@@ -1991,6 +1990,18 @@
                         <a href="contacto.html" class="btn-presupuesto" id="btnPresupuesto">
                             <span data-i18n="quote.requestQuote">Solicitar Presupuesto Personalizado</span>
                         </a>
+                    </div>
+
+                    <div style="margin-top: 12px; text-align: center;">
+                        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.82); margin-bottom: 8px;">¿Ya tenias una configuración?</div>
+                        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                            <input id="recuperarCodigoInput" type="text" placeholder="Pega tu codigo de recuperacion"
+                                   style="min-width: 290px; max-width: 520px; width: 100%; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 10px 12px;" />
+                            <button id="recuperarCodigoBtn" type="button" onclick="recuperarConfiguracionDesdeCodigo()"
+                                    style="background: #0f2538; color: #fff; border: 1px solid rgba(82,200,255,0.6); border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600;">
+                                Recupera tu configuración
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4704,7 +4715,6 @@
         <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="js/cotizador-3d.js?v=3.7"></script>
         <script src="js/cotizador-v2.js?v=3.8"></script>
-    <script src="js/presupuesto-desglose.js?v=1.0"></script>
     <!--
     <script src="js/logger.js"></script>
     <script src="js/script.js"></script>

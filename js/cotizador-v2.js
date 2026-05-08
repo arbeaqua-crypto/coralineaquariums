@@ -504,6 +504,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnPresupuesto) {
         btnPresupuesto.addEventListener('click', function() {
             if (ultimoCalculo) {
+                const codigoRecuperacion = generarCodigoRecuperacionActual();
+
                 // Guardar configuración actual para el formulario
                 localStorage.setItem('configuracion-acuario', JSON.stringify({
                     largo: document.getElementById('largo').value,
@@ -513,8 +515,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     precio: ultimoCalculo.precio,
                     litros: ultimoCalculo.litros,
                     refuerzos: ultimoCalculo.refuerzos,
-                    opticos: ultimoCalculo.opticos
+                    opticos: ultimoCalculo.opticos,
+                    codigoRecuperacion: codigoRecuperacion
                 }));
+
+                localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
             }
         });
     }
@@ -1097,6 +1102,150 @@ function recalcularTotalDesglose() {
  */
 const PROTOCOLO_STORAGE_KEY = 'coraline-protocolo-web';
 
+function base64UrlEncodeUtf8(texto) {
+    const bytes = new TextEncoder().encode(texto);
+    let binario = '';
+    bytes.forEach(function(b) { binario += String.fromCharCode(b); });
+    return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function base64UrlDecodeUtf8(base64url) {
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+    const binario = atob(base64 + padding);
+    const bytes = Uint8Array.from(binario, function(c) { return c.charCodeAt(0); });
+    return new TextDecoder().decode(bytes);
+}
+
+function capturarEstadoCotizadorParaCodigo() {
+    const estado = {
+        v: 1,
+        m: {
+            largo: document.getElementById('largo')?.value || '',
+            ancho: document.getElementById('ancho')?.value || '',
+            alto: document.getElementById('alto')?.value || '',
+            grosor: document.getElementById('grosor')?.value || '',
+            colorSilicona: document.getElementById('colorSilicona')?.value || '',
+            tipoRefuerzo: document.getElementById('tipoRefuerzo')?.value || ''
+        },
+        checks: {},
+        selects: {},
+        inputs: {}
+    };
+
+    const idsExcluidos = ['protocoloNombre', 'protocoloTelefono', 'protocoloEmail', 'protocoloNotas'];
+
+    document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el) {
+        if (!el.id || idsExcluidos.includes(el.id) || el.id.startsWith('protocolo')) return;
+
+        if (el.tagName === 'SELECT') {
+            if (el.value !== '') estado.selects[el.id] = el.value;
+            return;
+        }
+
+        if (el.type === 'checkbox' || el.type === 'radio') {
+            if (el.checked) estado.checks[el.id] = true;
+            return;
+        }
+
+        if (el.value !== '') {
+            estado.inputs[el.id] = el.value;
+        }
+    });
+
+    return estado;
+}
+
+function generarCodigoRecuperacionActual() {
+    const estado = capturarEstadoCotizadorParaCodigo();
+    return 'CRL3D-' + base64UrlEncodeUtf8(JSON.stringify(estado));
+}
+
+async function aplicarCodigoRecuperacion(codigo) {
+    const raw = (codigo || '').trim();
+    if (!raw.startsWith('CRL3D-')) {
+        throw new Error('Formato de código inválido.');
+    }
+
+    const json = base64UrlDecodeUtf8(raw.slice(6));
+    const estado = JSON.parse(json);
+    if (!estado || !estado.v) {
+        throw new Error('Código no reconocido.');
+    }
+
+    document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(el) {
+        if (el.id && !el.id.startsWith('protocolo')) {
+            el.checked = false;
+        }
+    });
+
+    Object.keys(estado.inputs || {}).forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = estado.inputs[id];
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    Object.keys(estado.selects || {}).forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = estado.selects[id];
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    Object.keys(estado.checks || {}).forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.checked = true;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    if (typeof calcularPrecio === 'function') {
+        await calcularPrecio();
+    }
+
+    if (typeof recalcularSoporte === 'function') {
+        recalcularSoporte();
+    }
+
+    if (typeof generarDesgloseCompleto === 'function') {
+        generarDesgloseCompleto();
+    }
+
+    localStorage.setItem('ultimo-codigo-configuracion', raw);
+}
+
+window.recuperarConfiguracionDesdeCodigo = async function() {
+    const input = document.getElementById('recuperarCodigoInput');
+    const boton = document.getElementById('recuperarCodigoBtn');
+    const valor = (input?.value || '').trim();
+
+    if (!valor) {
+        alert('Introduce un código de configuración.');
+        return;
+    }
+
+    const textoOriginal = boton ? boton.textContent : '';
+    if (boton) {
+        boton.disabled = true;
+        boton.textContent = 'Recuperando...';
+    }
+
+    try {
+        await aplicarCodigoRecuperacion(valor);
+        alert('Configuración recuperada correctamente.');
+        document.getElementById('resultados')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+        alert('No se pudo recuperar la configuración: ' + error.message);
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.textContent = textoOriginal || 'Recupera tu configuración';
+        }
+    }
+};
+
 function parseEuros(texto) {
     if (!texto) return 0;
     const limpio = String(texto)
@@ -1324,6 +1473,13 @@ function generarPDFPresupuesto(payload, cliente) {
     linea('IVA (21%): ' + payload.cotizador.iva.toFixed(2) + ' EUR');
     linea('TOTAL FINAL: ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR', true);
 
+    const codigoRecuperacion = payload.codigoRecuperacion || localStorage.getItem('ultimo-codigo-configuracion') || '';
+    if (codigoRecuperacion) {
+        y += 3;
+        titulo('Codigo de recuperacion');
+        linea(codigoRecuperacion, true);
+    }
+
     y += 4;
     titulo('Contacto');
     linea('Email: info@coralineaquariums.com');
@@ -1475,6 +1631,8 @@ async function ejecutarAccionProtocolo() {
 
     payload.accion = modo === 'enviar' ? 'enviar_presupuesto_pdf' : 'descargar_pdf';
     payload.cliente = cliente;
+    payload.codigoRecuperacion = generarCodigoRecuperacionActual();
+    localStorage.setItem('ultimo-codigo-configuracion', payload.codigoRecuperacion);
     registrarProtocolo(payload);
 
     if (modo === 'enviar') {
@@ -1485,18 +1643,11 @@ async function ejecutarAccionProtocolo() {
             boton.disabled = true;
             boton.textContent = 'Enviando...';
         }
-let doc;
-            try {
-                doc = generarPDFPresupuesto(payload, cliente);
-            } catch (error) {
-                alert('No se pudo generar el PDF: ' + error.message);
-                return;
-            }
 
+        try {
+            const doc = generarPDFPresupuesto(payload, cliente);
             const pdfBase64 = doc.output('datauristring').split(',')[1];
             await enviarSolicitudPresupuestoBackend(payload, cliente, pdfBase64);
-            cerrarModalProtocolo();
-            alert('Solicitud enviada correctamente. Revisa tu correo para la confirmación
             cerrarModalProtocolo();
             alert('Solicitud enviada correctamente a Coraline Aquariums.');
         } catch (error) {
@@ -1508,20 +1659,13 @@ let doc;
             }
         }
     } else {
-        let doc;
         try {
-            doc = generarPDFPresupuesto(payload, cliente);
+            const doc = generarPDFPresupuesto(payload, cliente);
+            descargarDocumentoPDF(doc, cliente);
+            cerrarModalProtocolo();
         } catch (error) {
             alert('No se pudo generar el PDF: ' + error.message);
-            return;
         }
-
-        const archivo = descargarDocumentoPDF(doc, cliente);
-        const resumen = construirTextoResumen(payload, cliente);
-        const asuntoInterno = 'Copia interna descarga PDF - ' + (cliente.nombre || 'usuario sin nombre');
-        const cuerpoInterno = resumen + '\n\nArchivo descargado localmente: ' + archivo;
-        abrirBorradorCorreo('info@coralineaquariums.com', asuntoInterno, cuerpoInterno);
-        cerrarModalProtocolo();
     }
 }
 
@@ -1562,7 +1706,8 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 function enviarPresupuestoDetallado() {
-    abrirModalProtocolo('enviar');
+    alert('El envío directo por correo desde este botón está desactivado. Usa "Solicitar Presupuesto Personalizado" para enviarnos tu configuración.');
+    window.location.href = 'contacto.html';
 }
 
 // ============================================
@@ -2439,5 +2584,27 @@ function recalcularSoporte() {
  * Descargar presupuesto como PDF
  */
 function descargarPresupuestoPDF() {
-    abrirModalProtocolo('descargar');
+    const payload = obtenerSalidaCotizador();
+    if (!payload) {
+        alert('Debes calcular el presupuesto antes de descargar el PDF.');
+        return;
+    }
+
+    const codigoRecuperacion = generarCodigoRecuperacionActual();
+    payload.accion = 'descargar_pdf';
+    payload.codigoRecuperacion = codigoRecuperacion;
+    localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
+    registrarProtocolo(payload);
+
+    try {
+        const doc = generarPDFPresupuesto(payload, { nombre: 'cliente' });
+        descargarDocumentoPDF(doc, { nombre: 'cliente' });
+    } catch (error) {
+        alert('No se pudo generar el PDF: ' + error.message);
+        return;
+    }
+
+    setTimeout(function() {
+        window.location.href = 'cotizador-3d.html';
+    }, 1200);
 }

@@ -109,6 +109,17 @@
             margin: 30px 0;
         }
 
+        .codigo-box {
+            font-family: Consolas, Monaco, monospace;
+            background: #111827;
+            color: #67e8f9;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
         .countdown {
             font-size: 2em;
             font-weight: bold;
@@ -132,6 +143,26 @@
         .btn-home:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            background: transparent;
+            color: #4b5563;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: 600;
+            border: 1px solid #d1d5db;
+            margin-left: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-secondary:hover {
+            color: #111827;
+            border-color: #9ca3af;
+            transform: translateY(-1px);
         }
 
         .contact-info {
@@ -177,12 +208,13 @@
             </p>
 
             <div class="redirect-info">
-                <p style="margin: 0 0 10px 0; color: #666;">Redirigiendo a la página principal en:</p>
-                <div class="countdown" id="countdown">5</div>
-                <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #999;">segundos</p>
+                <p style="margin: 0 0 10px 0; color: #666;"><strong>Tu código de recuperación:</strong></p>
+                <div class="codigo-box" id="codigoRecuperacion">No disponible</div>
+                <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #999;">Guárdalo para cargar esta misma configuración en el cotizador 3D.</p>
             </div>
 
             <a href="index.html" class="btn-home">Volver al Inicio</a>
+            <a href="cotizador-3d.html" class="btn-secondary">Volver al Cotizador</a>
 
             <div class="contact-info">
                 <p>
@@ -194,38 +226,8 @@
     </div>
 
     <script>
-        // Contador regresivo
-        let seconds = 5;
-        const countdownElement = document.getElementById('countdown');
-        
-        console.log('⏱️ Iniciando contador regresivo de 5 segundos...');
-        
-        const countdown = setInterval(() => {
-            seconds--;
-            countdownElement.textContent = seconds;
-            console.log(`⏱️ ${seconds} segundos restantes...`);
-            
-            if (seconds <= 0) {
-                clearInterval(countdown);
-                console.log('🔄 Redirigiendo a la página principal...');
-                // Redirigir - detectar si estamos en localhost o producción
-                const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? '/index.html'  // Local
-                    : 'https://coralineaquariums.com/index.html';  // Producción
-                window.location.href = baseUrl;
-            }
-        }, 1000);
-
-        // Permitir redirección manual con el botón
-        document.querySelector('.btn-home').addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🔄 Redirección manual activada');
-            clearInterval(countdown);
-            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? '/index.html'
-                : 'https://coralineaquariums.com/index.html';
-            window.location.href = baseUrl;
-        });
+        const codigo = localStorage.getItem('ultimo-codigo-configuracion') || 'No disponible';
+        document.getElementById('codigoRecuperacion').textContent = codigo;
     </script>
 </body>
 </html>
