@@ -1576,7 +1576,7 @@ window.__LOGO_CORALINE_RATIO = 1; // ancho/alto
             }
         };
         img.onerror = function() { console.warn('No se pudo cargar el logo Coraline para el PDF.'); };
-        img.src = 'images/logocoraline.PNG';
+        img.src = 'images/coralinelogo3D.png';
     } catch (e) { /* silencioso */ }
 })();
 
@@ -1633,25 +1633,24 @@ function generarPDFPresupuesto(payload, cliente) {
             } catch (e) { /* fallback sin logo */ }
         }
 
-        // Nombre marca
+        // URL de la web (sustituye al título en mayúsculas)
         setTextoPDF(PDF_COLORS.azulOscuro);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.text('CORALINE AQUARIUMS', xTexto, 16);
+        doc.setFontSize(14);
+        doc.text('www.coralineaquariums.com', xTexto, 14);
 
-        // Subtítulo
+        // Subtítulo descriptivo
         setTextoPDF(PDF_COLORS.grisTxt);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        doc.text('Acuarios a medida — Presupuesto detallado', xTexto, 22);
+        doc.text('Diseño, fabricación y montaje de acuarios a medida', xTexto, 20);
 
-        // Fecha alineada a la derecha
-        const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        // Fecha justo debajo del subtítulo, formato "8 de mayo de 2026"
+        const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
         setTextoPDF(PDF_COLORS.grisSuave);
+        doc.setFont('helvetica', 'italic');
         doc.setFontSize(9);
-        doc.text(fecha, ancho - margen, 16, { align: 'right' });
-        doc.setFontSize(8);
-        doc.text('coralineaquariums.com', ancho - margen, 21, { align: 'right' });
+        doc.text(fecha, xTexto, 25.5);
     }
 
     // ---------- cabecera reducida (páginas siguientes) ----------
@@ -1662,8 +1661,8 @@ function generarPDFPresupuesto(payload, cliente) {
         doc.rect(0, 14, ancho, 0.4, 'F');
         setTextoPDF(PDF_COLORS.azulOscuro);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        doc.text('CORALINE AQUARIUMS', margen, 9);
+        doc.setFontSize(10);
+        doc.text('www.coralineaquariums.com', margen, 9);
         setTextoPDF(PDF_COLORS.grisSuave);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
@@ -3053,41 +3052,136 @@ function recalcularSoporte() {
 
 /**
  * Descargar presupuesto como PDF
+ * Abre un modal para pedir datos de contacto (nombre + email/teléfono)
+ * antes de generar el documento.
  */
-async function descargarPresupuestoPDF() {
+function descargarPresupuestoPDF() {
     const payload = obtenerSalidaCotizador();
     if (!payload) {
         alert('Debes calcular el presupuesto antes de descargar el PDF.');
         return;
     }
+    abrirModalDatosPDF(payload);
+}
 
+function abrirModalDatosPDF(payload) {
+    // Quitar modal anterior si existe
+    const previo = document.getElementById('modal-datos-pdf-overlay');
+    if (previo) previo.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'modal-datos-pdf-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,30,50,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+    overlay.innerHTML =
+        '<div style="background:#fff;border-radius:10px;width:min(460px,100%);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);font-family:\'Rajdhani\',Helvetica,Arial,sans-serif;">' +
+            '<div style="background:#EAF6FC;border-bottom:2px solid #52C8FF;padding:14px 18px;">' +
+                '<h3 style="margin:0;color:#256391;font-family:\'Orbitron\',Helvetica,Arial,sans-serif;font-size:16px;letter-spacing:1px;">DATOS PARA EL PRESUPUESTO</h3>' +
+                '<p style="margin:4px 0 0;font-size:13px;color:#456;">Necesitamos tu nombre y al menos un dato de contacto (email o teléfono) para preparar el PDF.</p>' +
+            '</div>' +
+            '<div style="padding:18px;">' +
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Nombre <span style="color:#d33;">*</span></label>' +
+                '<input id="mdp-nombre" type="text" maxlength="60" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
+
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Email</label>' +
+                '<input id="mdp-email" type="email" maxlength="80" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px;">' +
+
+                '<label style="display:block;font-size:13px;color:#345;margin-bottom:4px;font-weight:600;">Teléfono</label>' +
+                '<input id="mdp-telefono" type="tel" maxlength="20" style="width:100%;padding:9px 11px;border:1px solid #B4D7EB;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:6px;">' +
+                '<p id="mdp-aviso" style="font-size:12px;color:#888;margin:6px 0 14px;">* Indica al menos email o teléfono.</p>' +
+
+                '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+                    '<button id="mdp-cancelar" type="button" style="background:#eee;color:#456;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:600;">Cancelar</button>' +
+                    '<button id="mdp-aceptar" type="button" disabled style="background:#B4D7EB;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:not-allowed;font-weight:700;letter-spacing:0.5px;">DESCARGAR PDF</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+
+    document.body.appendChild(overlay);
+
+    const $nombre = document.getElementById('mdp-nombre');
+    const $email = document.getElementById('mdp-email');
+    const $tel = document.getElementById('mdp-telefono');
+    const $aceptar = document.getElementById('mdp-aceptar');
+    const $aviso = document.getElementById('mdp-aviso');
+
+    function emailValido(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+    function telefonoValido(v) { return /^[+\d][\d\s\-]{6,}$/.test(v.trim()); }
+
+    function validar() {
+        const okNombre = $nombre.value.trim().length >= 2;
+        const okEmail = emailValido($email.value);
+        const okTel = telefonoValido($tel.value);
+        const okContacto = okEmail || okTel;
+        const valido = okNombre && okContacto;
+
+        if (valido) {
+            $aceptar.disabled = false;
+            $aceptar.style.background = '#52C8FF';
+            $aceptar.style.cursor = 'pointer';
+            $aviso.style.color = '#3a8a3a';
+            $aviso.textContent = '✓ Datos correctos.';
+        } else {
+            $aceptar.disabled = true;
+            $aceptar.style.background = '#B4D7EB';
+            $aceptar.style.cursor = 'not-allowed';
+            $aviso.style.color = '#888';
+            if (!okNombre) {
+                $aviso.textContent = '* Introduce tu nombre.';
+            } else if (!okContacto) {
+                $aviso.textContent = '* Indica al menos email o teléfono.';
+            }
+        }
+    }
+    $nombre.addEventListener('input', validar);
+    $email.addEventListener('input', validar);
+    $tel.addEventListener('input', validar);
+    setTimeout(function() { $nombre.focus(); }, 50);
+
+    document.getElementById('mdp-cancelar').onclick = function() { overlay.remove(); };
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+
+    $aceptar.onclick = function() {
+        if ($aceptar.disabled) return;
+        const datos = {
+            nombre: $nombre.value.trim(),
+            email: $email.value.trim(),
+            telefono: $tel.value.trim()
+        };
+        overlay.remove();
+        ejecutarDescargaPDFConDatos(payload, datos);
+    };
+}
+
+async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
     const codigoRecuperacion = generarCodigoRecuperacionActual();
     payload.accion = 'descargar_pdf';
     payload.codigoRecuperacion = codigoRecuperacion;
+    payload.cliente = datosCliente;
     localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
     registrarProtocolo(payload);
 
     let doc;
     try {
-        doc = generarPDFPresupuesto(payload, { nombre: 'cliente' });
-        descargarDocumentoPDF(doc, { nombre: 'cliente' });
+        doc = generarPDFPresupuesto(payload, datosCliente);
+        descargarDocumentoPDF(doc, datosCliente);
     } catch (error) {
         alert('No se pudo generar el PDF: ' + error.message);
         return;
     }
 
-    // Enviar notificación interna a Coraline con la configuración descargada
+    // Enviar notificación interna a Coraline (sin pdfBase64, datos directamente en el cuerpo)
     try {
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
         const datosNotif = {
             accion: 'notificacion_descarga_pdf',
-            nombre: 'Descarga PDF (sin datos de contacto)',
+            nombre: datosCliente.nombre,
+            email: datosCliente.email,
+            telefono: datosCliente.telefono,
             configuracion: payload.cotizador,
             desglose: payload.desglose,
             codigoRecuperacion: payload.codigoRecuperacion,
             sessionId: payload.sessionId,
             historialCotizaciones: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]'),
-            pdfBase64: pdfBase64,
             token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
         await fetch(EMAIL_BACKEND_URL, {
