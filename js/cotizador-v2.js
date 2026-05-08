@@ -1058,14 +1058,21 @@ function generarDesgloseCompleto() {
     // =============================================
     // TOTALES
     // =============================================
-    const iva = subtotal * 0.21;
-    const total = subtotal + iva;
+    // El precio que devuelve Google Sheets YA incluye el 21% de IVA.
+    // El "subtotal" acumulado son sumas de líneas con IVA incluido.
+    // Por tanto:
+    //   total       = subtotal (sin sumar nada extra)
+    //   precioSinIva = total / 1.21
+    //   iva         = total - precioSinIva
+    const total = subtotal;
+    const precioSinIva = total / 1.21;
+    const iva = total - precioSinIva;
     
     html += `
         <div class="dg-separator"></div>
         <div class="dg-total-row dg-subtotal-row">
             <span>Subtotal (sin IVA)</span>
-            <span>${subtotal.toFixed(2)} &euro;</span>
+            <span>${precioSinIva.toFixed(2)} &euro;</span>
         </div>
         <div class="dg-total-row dg-iva-row">
             <span>IVA (21%)</span>
