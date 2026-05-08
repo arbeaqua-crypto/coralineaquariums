@@ -1575,10 +1575,6 @@ window.__LOGO_CORALINE_RATIO = 1; // ancho/alto
                 c.width = img.naturalWidth || 400;
                 c.height = img.naturalHeight || 400;
                 const ctx = c.getContext('2d');
-                // Rellenar con el mismo color que la banda de cabecera del PDF (#EAF6FC)
-                // para que las zonas transparentes del PNG no se vean como damero
-                ctx.fillStyle = '#EAF6FC';
-                ctx.fillRect(0, 0, c.width, c.height);
                 ctx.drawImage(img, 0, 0);
                 window.__LOGO_CORALINE_B64 = c.toDataURL('image/png');
                 window.__LOGO_CORALINE_RATIO = c.width / c.height;
@@ -1587,7 +1583,7 @@ window.__LOGO_CORALINE_RATIO = 1; // ancho/alto
             }
         };
         img.onerror = function() { console.warn('No se pudo cargar el logo Coraline para el PDF.'); };
-        img.src = 'images/coralinelogo3D.png';
+        img.src = 'images/logocoraline.PNG';
     } catch (e) { /* silencioso */ }
 })();
 
@@ -1603,7 +1599,12 @@ const PDF_COLORS = {
     azulBorde:    [180, 215, 235],  // #B4D7EB
     grisTxt:      [60, 70, 80],     // texto principal
     grisSuave:    [120, 130, 140],  // texto secundario
-    blanco:       [255, 255, 255]
+    blanco:       [255, 255, 255],
+    negro:        [0, 0, 0],        // fondo cabecera
+    cabeceraBg:   [0, 0, 0],        // alias para cabecera
+    cabeceraTitulo: [82, 200, 255], // azul marca para título en cabecera
+    cabeceraTexto: [220, 235, 245], // texto claro sobre cabecera negra
+    cabeceraTextoTenue: [160, 180, 195] // texto secundario sobre cabecera negra
 };
 
 function generarPDFPresupuesto(payload, cliente) {
@@ -1626,8 +1627,8 @@ function generarPDFPresupuesto(payload, cliente) {
 
     // ---------- cabecera (página 1) ----------
     function dibujarCabeceraPrincipal() {
-        // Banda azul suave de fondo
-        setRellenoPDF(PDF_COLORS.azulSuave);
+        // Banda negra de fondo
+        setRellenoPDF(PDF_COLORS.cabeceraBg);
         doc.rect(0, 0, ancho, 34, 'F');
         // Línea inferior fina azul marca
         setRellenoPDF(PDF_COLORS.azulMarca);
@@ -1645,20 +1646,20 @@ function generarPDFPresupuesto(payload, cliente) {
         }
 
         // URL de la web (sustituye al título en mayúsculas)
-        setTextoPDF(PDF_COLORS.azulOscuro);
+        setTextoPDF(PDF_COLORS.cabeceraTitulo);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.text('www.coralineaquariums.com', xTexto, 14);
 
         // Subtítulo descriptivo
-        setTextoPDF(PDF_COLORS.grisTxt);
+        setTextoPDF(PDF_COLORS.cabeceraTexto);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.text('Diseño, fabricación y montaje de acuarios a medida', xTexto, 20);
 
         // Fecha justo debajo del subtítulo, formato "8 de mayo de 2026"
         const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-        setTextoPDF(PDF_COLORS.grisSuave);
+        setTextoPDF(PDF_COLORS.cabeceraTextoTenue);
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(9);
         doc.text(fecha, xTexto, 25.5);
@@ -1666,15 +1667,15 @@ function generarPDFPresupuesto(payload, cliente) {
 
     // ---------- cabecera reducida (páginas siguientes) ----------
     function dibujarCabeceraSlim() {
-        setRellenoPDF(PDF_COLORS.azulSuave);
+        setRellenoPDF(PDF_COLORS.cabeceraBg);
         doc.rect(0, 0, ancho, 14, 'F');
         setRellenoPDF(PDF_COLORS.azulMarca);
         doc.rect(0, 14, ancho, 0.4, 'F');
-        setTextoPDF(PDF_COLORS.azulOscuro);
+        setTextoPDF(PDF_COLORS.cabeceraTitulo);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.text('www.coralineaquariums.com', margen, 9);
-        setTextoPDF(PDF_COLORS.grisSuave);
+        setTextoPDF(PDF_COLORS.cabeceraTextoTenue);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.text('Presupuesto detallado', ancho - margen, 9, { align: 'right' });
