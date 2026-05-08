@@ -305,30 +305,17 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="apellidos">Apellidos *</label>
-                    <input type="text" id="apellidos" name="apellidos" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="email">
+                    <small id="email-error" class="help-text" style="color: #f44336; display: none;">Introduce un email válido (ej: nombre@dominio.com)</small>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required>
-                    <small class="help-text">Enviaremos una copia del presupuesto a este email</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="medio-contacto">Medio de contacto preferido *</label>
-                    <select id="medio-contacto" name="medio-contacto" required>
-                        <option value="">Selecciona una opción</option>
-                        <option value="email">Email</option>
-                        <option value="telefono">Teléfono</option>
-                        <option value="whatsapp">WhatsApp</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="grupo-telefono" style="display: none;">
                     <label for="telefono">Teléfono</label>
-                    <input type="tel" id="telefono" name="telefono">
+                    <input type="tel" id="telefono" name="telefono" autocomplete="tel" placeholder="Ej: 612345678">
+                    <small id="telefono-error" class="help-text" style="color: #f44336; display: none;">El teléfono debe tener 9 dígitos</small>
                 </div>
+                <p class="help-text" style="margin: -10px 0 15px; color: rgba(224,230,237,0.6);">ℹ️ Debes rellenar al menos el teléfono o el email</p>
                 
                 <div class="form-group">
                     <label for="mensaje">Mensaje o consultas</label>
@@ -344,7 +331,7 @@
                 </div>
                 
                 <!-- Botón de Envío -->
-                <button type="submit" class="btn-enviar">
+                <button type="submit" class="btn-enviar" id="btn-enviar" disabled style="opacity: 0.5; cursor: not-allowed;">
                     ✉️ Enviar Solicitud de Presupuesto
                 </button>
             </form>
@@ -360,7 +347,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             cargarConfiguracion();
             generarCaptcha();
-            configurarMedioContacto();
+            configurarValidacionFormulario();
         });
         
         function cargarConfiguracion() {
@@ -607,19 +594,36 @@
                 `¿Cuánto es ${num1} + ${num2}?`;
         }
         
-        // Mostrar campo de teléfono según medio de contacto
-        function configurarMedioContacto() {
-            const selectMedio = document.getElementById('medio-contacto');
-            const grupoTelefono = document.getElementById('grupo-telefono');
-            
-            selectMedio.addEventListener('change', function() {
-                if (this.value === 'telefono' || this.value === 'whatsapp') {
-                    grupoTelefono.style.display = 'block';
-                    document.getElementById('telefono').required = true;
-                } else {
-                    grupoTelefono.style.display = 'none';
-                    document.getElementById('telefono').required = false;
-                }
+        function validarTelefono(tel) {
+            return /^\d{9}$/.test(tel.replace(/\s/g, ''));
+        }
+
+        function validarFormulario() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+
+            const emailValido = email.length > 0 && validarEmail(email);
+            const telefonoValido = telefono.length > 0 && validarTelefono(telefono);
+
+            const emailError = document.getElementById('email-error');
+            const telefonoError = document.getElementById('telefono-error');
+            if (emailError) emailError.style.display = (email.length > 0 && !emailValido) ? 'block' : 'none';
+            if (telefonoError) telefonoError.style.display = (telefono.length > 0 && !telefonoValido) ? 'block' : 'none';
+
+            const valido = nombre.length > 0 && (emailValido || telefonoValido);
+            const btn = document.getElementById('btn-enviar');
+            if (btn) {
+                btn.disabled = !valido;
+                btn.style.opacity = valido ? '1' : '0.5';
+                btn.style.cursor = valido ? 'pointer' : 'not-allowed';
+            }
+        }
+
+        function configurarValidacionFormulario() {
+            ['nombre', 'email', 'telefono'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', validarFormulario);
             });
         }
         
@@ -651,15 +655,14 @@
             }
             console.log('✅ Captcha correcto');
             
-            // Validar email
-            const email = document.getElementById('email').value;
-            if (!validarEmail(email)) {
-                console.log('❌ Email inválido:', email);
-                mostrarError('Por favor, introduce un email válido.');
-                enviando = false; // Resetear la bandera
+            // Validar que al menos email o teléfono estén correctamente rellenados
+            const email = document.getElementById('email').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            if (!((email && validarEmail(email)) || (telefono && validarTelefono(telefono)))) {
+                mostrarError('Debes introducir un email válido o un teléfono de 9 dígitos.');
+                enviando = false;
                 return;
             }
-            console.log('✅ Email válido:', email);
             
             // Recopilar datos
             const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
@@ -667,12 +670,12 @@
             const desglose = JSON.parse(localStorage.getItem('presupuesto-detallado') || '{}');
             
             const datos = {
-                accion: 'enviar_presupuesto', // Identificador para el backend
-                nombre: document.getElementById('nombre').value,
-                apellidos: document.getElementById('apellidos').value,
+                accion: 'enviar_presupuesto',
+                nombre: document.getElementById('nombre').value.trim(),
+                apellidos: '',
                 email: email,
-                medioContacto: document.getElementById('medio-contacto').value,
-                telefono: document.getElementById('telefono').value || '',
+                medioContacto: (telefono && validarTelefono(telefono)) ? 'telefono' : 'email',
+                telefono: telefono,
                 mensaje: document.getElementById('mensaje').value,
                 configuracion: config,
                 historialCotizaciones: historial, // Incluir todas las cotizaciones de la sesión
@@ -733,7 +736,7 @@
                 localStorage.removeItem('historialCotizaciones');
                 
                 // Redirigir a página de confirmación
-                console.log('🔄 Redirigiendo a página de confirmación...');
+                alert('\u2705 Solicitud enviada correctamente. Te contactaremos pronto.');
                 window.location.href = 'confirmacion-enviado.html';
                 
             } catch (error) {

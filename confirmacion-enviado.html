@@ -120,6 +120,26 @@
             word-break: break-all;
         }
 
+        .btn-copiar-codigo {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copiar-codigo:hover {
+            background: #667eea;
+            color: white;
+        }
+
         .countdown {
             font-size: 2em;
             font-weight: bold;
@@ -210,6 +230,7 @@
             <div class="redirect-info">
                 <p style="margin: 0 0 10px 0; color: #666;"><strong>Tu código de recuperación:</strong></p>
                 <div class="codigo-box" id="codigoRecuperacion">No disponible</div>
+                <button class="btn-copiar-codigo" onclick="copiarCodigo()">&#128203; Copiar código</button>
                 <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #999;">Guárdalo para cargar esta misma configuración en el cotizador 3D.</p>
             </div>
 
@@ -228,6 +249,31 @@
     <script>
         const codigo = localStorage.getItem('ultimo-codigo-configuracion') || 'No disponible';
         document.getElementById('codigoRecuperacion').textContent = codigo;
+
+        function copiarCodigo() {
+            const texto = document.getElementById('codigoRecuperacion').textContent;
+            if (!texto || texto === 'No disponible') return;
+            const btn = document.querySelector('.btn-copiar-codigo');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(texto).then(function() {
+                    btn.textContent = '\u2705 Copiado';
+                    setTimeout(function() { btn.innerHTML = '&#128203; Copiar c\u00f3digo'; }, 2000);
+                });
+            } else {
+                // Fallback para navegadores sin Clipboard API
+                const el = document.createElement('textarea');
+                el.value = texto;
+                el.style.position = 'fixed';
+                el.style.opacity = '0';
+                document.body.appendChild(el);
+                el.focus();
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                btn.textContent = '\u2705 Copiado';
+                setTimeout(function() { btn.innerHTML = '&#128203; Copiar c\u00f3digo'; }, 2000);
+            }
+        }
     </script>
 </body>
 </html>

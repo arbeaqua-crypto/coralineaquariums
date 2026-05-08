@@ -1498,7 +1498,16 @@ function descargarDocumentoPDF(doc, cliente) {
     const nombreSeguro = (cliente.nombre || 'cliente').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     const fecha = new Date().toISOString().slice(0, 10);
     const archivo = 'presupuesto-coraline-' + (nombreSeguro || 'cliente') + '-' + fecha + '.pdf';
-    doc.save(archivo);
+    // Usar blob + <a download> para activar el diálogo nativo del navegador sin abrir ventana nueva
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = archivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
     return archivo;
 }
 
@@ -2583,7 +2592,7 @@ function recalcularSoporte() {
 /**
  * Descargar presupuesto como PDF
  */
-function descargarPresupuestoPDF() {
+async function descargarPresupuestoPDF() {
     const payload = obtenerSalidaCotizador();
     if (!payload) {
         alert('Debes calcular el presupuesto antes de descargar el PDF.');
@@ -2596,15 +2605,24 @@ function descargarPresupuestoPDF() {
     localStorage.setItem('ultimo-codigo-configuracion', codigoRecuperacion);
     registrarProtocolo(payload);
 
+    let doc;
     try {
-        const doc = generarPDFPresupuesto(payload, { nombre: 'cliente' });
+        doc = generarPDFPresupuesto(payload, { nombre: 'cliente' });
         descargarDocumentoPDF(doc, { nombre: 'cliente' });
     } catch (error) {
         alert('No se pudo generar el PDF: ' + error.message);
         return;
     }
 
+    // Enviar copia de la configuración a Coraline en segundo plano
+    try {
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        await enviarSolicitudPresupuestoBackend(payload, { nombre: 'cliente', email: '', telefono: '' }, pdfBase64);
+    } catch (e) {
+        console.warn('No se pudo enviar notificación a Coraline:', e.message);
+    }
+
     setTimeout(function() {
-        window.location.href = 'cotizador-3d.html';
+        window.location.href = 'confirmacion-enviado.html';
     }, 1200);
 }
