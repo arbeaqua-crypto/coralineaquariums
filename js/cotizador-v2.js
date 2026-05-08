@@ -3315,30 +3315,50 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         }
         const cuerpoTexto = lineasResumen.join('\n');
 
-        const datosNotif = {
-            accion: 'enviar_presupuesto',
-            // Campos que el handler de Apps Script suele leer
-            nombre: datosCliente.nombre || 'Sin nombre',
-            email: datosCliente.email || '',
-            telefono: datosCliente.telefono || '',
-            mensaje: cuerpoTexto,
-            comentarios: cuerpoTexto,
-            asunto: 'Descarga PDF web — ' + (datosCliente.nombre || 'cliente'),
-            origen: 'descarga_pdf',
-            // Datos estructurados (por si el handler los lee)
-            modoContacto: datosCliente.modoContacto || '',
-            modoContactoTexto: etiquetasModo[datosCliente.modoContacto] || '—',
-            configuracion: payload.cotizador,
-            desglose: payload.desglose,
-            codigoRecuperacion: payload.codigoRecuperacion,
-            sessionId: payload.sessionId,
-            // Datos del acuario al nivel raíz por compatibilidad con la versión vieja
+        // IMPORTANTE: el Apps Script desplegado (handler 'enviar_presupuesto')
+        // espera un objeto `configuracion` PLANO con campos:
+        // largo, ancho, alto, grosor, litros, precio, refuerzos{...}, opticos{...}
+        // Si le pasamos { medidas:{...}, precioFinal } el script lanza TypeError
+        // (config.precio.toFixed is not a function) y no se envía el correo.
+        const configPlana = {
             largo: m.largo,
             ancho: m.ancho,
             alto: m.alto,
             grosor: m.grosor,
-            litros: payload.cotizador.litros,
-            precio: payload.cotizador.precioFinal,
+            litros: payload.cotizador.litros || 0,
+            precio: payload.cotizador.precioFinal || 0,
+            precioFinal: payload.cotizador.precioFinal || 0,
+            precioSinIva: payload.cotizador.precioSinIva || 0,
+            iva: payload.cotizador.iva || 0,
+            tipoRefuerzo: payload.cotizador.tipoRefuerzo || 'ninguno',
+            colorSilicona: payload.cotizador.colorSilicona || '',
+            refuerzos: {
+                perimetrales: /perimetral/i.test(payload.cotizador.tipoRefuerzo || ''),
+                tirantes: /tirante/i.test(payload.cotizador.tipoRefuerzo || '')
+            },
+            opticos: { frontal: false, trasera: false, lateralIzq: false, lateralDer: false }
+        };
+
+        const datosNotif = {
+            accion: 'enviar_presupuesto',
+            // Campos que el handler de Apps Script lee
+            nombre: datosCliente.nombre || 'Sin nombre',
+            apellidos: '',
+            email: datosCliente.email || '',
+            telefono: datosCliente.telefono || '',
+            medioContacto: (etiquetasModo[datosCliente.modoContacto] || 'No especificado'),
+            mensaje: cuerpoTexto,
+            comentarios: cuerpoTexto,
+            asunto: 'Descarga PDF web — ' + (datosCliente.nombre || 'cliente'),
+            origen: 'descarga_pdf',
+            modoContacto: datosCliente.modoContacto || '',
+            modoContactoTexto: etiquetasModo[datosCliente.modoContacto] || '—',
+            // Estructura PLANA exigida por enviarEmailCoraline()
+            configuracion: configPlana,
+            desglose: payload.desglose,
+            historialCotizaciones: payload.historialSesion || [],
+            codigoRecuperacion: payload.codigoRecuperacion,
+            sessionId: payload.sessionId,
             token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
         await fetch(EMAIL_BACKEND_URL, {
