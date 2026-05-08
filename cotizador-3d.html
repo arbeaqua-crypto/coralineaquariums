@@ -522,6 +522,122 @@
             .desglose-header h3 { font-size: 0.88rem; }
         }
 
+        /* Modal protocolo web (sin backend) */
+        .protocolo-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 10, 18, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+        .protocolo-modal.open {
+            display: flex;
+        }
+        .protocolo-card {
+            width: min(560px, 100%);
+            background: linear-gradient(145deg, rgba(18, 30, 44, 0.98), rgba(22, 43, 66, 0.98));
+            border: 1px solid rgba(82, 200, 255, 0.28);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+        .protocolo-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(82, 200, 255, 0.2);
+            background: rgba(8, 20, 34, 0.55);
+        }
+        .protocolo-head h4 {
+            margin: 0;
+            color: #e6f4ff;
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .protocolo-close {
+            border: 0;
+            background: transparent;
+            color: rgba(180, 220, 255, 0.85);
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .protocolo-body {
+            padding: 14px 16px 16px;
+        }
+        .protocolo-help {
+            margin: 0 0 12px;
+            color: rgba(214, 229, 241, 0.8);
+            font-size: 0.84rem;
+        }
+        .protocolo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .protocolo-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .protocolo-field.full {
+            grid-column: 1 / -1;
+        }
+        .protocolo-field label {
+            color: rgba(210, 229, 245, 0.9);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .protocolo-field input,
+        .protocolo-field textarea {
+            border: 1px solid rgba(82, 200, 255, 0.3);
+            background: rgba(8, 15, 24, 0.45);
+            color: #e6f4ff;
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+        }
+        .protocolo-field textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+        .protocolo-foot {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .protocolo-btn {
+            border-radius: 7px;
+            border: 1px solid rgba(82, 200, 255, 0.38);
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+        }
+        .protocolo-btn.main {
+            background: linear-gradient(135deg, rgba(82, 200, 255, 0.95), rgba(60, 160, 220, 0.95));
+            color: #071321;
+            flex: 1 1 auto;
+        }
+        .protocolo-btn.ghost {
+            background: transparent;
+            color: rgba(180, 220, 255, 0.95);
+        }
+        @media (max-width: 640px) {
+            .protocolo-grid { grid-template-columns: 1fr; }
+            .protocolo-foot { flex-direction: column-reverse; }
+        }
+
         .extras-content {
             padding: 1rem;
             background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(25, 50, 75, 0.98));
@@ -1929,6 +2045,42 @@
             <div class="cookie-consent-buttons">
                 <button id="cookie-accept-btn" class="cookie-consent-btn accept">Aceptar</button>
                 <button id="cookie-reject-btn" class="cookie-consent-btn reject">Rechazar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: acciones PDF/correo en protocolo web local -->
+    <div id="protocoloModal" class="protocolo-modal" aria-hidden="true">
+        <div class="protocolo-card" role="dialog" aria-modal="true" aria-labelledby="protocoloTitulo">
+            <div class="protocolo-head">
+                <h4 id="protocoloTitulo">Recibir presupuesto</h4>
+                <button type="button" class="protocolo-close" onclick="cerrarModalProtocolo()" aria-label="Cerrar">x</button>
+            </div>
+            <div class="protocolo-body">
+                <p id="protocoloAyuda" class="protocolo-help"></p>
+                <input type="hidden" id="protocoloModo" value="descargar">
+                <div class="protocolo-grid">
+                    <div class="protocolo-field">
+                        <label for="protocoloNombre">Nombre</label>
+                        <input type="text" id="protocoloNombre" placeholder="Tu nombre">
+                    </div>
+                    <div class="protocolo-field">
+                        <label for="protocoloTelefono">Telefono</label>
+                        <input type="tel" id="protocoloTelefono" placeholder="Tu telefono (opcional)">
+                    </div>
+                    <div class="protocolo-field full">
+                        <label for="protocoloEmail">Correo electronico</label>
+                        <input type="email" id="protocoloEmail" placeholder="tu@email.com">
+                    </div>
+                    <div class="protocolo-field full" id="protocoloNotasField" style="display:none;">
+                        <label for="protocoloNotas">Indicaciones adicionales</label>
+                        <textarea id="protocoloNotas" placeholder="Indicanos cualquier detalle adicional para tu proyecto"></textarea>
+                    </div>
+                </div>
+                <div class="protocolo-foot">
+                    <button type="button" class="protocolo-btn ghost" onclick="cerrarModalProtocolo()">Cancelar</button>
+                    <button type="button" id="protocoloAccionBtn" class="protocolo-btn main" onclick="ejecutarAccionProtocolo()">Descargar PDF</button>
+                </div>
             </div>
         </div>
     </div>
@@ -4549,8 +4701,9 @@
     <!-- Scripts - El orden es importante: primero cotizador-3d.js, luego cotizador-v2.js -->
     <!-- IMPORTANTE: este HTML usa cotizador-v2.js (versión nueva con soportes/sump/PVC/filtración).
          El cotizador clásico (/cotizador.html) sigue usando js/cotizador.js sin tocar. -->
+        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="js/cotizador-3d.js?v=3.7"></script>
-    <script src="js/cotizador-v2.js?v=3.7"></script>
+        <script src="js/cotizador-v2.js?v=3.8"></script>
     <!--
     <script src="js/logger.js"></script>
     <script src="js/script.js"></script>

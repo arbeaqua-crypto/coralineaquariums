@@ -1090,32 +1090,371 @@ function recalcularTotalDesglose() {
 
 // === FIN stubs ===
 /**
- * Enviar presupuesto detallado por email
+ * Protocolo web local para descarga/envio de presupuesto
+ * (sin Apps Script ni backend)
  */
-function enviarPresupuestoDetallado() {
-    // Recopilar todos los datos del desglose
-    const desglose = {
-        acuarioBase: {
-            descripcion: document.getElementById('descAcuarioBase').textContent,
-            precio: parseFloat(document.getElementById('precioAcuarioBase').value)
+const PROTOCOLO_STORAGE_KEY = 'coraline-protocolo-web';
+
+function parseEuros(texto) {
+    if (!texto) return 0;
+    const limpio = String(texto)
+        .replace(/\s/g, '')
+        .replace(/€/g, '')
+        .replace(/[^\d,.-]/g, '')
+        .replace(/,(?=\d{1,2}$)/, '.');
+    const numero = parseFloat(limpio.replace(/,/g, ''));
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function obtenerSessionIdProtocolo() {
+    const key = 'coraline-session-id';
+    let id = localStorage.getItem(key);
+    if (!id) {
+        id = 'ses-' + Date.now() + '-' + Math.floor(Math.random() * 1000000);
+        localStorage.setItem(key, id);
+    }
+    return id;
+}
+
+function extraerLineasDesglose() {
+    const lineas = [];
+    const raiz = document.getElementById('desgloseGenerado');
+    if (!raiz) return lineas;
+
+    let categoriaActual = 'General';
+    const nodos = raiz.querySelectorAll('.dg-categoria, .dg-item, .dg-subitem, .dg-total-row');
+    nodos.forEach(function(nodo) {
+        if (nodo.classList.contains('dg-categoria')) {
+            categoriaActual = (nodo.textContent || 'General').trim();
+            return;
+        }
+
+        const spans = nodo.querySelectorAll('span');
+        if (spans.length < 2) return;
+
+        const nombre = (spans[0].textContent || '').trim();
+        const precioTexto = (spans[1].textContent || '').trim();
+        if (!nombre) return;
+
+        lineas.push({
+            categoria: categoriaActual,
+            tipo: nodo.classList.contains('dg-subitem') ? 'subitem' : (nodo.classList.contains('dg-total-row') ? 'total' : 'item'),
+            nombre: nombre,
+            precio: parseEuros(precioTexto),
+            precioTexto: precioTexto
+        });
+    });
+
+    return lineas;
+}
+
+function obtenerSalidaCotizador() {
+    const data = window.datosCalculoActual;
+    if (!data) return null;
+
+    const largo = parseFloat(document.getElementById('largo')?.value || '0');
+    const ancho = parseFloat(document.getElementById('ancho')?.value || '0');
+    const alto = parseFloat(document.getElementById('alto')?.value || '0');
+    const grosorSel = document.getElementById('grosor');
+    const grosorTexto = grosorSel ? grosorSel.options[grosorSel.selectedIndex].text : '';
+    const colorSiliconaSel = document.getElementById('colorSilicona');
+    const colorSilicona = colorSiliconaSel ? colorSiliconaSel.options[colorSiliconaSel.selectedIndex].text : '';
+    const tipoRefuerzo = document.getElementById('tipoRefuerzo')?.value || 'ninguno';
+
+    const lineas = extraerLineasDesglose();
+    const subtotal = lineas.find(function(l) { return /Subtotal/i.test(l.nombre); })?.precio || 0;
+    const iva = lineas.find(function(l) { return /^IVA/i.test(l.nombre); })?.precio || 0;
+    const total = lineas.find(function(l) { return /TOTAL FINAL/i.test(l.nombre); })?.precio || parseEuros(document.getElementById('precioFinal')?.textContent || '0');
+
+    return {
+        version: 'coraline-protocolo-web-v1',
+        accion: 'pendiente',
+        fechaISO: new Date().toISOString(),
+        sessionId: obtenerSessionIdProtocolo(),
+        pagina: window.location.href,
+        cotizador: {
+            medidas: { largo: largo, ancho: ancho, alto: alto, grosor: grosorTexto },
+            litros: data.litros || 0,
+            colorSilicona: colorSilicona,
+            tipoRefuerzo: tipoRefuerzo,
+            precioFinal: total,
+            precioSinIva: subtotal,
+            iva: iva,
+            ratioSeguridad: data.ratioSeguridad,
+            deflexion: data.deflexion
         },
-        items: [],
-        subtotal: parseFloat(document.getElementById('subtotalSinIVA').textContent.replace(/[^\d.]/g, '')),
-        iva: parseFloat(document.getElementById('montoIVA').textContent.replace(/[^\d.]/g, '')),
-        total: parseFloat(document.getElementById('totalFinalDesglose').textContent.replace(/[^\d.]/g, ''))
+        desglose: {
+            lineas: lineas,
+            html: document.getElementById('desgloseGenerado')?.innerHTML || ''
+        },
+        historialSesion: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]')
     };
-    
-    // Recopilar items opcionales
-    document.querySelectorAll('.desglose-item-opcional').forEach(item => {
-        if (item.style.display !== 'none') {
-            const nombre = item.querySelector('.desglose-item-name').textContent;
-            const precio = parseFloat(item.querySelector('.desglose-precio-editable').value);
-            desglose.items.push({ nombre, precio });
+}
+
+function registrarProtocolo(payload) {
+    const historico = JSON.parse(localStorage.getItem(PROTOCOLO_STORAGE_KEY) || '[]');
+    historico.unshift(payload);
+    localStorage.setItem(PROTOCOLO_STORAGE_KEY, JSON.stringify(historico.slice(0, 30)));
+}
+
+function construirTextoResumen(payload, cliente) {
+    const c = cliente || {};
+    const m = payload.cotizador.medidas;
+    const lineas = [];
+
+    lineas.push('Protocolo: ' + payload.version);
+    lineas.push('Fecha: ' + payload.fechaISO);
+    lineas.push('Sesion: ' + payload.sessionId);
+    lineas.push('Accion: ' + payload.accion);
+    lineas.push('');
+    lineas.push('Cliente');
+    lineas.push('- Nombre: ' + (c.nombre || 'No informado'));
+    lineas.push('- Telefono: ' + (c.telefono || 'No informado'));
+    lineas.push('- Email: ' + (c.email || 'No informado'));
+    if (c.instrucciones) {
+        lineas.push('- Instrucciones: ' + c.instrucciones);
+    }
+    lineas.push('');
+    lineas.push('Cotizador');
+    lineas.push('- Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm');
+    lineas.push('- Grosor: ' + m.grosor);
+    lineas.push('- Litros: ' + payload.cotizador.litros);
+    lineas.push('- Refuerzo: ' + payload.cotizador.tipoRefuerzo);
+    lineas.push('- Precio sin IVA: ' + payload.cotizador.precioSinIva.toFixed(2) + ' EUR');
+    lineas.push('- IVA: ' + payload.cotizador.iva.toFixed(2) + ' EUR');
+    lineas.push('- Precio final: ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR');
+    lineas.push('');
+    lineas.push('Desglose');
+
+    payload.desglose.lineas.forEach(function(l) {
+        const prefijo = l.tipo === 'subitem' ? '  - ' : '- ';
+        lineas.push(prefijo + l.nombre + ': ' + l.precio.toFixed(2) + ' EUR');
+    });
+
+    lineas.push('');
+    lineas.push('Contacto Coraline: info@coralineaquariums.com | +34 937 04 44 95');
+
+    return lineas.join('\n');
+}
+
+function generarPDFPresupuesto(payload, cliente) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        throw new Error('No se pudo cargar la libreria de PDF.');
+    }
+
+    const jsPDFCtor = window.jspdf.jsPDF;
+    const doc = new jsPDFCtor({ unit: 'mm', format: 'a4' });
+    const ancho = doc.internal.pageSize.getWidth();
+    const alto = doc.internal.pageSize.getHeight();
+    const margen = 14;
+    let y = 16;
+
+    function salto(necesario) {
+        if (y + necesario <= alto - 14) return;
+        doc.addPage();
+        y = 16;
+    }
+
+    function titulo(txt) {
+        salto(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text(txt, margen, y);
+        y += 6;
+    }
+
+    function linea(txt, bold) {
+        const texto = String(txt || '');
+        const bloques = doc.splitTextToSize(texto, ancho - (margen * 2));
+        salto((bloques.length * 4.5) + 1);
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(9.5);
+        doc.text(bloques, margen, y);
+        y += (bloques.length * 4.5);
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Coraline Aquariums', margen, y);
+    y += 6;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Presupuesto detallado de acuario a medida', margen, y);
+    y += 7;
+
+    doc.setDrawColor(82, 200, 255);
+    doc.line(margen, y, ancho - margen, y);
+    y += 7;
+
+    titulo('Datos de cliente');
+    linea('Nombre: ' + (cliente.nombre || 'No informado'));
+    linea('Telefono: ' + (cliente.telefono || 'No informado'));
+    linea('Email: ' + (cliente.email || 'No informado'));
+    if (cliente.instrucciones) {
+        linea('Instrucciones: ' + cliente.instrucciones);
+    }
+    y += 2;
+
+    const m = payload.cotizador.medidas;
+    titulo('Configuracion del acuario');
+    linea('Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm');
+    linea('Grosor: ' + m.grosor);
+    linea('Capacidad: ' + payload.cotizador.litros + ' litros');
+    linea('Refuerzo: ' + payload.cotizador.tipoRefuerzo);
+    linea('Silicona: ' + payload.cotizador.colorSilicona);
+    y += 2;
+
+    titulo('Desglose economico');
+    payload.desglose.lineas.forEach(function(item) {
+        if (item.tipo === 'total') {
+            linea(item.nombre + ': ' + item.precio.toFixed(2) + ' EUR', true);
+        } else if (item.tipo === 'subitem') {
+            linea('  - ' + item.nombre + ': ' + item.precio.toFixed(2) + ' EUR');
+        } else {
+            linea('- ' + item.nombre + ': ' + item.precio.toFixed(2) + ' EUR');
         }
     });
-    
-    // Guardar en localStorage para el formulario de contacto
-    localStorage.setItem('presupuesto-detallado', JSON.stringify(desglose));
+
+    y += 4;
+    titulo('Totales');
+    linea('Subtotal sin IVA: ' + payload.cotizador.precioSinIva.toFixed(2) + ' EUR');
+    linea('IVA (21%): ' + payload.cotizador.iva.toFixed(2) + ' EUR');
+    linea('TOTAL FINAL: ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR', true);
+
+    y += 4;
+    titulo('Contacto');
+    linea('Email: info@coralineaquariums.com');
+    linea('Telefono: +34 937 04 44 95');
+    linea('Web: https://coralineaquariums.com');
+
+    const pie = 'Documento generado por protocolo web local sin backend. Fecha: ' + new Date().toLocaleString();
+    doc.setFontSize(8);
+    doc.setTextColor(80, 80, 80);
+    doc.text(pie, margen, alto - 8);
+
+    return doc;
+}
+
+function descargarDocumentoPDF(doc, cliente) {
+    const nombreSeguro = (cliente.nombre || 'cliente').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const fecha = new Date().toISOString().slice(0, 10);
+    const archivo = 'presupuesto-coraline-' + (nombreSeguro || 'cliente') + '-' + fecha + '.pdf';
+    doc.save(archivo);
+    return archivo;
+}
+
+function abrirBorradorCorreo(destino, asunto, cuerpo, cc) {
+    const partes = [];
+    if (cc) partes.push('cc=' + encodeURIComponent(cc));
+    partes.push('subject=' + encodeURIComponent(asunto));
+    partes.push('body=' + encodeURIComponent(cuerpo));
+    window.location.href = 'mailto:' + encodeURIComponent(destino) + '?' + partes.join('&');
+}
+
+function abrirModalProtocolo(modo) {
+    const modal = document.getElementById('protocoloModal');
+    if (!modal) return;
+
+    const titulo = document.getElementById('protocoloTitulo');
+    const ayuda = document.getElementById('protocoloAyuda');
+    const boton = document.getElementById('protocoloAccionBtn');
+    const campoNotas = document.getElementById('protocoloNotasField');
+    const campoNombre = document.getElementById('protocoloNombre');
+    const campoEmail = document.getElementById('protocoloEmail');
+
+    document.getElementById('protocoloModo').value = modo;
+
+    if (modo === 'enviar') {
+        titulo.textContent = 'Enviar presupuesto en PDF';
+        ayuda.textContent = 'Nombre y correo son obligatorios. Tambien puedes indicar telefono e instrucciones.';
+        boton.textContent = 'Enviar presupuesto';
+        campoNotas.style.display = '';
+        campoNombre.required = true;
+        campoEmail.required = true;
+    } else {
+        titulo.textContent = 'Descargar desglose en PDF';
+        ayuda.textContent = 'Puedes completar tus datos opcionalmente antes de descargar el PDF.';
+        boton.textContent = 'Descargar PDF';
+        campoNotas.style.display = 'none';
+        campoNombre.required = false;
+        campoEmail.required = false;
+    }
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function cerrarModalProtocolo() {
+    const modal = document.getElementById('protocoloModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function ejecutarAccionProtocolo() {
+    const modo = document.getElementById('protocoloModo')?.value || 'descargar';
+    const cliente = {
+        nombre: (document.getElementById('protocoloNombre')?.value || '').trim(),
+        telefono: (document.getElementById('protocoloTelefono')?.value || '').trim(),
+        email: (document.getElementById('protocoloEmail')?.value || '').trim(),
+        instrucciones: (document.getElementById('protocoloNotas')?.value || '').trim()
+    };
+
+    if (modo === 'enviar') {
+        if (!cliente.nombre || !cliente.email) {
+            alert('Para enviar presupuesto, nombre y correo son obligatorios.');
+            return;
+        }
+    }
+
+    const payload = obtenerSalidaCotizador();
+    if (!payload) {
+        alert('Debes calcular el presupuesto antes de generar o enviar PDF.');
+        return;
+    }
+
+    payload.accion = modo === 'enviar' ? 'enviar_presupuesto_pdf' : 'descargar_pdf';
+    payload.cliente = cliente;
+    registrarProtocolo(payload);
+
+    let doc;
+    try {
+        doc = generarPDFPresupuesto(payload, cliente);
+    } catch (error) {
+        alert('No se pudo generar el PDF: ' + error.message);
+        return;
+    }
+
+    const archivo = descargarDocumentoPDF(doc, cliente);
+    const resumen = construirTextoResumen(payload, cliente);
+
+    if (modo === 'enviar') {
+        const asuntoCliente = 'Presupuesto Coraline Aquariums - ' + payload.cotizador.precioFinal.toFixed(2) + ' EUR';
+        const cuerpoCliente = resumen + '\n\nAdjunta manualmente el PDF descargado (' + archivo + ') antes de enviar.';
+        abrirBorradorCorreo(cliente.email, asuntoCliente, cuerpoCliente, 'info@coralineaquariums.com');
+    } else {
+        const asuntoInterno = 'Copia interna descarga PDF - ' + (cliente.nombre || 'usuario sin nombre');
+        const cuerpoInterno = resumen + '\n\nArchivo descargado localmente: ' + archivo;
+        abrirBorradorCorreo('info@coralineaquariums.com', asuntoInterno, cuerpoInterno);
+    }
+
+    cerrarModalProtocolo();
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('protocoloModal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                cerrarModalProtocolo();
+            }
+        });
+    }
+});
+
+function enviarPresupuestoDetallado() {
+    abrirModalProtocolo('enviar');
 }
 
 // ============================================
@@ -1992,8 +2331,5 @@ function recalcularSoporte() {
  * Descargar presupuesto como PDF
  */
 function descargarPresupuestoPDF() {
-    // Por ahora, mostrar mensaje de que esta función está en desarrollo
-    alert('âš ï¸ La función de descarga de PDF estará disponible próximamente.\n\nDe momento, puedes usar el botón "Enviar Presupuesto" para recibir una copia por email.');
-    
-    // TODO: Implementar generación de PDF con jsPDF en el futuro
+    abrirModalProtocolo('descargar');
 }
