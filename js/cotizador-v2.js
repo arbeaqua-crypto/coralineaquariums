@@ -3358,30 +3358,54 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
 
-        let backendOK = false;
-        try {
-            const resp = await fetch(EMAIL_BACKEND_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(datosNotif)
-            });
-            const txt = await resp.text();
-            console.log('📡 Respuesta backend Coraline:', resp.status, txt);
+        // Helper: un único intento de envío al backend Coraline.
+        // Devuelve true si el backend confirma success:true.
+        async function intentarEnvio(intento) {
             try {
-                const json = JSON.parse(txt);
-                backendOK = !!json.success;
-                if (!backendOK) console.warn('⚠️ Backend devolvió success=false:', json);
-            } catch (_) {
-                backendOK = resp.ok;
+                const resp = await fetch(EMAIL_BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(datosNotif)
+                });
+                const txt = await resp.text();
+                console.log('📡 Coraline intento ' + intento + ':', resp.status, txt.slice(0, 120));
+                try {
+                    const json = JSON.parse(txt);
+                    return !!json.success;
+                } catch (_) {
+                    return resp.ok;
+                }
+            } catch (e) {
+                console.warn('⚠️ Coraline intento ' + intento + ' falló:', e.message);
+                return false;
             }
-        } catch (errFetch) {
-            console.warn('⚠️ Fetch al backend falló:', errFetch.message);
         }
 
-        // Notificación al backend es best-effort. Si falla, NO molestamos al
-        // usuario abriendo su cliente de correo: simplemente lo registramos.
+        // ESTRATEGIA ANTI-CONCURRENCIA:
+        // Apps Script puede perder ejecuciones de MailApp.sendEmail cuando hay
+        // varios usuarios pulsando "Descargar PDF" a la vez (responde
+        // success:true pero el correo se pierde). Para mitigarlo:
+        //  1) Esperamos el PRIMER intento (bloqueante, hasta que el front
+        //     sepa si llegó o no).
+        //  2) Disparamos un SEGUNDO intento "fire-and-forget" 1,2 s después
+        //     SIEMPRE — incluso si el primero salió OK. El usuario aceptó
+        //     que pueda haber correos duplicados ocasionales: prefiere eso
+        //     a perder un aviso. Si el primero falló, este segundo intento
+        //     suele funcionar porque ya no coincide con la ventana de
+        //     concurrencia.
+        const backendOK = await intentarEnvio(1);
+
+        // Segundo intento sin await: no retrasa al usuario.
+        setTimeout(function() {
+            intentarEnvio(2).then(function(ok2) {
+                if (!ok2) console.warn('⚠️ Segundo intento Coraline tampoco confirmó.');
+            });
+        }, 1200);
+
+        // Notificación al backend es best-effort. Si fallan los dos
+        // intentos, solo lo registramos: NO molestamos al usuario.
         if (!backendOK) {
-            console.warn('⚠️ Notificación a Coraline no confirmada (backend). Continuando sin abrir mailto.');
+            console.warn('⚠️ Primer intento Coraline no confirmado. Segundo intento en curso en background.');
         }
     } catch (e) {
         console.warn('No se pudo enviar notificación a Coraline:', e.message);
