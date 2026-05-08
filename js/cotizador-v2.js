@@ -1354,7 +1354,7 @@ function abrirBorradorCorreo(destino, asunto, cuerpo, cc) {
     window.location.href = 'mailto:' + encodeURIComponent(destino) + '?' + partes.join('&');
 }
 
-async function enviarSolicitudPresupuestoBackend(payload, cliente) {
+async function enviarSolicitudPresupuestoBackend(payload, cliente, pdfBase64) {
     const m = payload.cotizador.medidas;
     const datos = {
         accion: 'enviar_presupuesto',
@@ -1378,6 +1378,8 @@ async function enviarSolicitudPresupuestoBackend(payload, cliente) {
             opticos: payload.cotizador.opticos || {}
         },
         historialCotizaciones: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]'),
+        desglose: payload.desglose,
+        pdfBase64: pdfBase64,
         token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
     };
 
@@ -1483,9 +1485,18 @@ async function ejecutarAccionProtocolo() {
             boton.disabled = true;
             boton.textContent = 'Enviando...';
         }
+let doc;
+            try {
+                doc = generarPDFPresupuesto(payload, cliente);
+            } catch (error) {
+                alert('No se pudo generar el PDF: ' + error.message);
+                return;
+            }
 
-        try {
-            await enviarSolicitudPresupuestoBackend(payload, cliente);
+            const pdfBase64 = doc.output('datauristring').split(',')[1];
+            await enviarSolicitudPresupuestoBackend(payload, cliente, pdfBase64);
+            cerrarModalProtocolo();
+            alert('Solicitud enviada correctamente. Revisa tu correo para la confirmación
             cerrarModalProtocolo();
             alert('Solicitud enviada correctamente a Coraline Aquariums.');
         } catch (error) {

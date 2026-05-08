@@ -664,6 +664,7 @@
             // Recopilar datos
             const config = JSON.parse(localStorage.getItem('configuracion-acuario') || '{}');
             const historial = JSON.parse(localStorage.getItem('historialCotizaciones') || '[]');
+            const desglose = JSON.parse(localStorage.getItem('presupuesto-detallado') || '{}');
             
             const datos = {
                 accion: 'enviar_presupuesto', // Identificador para el backend
@@ -675,6 +676,7 @@
                 mensaje: document.getElementById('mensaje').value,
                 configuracion: config,
                 historialCotizaciones: historial, // Incluir todas las cotizaciones de la sesión
+                desglose: desglose, // Incluir desglose detallado del presupuesto
                 token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
             };
             
