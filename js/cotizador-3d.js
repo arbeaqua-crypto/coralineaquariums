@@ -2217,6 +2217,42 @@ window.actualizarSump3D = function() {
 /**
  * Eliminar forrado melamina de la escena
  */
+/**
+ * Guarda desglose en localStorage para que contacto.html lo incluya en email
+ * Se llama cuando usuario hace click en "Enviar PDF por correo"
+ */
+function enviarPresupuestoDetallado() {
+    try {
+        // Obtener precio del DOM
+        const precioEl = document.getElementById('precioFinal');
+        const precioTexto = precioEl ? precioEl.textContent.replace(/[^\d.,]/g, '').replace(',', '.') : '0';
+        const precio = parseFloat(precioTexto) || 0;
+        
+        // Calcular subtotal e IVA
+        const iva = Math.round(precio * 100 / 121 * 21 * 100) / 100;
+        const subtotal = precio - iva;
+        
+        // Crear desglose simple
+        const desglose = {
+            acuarioBase: {
+                descripcion: 'Acuario personalizado',
+                precio: subtotal
+            },
+            items: [],
+            subtotal: subtotal,
+            iva: iva,
+            total: precio
+        };
+        
+        // Guardar en localStorage para contacto.html
+        localStorage.setItem('presupuesto-detallado', JSON.stringify(desglose));
+        console.log('✅ Desglose guardado:', desglose);
+        
+    } catch (error) {
+        console.error('❌ Error al guardar desglose:', error);
+    }
+}
+
 function eliminarForradoMelamina3D() {
     if (forradoGroup && window.threeScene) {
         window.threeScene.remove(forradoGroup);
