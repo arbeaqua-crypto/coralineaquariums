@@ -1998,9 +1998,12 @@ function generarPDFPresupuesto(payload, cliente) {
 }
 
 function descargarDocumentoPDF(doc, cliente) {
-    const nombreSeguro = (cliente.nombre || 'cliente').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const largo = parseInt(document.getElementById('largo')?.value) || 0;
+    const ancho = parseInt(document.getElementById('ancho')?.value) || 0;
+    const alto  = parseInt(document.getElementById('alto')?.value)  || 0;
+    const dimensiones = (largo && ancho && alto) ? (largo + 'x' + ancho + 'x' + alto + 'cm') : 'acuario';
     const fecha = new Date().toISOString().slice(0, 10);
-    const archivo = 'presupuesto-coraline-' + (nombreSeguro || 'cliente') + '-' + fecha + '.pdf';
+    const archivo = 'Presupuesto-Coraline-' + dimensiones + '-' + fecha + '.pdf';
     // Usar arraybuffer + tipo octet-stream para forzar descarga y evitar que el navegador abra el PDF en una ventana nueva
     const bytes = doc.output('arraybuffer');
     const blob = new Blob([bytes], { type: 'application/octet-stream' });
