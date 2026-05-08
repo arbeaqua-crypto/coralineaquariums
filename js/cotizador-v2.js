@@ -1575,6 +1575,10 @@ window.__LOGO_CORALINE_RATIO = 1; // ancho/alto
                 c.width = img.naturalWidth || 400;
                 c.height = img.naturalHeight || 400;
                 const ctx = c.getContext('2d');
+                // Rellenar con el mismo color que la banda de cabecera del PDF (#EAF6FC)
+                // para que las zonas transparentes del PNG no se vean como damero
+                ctx.fillStyle = '#EAF6FC';
+                ctx.fillRect(0, 0, c.width, c.height);
                 ctx.drawImage(img, 0, 0);
                 window.__LOGO_CORALINE_B64 = c.toDataURL('image/png');
                 window.__LOGO_CORALINE_RATIO = c.width / c.height;
