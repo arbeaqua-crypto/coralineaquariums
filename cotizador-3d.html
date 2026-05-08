@@ -333,7 +333,195 @@
         .toggle-icon.open {
             transform: rotate(45deg);
         }
-        
+
+        /* ============================================
+           DESGLOSE DETALLADO DEL PRESUPUESTO
+           Estilo sobrio, profesional, alineado con la paleta oscura.
+           ============================================ */
+        .desglose-section {
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(25, 50, 75, 0.98));
+            border: 1px solid rgba(82, 200, 255, 0.18);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .desglose-header {
+            padding: 0.85rem 1.1rem;
+            background: rgba(10, 22, 40, 0.55);
+            border-bottom: 1px solid rgba(82, 200, 255, 0.18);
+        }
+        .desglose-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(180, 220, 255, 0.92);
+        }
+        .desglose-content {
+            padding: 1rem 1.1rem 1.1rem;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+            color: rgba(224, 230, 237, 0.92);
+            line-height: 1.45;
+        }
+        .dg-vacio {
+            margin: 0;
+            padding: 1.5rem 0;
+            text-align: center;
+            color: rgba(224, 230, 237, 0.5);
+            font-size: 0.85rem;
+        }
+        /* Cabecera del documento */
+        .dg-cabecera {
+            margin-bottom: 0.9rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid rgba(82, 200, 255, 0.15);
+        }
+        .dg-titulo {
+            margin: 0 0 0.2rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.01em;
+        }
+        .dg-subtitulo {
+            margin: 0;
+            font-size: 0.78rem;
+            color: rgba(180, 200, 220, 0.7);
+        }
+        /* Capturas 3D */
+        .dg-capturas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin: 0.7rem 0 1rem;
+        }
+        .dg-captura-img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid rgba(82, 200, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+        /* Categorías (encabezados de bloque dentro del desglose) */
+        .dg-categoria {
+            margin: 0.85rem 0 0.3rem;
+            padding: 0.3rem 0;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: rgba(130, 200, 255, 0.95);
+            border-bottom: 1px dotted rgba(82, 200, 255, 0.25);
+        }
+        .dg-categoria:first-child {
+            margin-top: 0;
+        }
+        /* Items principales */
+        .dg-item,
+        .dg-subitem {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            padding: 0.18rem 0;
+        }
+        .dg-item-nombre,
+        .dg-subitem-nombre {
+            color: rgba(224, 230, 237, 0.92);
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .dg-subitem {
+            padding-left: 0.9rem;
+            font-size: 0.82rem;
+        }
+        .dg-subitem-nombre {
+            color: rgba(200, 215, 230, 0.78);
+        }
+        .dg-item-precio,
+        .dg-subitem-precio {
+            color: rgba(255, 255, 255, 0.95);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        /* Separadores y totales */
+        .dg-separator {
+            height: 1px;
+            margin: 0.75rem 0 0.5rem;
+            background: rgba(82, 200, 255, 0.25);
+        }
+        .dg-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.25rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .dg-subtotal-row,
+        .dg-iva-row {
+            color: rgba(200, 215, 230, 0.85);
+            font-size: 0.85rem;
+        }
+        .dg-total-final {
+            margin-top: 0.15rem;
+            padding-top: 0.45rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        /* Botones de acción */
+        .desglose-actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 1.1rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid rgba(82, 200, 255, 0.15);
+            flex-wrap: wrap;
+        }
+        .btn-enviar-presupuesto,
+        .btn-descargar-pdf {
+            flex: 1 1 auto;
+            min-width: 140px;
+            padding: 0.6rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .btn-enviar-presupuesto {
+            background: linear-gradient(135deg, rgba(82, 200, 255, 0.95), rgba(60, 160, 220, 0.95));
+            color: #06121f;
+            border: 1px solid rgba(82, 200, 255, 0.6);
+        }
+        .btn-enviar-presupuesto:hover {
+            background: linear-gradient(135deg, rgba(110, 215, 255, 1), rgba(80, 180, 230, 1));
+            transform: translateY(-1px);
+        }
+        .btn-descargar-pdf {
+            background: transparent;
+            color: rgba(180, 220, 255, 0.92);
+            border: 1px solid rgba(82, 200, 255, 0.5);
+        }
+        .btn-descargar-pdf:hover {
+            background: rgba(82, 200, 255, 0.1);
+            border-color: rgba(82, 200, 255, 0.8);
+        }
+        /* Responsive */
+        @media (max-width: 600px) {
+            .dg-capturas { grid-template-columns: 1fr; }
+            .desglose-content { font-size: 0.82rem; padding: 0.85rem 0.85rem 0.95rem; }
+            .desglose-header h3 { font-size: 0.88rem; }
+        }
+
         .extras-content {
             padding: 1rem;
             background: linear-gradient(135deg, rgba(20, 20, 25, 0.98), rgba(25, 50, 75, 0.98));
@@ -1656,30 +1844,22 @@
                         </div>
                     </div>
 
-                    <!-- DESGLOSE DETALLADO DEL PRESUPUESTO -->
+                    <!-- DESGLOSE DETALLADO DEL PRESUPUESTO (siempre visible) -->
                     <div class="desglose-section">
-                        <div class="desglose-header" onclick="toggleDesglose()">
-                            <h3>Desglose Detallado del Presupuesto</h3>
-                            <span class="toggle-icon" id="desgloseToggleIcon">&#43;</span>
+                        <div class="desglose-header">
+                            <h3>Desglose detallado del presupuesto</h3>
                         </div>
-                        
-                        <div id="desgloseContent" class="desglose-content" style="display: none;">
+
+                        <div id="desgloseContent" class="desglose-content">
                             <!-- Generado dinámicamente por generarDesgloseCompleto() -->
-                            <div id="desgloseGenerado"></div>
-                            
-                            <!-- Botón para regenerar -->
-                            <div style="text-align: center; margin-top: 15px;">
-                                <button class="btn-regenerar-desglose" onclick="generarDesgloseCompleto()">Actualizar desglose</button>
+                            <div id="desgloseGenerado">
+                                <p class="dg-vacio">Pulsa <strong>Calcular Precio</strong> para generar el desglose detallado.</p>
                             </div>
-                            
+
                             <!-- Botones de acción -->
                             <div class="desglose-actions">
-                                <button class="btn-enviar-presupuesto" onclick="enviarPresupuestoDetallado()">
-                                    Enviar Presupuesto Detallado
-                                </button>
-                                <button class="btn-descargar-pdf" onclick="descargarPresupuestoPDF()">
-                                    Descargar PDF
-                                </button>
+                                <button class="btn-enviar-presupuesto" onclick="enviarPresupuestoDetallado()">Enviar presupuesto</button>
+                                <button class="btn-descargar-pdf" onclick="descargarPresupuestoPDF()">Descargar PDF</button>
                             </div>
                         </div>
                     </div>
@@ -2109,6 +2289,11 @@
             const precioTotal = precioBase + totalExtras;
             document.getElementById('precioFinal').textContent = precioTotal.toFixed(2) + '€';
             console.log('Extras seleccionados: +' + totalExtras + '€, Precio total: ' + precioTotal + '€');
+
+            // Regenerar desglose detallado (siempre visible)
+            if (typeof generarDesgloseCompleto === 'function') {
+                generarDesgloseCompleto();
+            }
         }
         
         // Función para toggle de las categorías principales (7 categorías del menú)
@@ -4364,8 +4549,8 @@
     <!-- Scripts - El orden es importante: primero cotizador-3d.js, luego cotizador-v2.js -->
     <!-- IMPORTANTE: este HTML usa cotizador-v2.js (versión nueva con soportes/sump/PVC/filtración).
          El cotizador clásico (/cotizador.html) sigue usando js/cotizador.js sin tocar. -->
-    <script src="js/cotizador-3d.js?v=3.6"></script>
-    <script src="js/cotizador-v2.js?v=3.6"></script>
+    <script src="js/cotizador-3d.js?v=3.7"></script>
+    <script src="js/cotizador-v2.js?v=3.7"></script>
     <!--
     <script src="js/logger.js"></script>
     <script src="js/script.js"></script>

@@ -353,7 +353,12 @@ function mostrarResultado(data) {
     
     // Actualizar desglose detallado
     actualizarDesglose(data);
-    
+
+    // Generar desglose completo automáticamente (siempre visible)
+    if (typeof generarDesgloseCompleto === 'function') {
+        generarDesgloseCompleto();
+    }
+
     // Mostrar sección de resultados
     document.getElementById('resultados').style.display = 'block';
     document.getElementById('resultados').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -518,20 +523,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================
 
 /**
- * Toggle del desglose detallado
+ * Toggle del desglose detallado.
+ * NOTA: el desglose ahora siempre está visible (sin toggle).
+ * Esta función se mantiene como no-op por compatibilidad con cualquier
+ * código legacy que pudiera invocarla. Simplemente regenera el contenido.
  */
 function toggleDesglose() {
-    const content = document.getElementById('desgloseContent');
-    const icon = document.getElementById('desgloseToggleIcon');
-    
-    if (content.style.display === 'none') {
-        content.style.display = 'block';
-        icon.textContent = 'âˆ’';
-        // Auto-generar al abrir
+    if (typeof generarDesgloseCompleto === 'function') {
         generarDesgloseCompleto();
-    } else {
-        content.style.display = 'none';
-        icon.textContent = '+';
     }
 }
 
@@ -1981,6 +1980,11 @@ function recalcularSoporte() {
         window.actualizarForradoMelamina3D();
     } else if (typeof window.actualizarSoporteEn3D === 'function') {
         window.actualizarSoporteEn3D();
+    }
+
+    // Regenerar desglose detallado (siempre visible)
+    if (typeof generarDesgloseCompleto === 'function') {
+        generarDesgloseCompleto();
     }
 }
 
