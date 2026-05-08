@@ -3268,7 +3268,11 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
         return;
     }
 
-    // Enviar notificación interna a Coraline (sin pdfBase64, datos directamente en el cuerpo)
+    // Enviar notificación interna a Coraline.
+    // Usamos accion='enviar_presupuesto' (handler que YA existe en el Apps Script desplegado)
+    // y metemos toda la información extra dentro de los campos que el handler suele leer
+    // (mensaje/comentarios), de modo que llegue al correo info@coralineaquariums.com
+    // aunque no haya cambios en el backend.
     try {
         const etiquetasModo = {
             llamada:  'Llamada telefónica',
@@ -3276,18 +3280,58 @@ async function ejecutarDescargaPDFConDatos(payload, datosCliente) {
             email:    'Email',
             ninguno:  'No desea ser contactado'
         };
+        const m = payload.cotizador.medidas;
+        const lineasResumen = [];
+        lineasResumen.push('=== DATOS DE CONTACTO ===');
+        lineasResumen.push('Nombre: ' + (datosCliente.nombre || ''));
+        lineasResumen.push('Email: ' + (datosCliente.email || ''));
+        lineasResumen.push('Teléfono: ' + (datosCliente.telefono || ''));
+        lineasResumen.push('Prefiere ser contactado por: ' + (etiquetasModo[datosCliente.modoContacto] || '—'));
+        lineasResumen.push('');
+        lineasResumen.push('=== CONFIGURACIÓN DEL ACUARIO ===');
+        lineasResumen.push('Medidas: ' + m.largo + ' x ' + m.ancho + ' x ' + m.alto + ' cm');
+        lineasResumen.push('Grosor: ' + m.grosor);
+        lineasResumen.push('Capacidad: ' + payload.cotizador.litros + ' litros');
+        lineasResumen.push('Refuerzo: ' + payload.cotizador.tipoRefuerzo);
+        lineasResumen.push('Silicona: ' + payload.cotizador.colorSilicona);
+        lineasResumen.push('');
+        lineasResumen.push('=== DESGLOSE ECONÓMICO ===');
+        (payload.desglose.lineas || []).forEach(function(item) {
+            const prefijo = item.tipo === 'subitem' ? '   · ' : (item.tipo === 'total' ? '* ' : '- ');
+            lineasResumen.push(prefijo + item.nombre + ': ' + (Number(item.precio) || 0).toFixed(2) + ' €');
+        });
+        lineasResumen.push('');
+        lineasResumen.push('TOTAL (IVA incluido): ' + (payload.cotizador.precioFinal || 0).toFixed(2) + ' €');
+        if (payload.codigoRecuperacion) {
+            lineasResumen.push('');
+            lineasResumen.push('Código de recuperación: ' + payload.codigoRecuperacion);
+        }
+        const cuerpoTexto = lineasResumen.join('\n');
+
         const datosNotif = {
-            accion: 'notificacion_descarga_pdf',
-            nombre: datosCliente.nombre,
-            email: datosCliente.email,
-            telefono: datosCliente.telefono,
+            accion: 'enviar_presupuesto',
+            // Campos que el handler de Apps Script suele leer
+            nombre: datosCliente.nombre || 'Sin nombre',
+            email: datosCliente.email || '',
+            telefono: datosCliente.telefono || '',
+            mensaje: cuerpoTexto,
+            comentarios: cuerpoTexto,
+            asunto: 'Descarga PDF web — ' + (datosCliente.nombre || 'cliente'),
+            origen: 'descarga_pdf',
+            // Datos estructurados (por si el handler los lee)
             modoContacto: datosCliente.modoContacto || '',
             modoContactoTexto: etiquetasModo[datosCliente.modoContacto] || '—',
             configuracion: payload.cotizador,
             desglose: payload.desglose,
             codigoRecuperacion: payload.codigoRecuperacion,
             sessionId: payload.sessionId,
-            historialCotizaciones: JSON.parse(localStorage.getItem('historialCotizaciones') || '[]'),
+            // Datos del acuario al nivel raíz por compatibilidad con la versión vieja
+            largo: m.largo,
+            ancho: m.ancho,
+            alto: m.alto,
+            grosor: m.grosor,
+            litros: payload.cotizador.litros,
+            precio: payload.cotizador.precioFinal,
             token: window.TOKEN_SEGURIDAD || 'TOKEN_NO_CONFIGURADO'
         };
         await fetch(EMAIL_BACKEND_URL, {
