@@ -11,6 +11,14 @@ console.log('📦 Cargando cotizador-3d.js...');
 let soporteGroup = null;
 let ledGroup = null; // Grupo de tiras LED internas
 
+// Dimensiones actuales del acuario (valores por defecto del formulario)
+let currentDimensions = {
+    largo: 100,
+    ancho: 50,
+    alto: 50,
+    grosor: 10
+};
+
 /**
  * Inicializar la escena 3D
  */
@@ -61,7 +69,7 @@ function init3D() {
     controls.minDistance = 5;
     controls.maxDistance = 50;
     controls.maxPolarAngle = Math.PI / 2 + 0.3;
-    controls.target.set(0, 3, 0);
+    controls.target.set(0, 2.5, 0); // Target ajustado al centro del acuario
     controls.update();
     console.log('✅ OrbitControls configurados');
     
@@ -405,7 +413,8 @@ function ajustarCamara(l, a, h) {
     const maxDim = Math.max(l, a, h);
     const distance = maxDim * 2.5;
     
-    camera.position.set(distance * 0.6, distance * 0.4, distance * 0.8);
+    // Posición ajustada para vista centrada (menos X para centrar horizontalmente)
+    camera.position.set(distance * 0.32, distance * 0.32, distance * 0.72);
     if (window.threeControls) {
         window.threeControls.target.set(0, h / 2, 0);
         window.threeControls.update();

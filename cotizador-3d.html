@@ -909,6 +909,218 @@
                 height: 350px;
             }
         }
+
+        /* ========================================== */
+        /* RESPONSIVE MOBILE - OPTIMIZACIÓN SMARTPHONES */
+        /* ========================================== */
+
+        /* Tablet: 768px */
+        @media (max-width: 768px) {
+            /* Canvas 3D reducido para tablet */
+            #canvas3d {
+                height: 320px !important;
+            }
+            
+            /* Marca de agua más pequeña */
+            .vista-3d-integrada img[alt="Coraline"] {
+                width: 180px !important;
+            }
+            
+            /* Controles de cámara reducidos */
+            #camera-controls {
+                padding: 8px;
+                gap: 3px;
+            }
+            
+            .camera-btn {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .camera-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+            
+            /* Grid 2 columnas, refuerzos en fila completa */
+            .grosor-silicona-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+            
+            .grosor-silicona-grid .input-group:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+            
+            /* Reducir padding formulario */
+            .cotizador-form {
+                padding: 1.2rem !important;
+            }
+            
+            /* Inputs más compactos */
+            .input-group input,
+            .input-group select {
+                padding: 0.4rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .grosor-silicona-grid select {
+                height: 36px;
+            }
+        }
+
+        /* Móvil: 480px */
+        @media (max-width: 480px) {
+            /* Canvas 3D MÁS GRANDE y ALTO para móvil - Sin aplastamiento */
+            #canvas3d {
+                height: 450px !important;
+            }
+            
+            /* Marca de agua pequeña */
+            .vista-3d-integrada img[alt="Coraline"] {
+                width: 120px !important;
+                opacity: 0.15 !important;
+            }
+            
+            /* OCULTAR overlay de información en móvil */
+            .info-3d-overlay {
+                display: none !important;
+            }
+            
+            /* Controles cámara pequeños pero visibles */
+            #camera-controls {
+                padding: 5px;
+                gap: 3px;
+                top: 4px;
+                right: 4px;
+                background: rgba(0, 0, 0, 0.25);
+            }
+            
+            #camera-controls:hover {
+                background: rgba(0, 0, 0, 0.5);
+            }
+            
+            .camera-btn {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .camera-btn svg {
+                width: 14px;
+                height: 14px;
+            }
+            
+            /* Grid 1 columna */
+            .grosor-silicona-grid {
+                grid-template-columns: 1fr;
+                gap: 0.7rem;
+            }
+            
+            .grosor-silicona-grid .input-group:nth-child(3) {
+                grid-column: auto;
+            }
+            
+            /* Padding mínimo y contenedor más ancho */
+            .cotizador-form {
+                padding: 0.8rem !important;
+            }
+            
+            .cotizador-container {
+                max-width: 100% !important;
+                padding: 0;
+            }
+            
+            /* Desglose con mismo ancho que contenedor principal */
+            .cotizador-results {
+                max-width: 100% !important;
+                padding: 0.8rem !important;
+                margin: 1rem 0 !important;
+            }
+            
+            /* Canvas 3D sin márgenes laterales para centrado perfecto */
+            .vista-3d-integrada {
+                margin: 1rem 0;
+            }
+            
+            .cotizador-section {
+                padding-top: 60px !important;
+                padding-bottom: 40px !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            
+            /* Inputs compactos */
+            .input-group input,
+            .input-group select {
+                padding: 0.35rem 0.45rem;
+                font-size: 0.85rem;
+                width: 100%;
+            }
+            
+            /* OPTIMIZACIÓN EXTRAS - CRÍTICO */
+            .extras-content {
+                padding: 0.6rem !important;
+            }
+            
+            .extras-category {
+                margin-bottom: 0.7rem !important;
+            }
+            
+            /* Checkboxes aprovechan todo el ancho */
+            .extra-item label {
+                padding: 0.4rem 0.5rem !important;
+                gap: 0.4rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Texto de extras usa todo el ancho, permite wrap */
+            .extra-name {
+                flex: 1 !important;
+                white-space: normal !important;
+                text-align: left !important;
+            }
+            
+            /* Precio y checkbox no se comprimen */
+            .checkbox-custom {
+                flex-shrink: 0 !important;
+            }
+            
+            .extra-price {
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Contenedores de soporte más compactos */
+            .soporte-tipo-container {
+                padding: 12px !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .soporte-opciones {
+                padding: 10px 12px !important;
+            }
+            
+            /* Hints sin sangría excesiva */
+            .extras-category-hint {
+                margin-left: 0 !important;
+                padding-left: 0 !important;
+                font-size: 0.8rem !important;
+            }
+            
+            /* Información del acuario al pie del canvas - ALINEADA A LA IZQUIERDA */
+            .vista-3d-integrada::after {
+                content: attr(data-info);
+                position: absolute;
+                bottom: 8px;
+                left: 12px;
+                font-size: 0.7rem;
+                color: rgba(255, 255, 255, 0.5);
+                text-align: left;
+                pointer-events: none;
+                font-family: 'Rajdhani', sans-serif;
+                white-space: nowrap;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2557,11 +2769,13 @@
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xB8C9D9);
 
-                // Crear cámara
-                const containerWidth = canvas.parentElement.clientWidth;
-                const containerHeight = 500;
+                // Crear cámara - Obtener dimensiones REALES del canvas
+                const canvasRect = canvas.getBoundingClientRect();
+                const containerWidth = canvasRect.width || canvas.parentElement.clientWidth;
+                const containerHeight = canvasRect.height || 400; // Altura REAL del canvas
                 camera = new THREE.PerspectiveCamera(50, containerWidth / containerHeight, 0.1, 1000);
-                camera.position.set(15, 7.5, 20);
+                camera.position.set(8, 8, 18); // Ajustado: menos X (más centrado), más Y (mejor ángulo)
+                console.log(`✅ Cámara creada: ${containerWidth}×${containerHeight}, aspect: ${(containerWidth/containerHeight).toFixed(2)}`);
                 
                 // Exponer variables 3D globalmente para que cotizador-3d.js pueda usarlas
                 window.threeScene = scene;
@@ -2591,7 +2805,7 @@
                 controls.minDistance = 5;
                 controls.maxDistance = 60;
                 controls.maxPolarAngle = Math.PI / 2 + 0.3;
-                controls.target.set(0, 3, 0);
+                controls.target.set(0, 2.5, 0); // Target ajustado al centro del acuario
                 controls.update();
                 
                 // Exponer controles globalmente
@@ -2711,6 +2925,25 @@
                         }
                     });
                 }
+
+                // Listener para redimensionamiento - Actualizar aspect ratio
+                function onWindowResize() {
+                    if (!canvas || !camera || !renderer) return;
+                    
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const newWidth = canvasRect.width || canvas.parentElement.clientWidth;
+                    const newHeight = canvasRect.height || 400;
+                    
+                    camera.aspect = newWidth / newHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(newWidth, newHeight);
+                    
+                    console.log(`🔄 Resize: ${newWidth}×${newHeight}, aspect: ${camera.aspect.toFixed(2)}`);
+                }
+                
+                window.addEventListener('resize', onWindowResize);
+                window.addEventListener('orientationchange', onWindowResize);
+                console.log('✅ Resize listeners añadidos');
 
                 // Crear acuario inicial con valores por defecto 
                 actualizar3DDesdeFormulario();
